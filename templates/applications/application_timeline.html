@@ -1,0 +1,85 @@
+<div class="timeline">
+    <div class="timeline-item">
+        <div class="timeline-marker bg-primary"></div>
+        <div class="timeline-content">
+            <h6 class="timeline-title">Application Submitted</h6>
+            <p class="timeline-date">{{ application.submitted_at|date:"F d, Y H:i" }}</p>
+        </div>
+    </div>
+
+    {% for status in application.status_updates.all %}
+    <div class="timeline-item">
+        <div class="timeline-marker bg-{{ status.status|lower }}"></div>
+        <div class="timeline-content">
+            <h6 class="timeline-title">Status Changed to {{ status.get_status_display }}</h6>
+            <p class="timeline-date">{{ status.created_at|date:"F d, Y H:i" }}</p>
+            {% if status.notes %}
+            <p class="timeline-notes">{{ status.notes }}</p>
+            {% endif %}
+            {% if status.created_by %}
+            <p class="timeline-user">By: {{ status.created_by.get_full_name }}</p>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 24px;
+    height: 100%;
+    width: 2px;
+    background: #e9ecef;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 50px;
+    margin-bottom: 20px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: 20px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    transform: translateX(-50%);
+}
+
+.timeline-content {
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.timeline-title {
+    margin: 0;
+    color: #495057;
+}
+
+.timeline-date {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin: 5px 0;
+}
+
+.timeline-notes {
+    margin: 10px 0;
+    font-style: italic;
+}
+
+.timeline-user {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin: 5px 0 0;
+}
+</style>

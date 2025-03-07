@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Pages{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Pages</h1>
+    {% if user.is_staff %}
+    <a href="{% url 'cms:page_create' %}" class="btn btn-primary mb-3">Create New Page</a>
+    {% endif %}
+    
+    <div class="row">
+        {% for page in pages %}
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                {% if page.featured_image %}
+                <img src="{{ page.featured_image.file.url }}" class="card-img-top" alt="{{ page.title }}">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ page.title }}</h5>
+                    <p class="card-text">{{ page.meta_description|truncatewords:30 }}</p>
+                    <a href="{% url 'cms:page_detail' page.slug %}" class="btn btn-primary">Read More</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

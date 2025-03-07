@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Applications{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Applications</h1>
+        <div class="btn-group">
+            {% if user.is_staff %}
+            <a href="{% url 'applications:export_applications' %}" class="btn btn-success">Export to CSV</a>
+            {% endif %}
+            <a href="{% url 'applications:notification_preferences' %}" class="btn btn-info">Notification Settings</a>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Search</label>
+                    <input type="text" name="search" class="form-control" 
+                           placeholder="Search programs or applicants..." 
+                           value="{{ request.GET.search }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">All Statuses</option>
+                        <option value="submitted" {% if request.GET.status == 'submitted' %}selected{% endif %}>Submitted</option>
+                        <option value="under_review" {% if request.GET.status == 'under_review' %}selected{% endif %}>Under Review</option>
+                        <option value="approved" {% if request.GET.status == 'approved' %}selected{% endif %}>Approved</option>
+                        <option value="rejected" {% if request.GET.status == 'rejected' %}selected{% endif %}>Rejected</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Date Range</label>
+                    <input type="date" name="date_from" class="form-control mb-2" 
+                           value="{{ request.GET.date_from }}">
+                    <input type="date" name="date_to" class="form-control" 
+                           value="{{ request.GET.date_to }}">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Search</button>
+                    <a href="{% url 'applications:application_list' %}" class="btn btn-secondary w-100 mt-2">Clear</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if user.is_staff %}
+    <form method="post" action="{% url 'applications:bulk_review' %}" id="bulkActionForm">
+        {% csrf_token %}
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <select name="action" class="form-select" required>
+                            <option value="">Bulk Action</option>
+                            <option value="approve">Approve Selected</option>
+                            <option value="reject">Reject Selected</option>
+                            <option value="under_review">Mark Under Review</option>
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary" id="bulkActionBtn" disabled>
+                            Apply to Selected
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>
+                            <input type="checkbox" id="selectAll" class="form-check-input">
+                        </th>
+                        <th>Program</th>
+                        <th>Applicant</th>
+                        <th>Status</th>
+                        <th>Submitted</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for application in applications %}
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="application_ids" value="{{ application.id }}" 
+                                   class="form-check-input application-checkbox">
+                        </td>
+                        <td>{{ application.program.name }}</td>
+                        <td>{{ application.applicant.get_full_name }}</td>
+                        <td>
+                            <span class="badge bg-{{ application.status|lower }}">
+                                {{ application.get_status_display }}
+                            </span>
+                        </td>
+                        <td>{{ application.submitted_at|date:"M d, Y" }}</td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{% url 'applications:application_detail' application.pk %}" 
+                                   class="btn btn-sm btn-primary">View</a>
+                                <a href="{% url 'applications:application_review' application.pk %}" 
+                                   class="btn btn-sm btn-secondary">Review</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">No applications found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </form>
+    {% else %}
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Program</th>
+                    <th>Status</th>
+                    <th>Submitted</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for application in applications %}
+                <tr>
+                    <td>{{ application.program.name }}</td>
+                    <td>
+                        <span class="badge bg-{{ application.status|lower }}">
+                            {{ application.get_status_display }}
+                        </span>
+                    </td>
+                    <td>{{ application.submitted_at|date:"M d, Y" }}</td>
+                    <td>
+                        <a href="{% url 'applications:application_detail' application.pk %}" 
+                           class="btn btn-sm btn-primary">View</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">No applications found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% include 'includes/pagination.html' %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAll = document.getElementById('selectAll');
+    const applicationCheckboxes = document.getElementsByClassName('application-checkbox');
+    const bulkActionBtn = document.getElementById('bulkActionBtn');
+
+    if (selectAll) {
+        selectAll.addEventListener('change', function() {
+            Array.from(applicationCheckboxes).forEach(checkbox => {
+                checkbox.checked = selectAll.checked;
+            });
+            updateBulkActionButton();
+        });
+    }
+
+    Array.from(applicationCheckboxes).forEach(checkbox => {
+        checkbox.addEventListener('change', updateBulkActionButton);
+    });
+
+    function updateBulkActionButton() {
+        const checkedBoxes = Array.from(applicationCheckboxes).filter(cb => cb.checked);
+        bulkActionBtn.disabled = checkedBoxes.length === 0;
+    }
+});
+</script>
+{% endblock %}

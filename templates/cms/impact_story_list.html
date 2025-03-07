@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Impact Stories{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Impact Stories</h1>
+    
+    <div class="row">
+        {% for story in stories %}
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                {% if story.image %}
+                <img src="{{ story.image.file.url }}" class="card-img-top" alt="{{ story.title }}">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ story.title }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">{{ story.beneficiary_name }}</h6>
+                    <p class="card-text">{{ story.story|truncatewords:50 }}</p>
+                    {% if story.program %}
+                    <p class="badge bg-primary">{{ story.program.name }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

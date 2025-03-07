@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}Application Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Application Dashboard</h1>
+
+    <!-- Overview Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Applications</h5>
+                    <h2 class="card-text">{{ total_applications }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Review</h5>
+                    <h2 class="card-text">{{ pending_applications }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Program Statistics -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Program Statistics</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Program</th>
+                            <th>Total</th>
+                            <th>Pending</th>
+                            <th>Approved</th>
+                            <th>Rejected</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for program in program_stats %}
+                        <tr>
+                            <td>{{ program.name }}</td>
+                            <td>{{ program.total_applications }}</td>
+                            <td>{{ program.pending_applications }}</td>
+                            <td>{{ program.approved_applications }}</td>
+                            <td>{{ program.rejected_applications }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Applications -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Recent Applications</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Program</th>
+                            <th>Applicant</th>
+                            <th>Status</th>
+                            <th>Submitted</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for application in recent_applications %}
+                        <tr>
+                            <td>{{ application.program.name }}</td>
+                            <td>{{ application.applicant.get_full_name }}</td>
+                            <td>
+                                <span class="badge bg-{{ application.status|lower }}">
+                                    {{ application.get_status_display }}
+                                </span>
+                            </td>
+                            <td>{{ application.submitted_at|date:"M d, Y" }}</td>
+                            <td>
+                                <a href="{% url 'applications:application_detail' application.pk %}" 
+                                   class="btn btn-sm btn-primary">View</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Available Programs{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Available Programs</h1>
+    
+    <div class="row">
+        {% for program in programs %}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                {% if program.featured_image %}
+                <img src="{{ program.featured_image.file.url }}" class="card-img-top" alt="{{ program.name }}">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ program.name }}</h5>
+                    <span class="badge bg-primary mb-2">{{ program.get_program_type_display }}</span>
+                    <p class="card-text">{{ program.description|truncatewords:50 }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">Deadline: {{ program.end_date }}</small>
+                        <a href="{% url 'applications:program_detail' program.pk %}" class="btn btn-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">No active programs available at the moment.</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

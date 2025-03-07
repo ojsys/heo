@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ program.name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <h1 class="mb-3">{{ program.name }}</h1>
+            <span class="badge bg-primary mb-3">{{ program.get_program_type_display }}</span>
+            
+            {% if program.featured_image %}
+            <img src="{{ program.featured_image.file.url }}" class="img-fluid rounded mb-4" alt="{{ program.name }}">
+            {% endif %}
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Program Description</h5>
+                    <p class="card-text">{{ program.description|linebreaks }}</p>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Eligibility Criteria</h5>
+                    <p class="card-text">{{ program.eligibility_criteria|linebreaks }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Program Details</h5>
+                    <ul class="list-unstyled">
+                        <li><strong>Start Date:</strong> {{ program.start_date }}</li>
+                        <li><strong>End Date:</strong> {{ program.end_date }}</li>
+                        {% if program.max_beneficiaries %}
+                        <li><strong>Maximum Beneficiaries:</strong> {{ program.max_beneficiaries }}</li>
+                        {% endif %}
+                    </ul>
+                    
+                    {% if program.is_active %}
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'applications:application_create' program.pk %}" class="btn btn-primary w-100">Apply Now</a>
+                        {% else %}
+                        <a href="{% url 'users:login' %}?next={{ request.path }}" class="btn btn-primary w-100">Login to Apply</a>
+                        {% endif %}
+                    {% else %}
+                    <div class="alert alert-warning">This program is no longer accepting applications.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

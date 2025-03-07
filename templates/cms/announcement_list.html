@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Announcements{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Announcements</h1>
+    
+    <div class="row">
+        {% for announcement in announcements %}
+        <div class="col-md-12 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ announcement.title }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">Published: {{ announcement.publish_date|date:"F d, Y" }}</h6>
+                    <p class="card-text">{{ announcement.content|truncatewords:100 }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

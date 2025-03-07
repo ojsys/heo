@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Application Analytics{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Application Analytics</h1>
+
+    <div class="row">
+        <!-- Monthly Applications Chart -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Monthly Applications</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="monthlyApplicationsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Program Success Rates -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Program Success Rates</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Program</th>
+                                    <th>Success Rate</th>
+                                    <th>Total Apps</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for program in program_success_rates %}
+                                <tr>
+                                    <td>{{ program.name }}</td>
+                                    <td>{{ program.success_rate|floatformat:1 }}%</td>
+                                    <td>{{ program.total_apps }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Processing Time -->
+        <div class="col-md-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Processing Time Analytics</h5>
+                </div>
+                <div class="card-body">
+                    <p>Average Processing Time: {{ avg_processing_time.avg_time|default:"N/A" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Monthly Applications Chart
+    const monthlyData = {{ monthly_applications|safe }};
+    const ctx = document.getElementById('monthlyApplicationsChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: monthlyData.map(item => item.month),
+            datasets: [{
+                label: 'Applications',
+                data: monthlyData.map(item => item.count),
+                borderColor: '#007bff',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %}
