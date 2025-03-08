@@ -36,6 +36,8 @@ INSTALLED_APPS = [
     'users',
     'applications',
     'cms',
+
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
