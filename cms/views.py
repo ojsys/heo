@@ -5,6 +5,8 @@ from rest_framework import viewsets, permissions, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.utils import timezone
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 from .models import Category, Page, Media, ImpactStory, Announcement, ContentVersion
 from .serializers import (CategorySerializer, PageSerializer, MediaSerializer,
                         ImpactStorySerializer, AnnouncementSerializer)
@@ -301,7 +303,7 @@ class ImpactStoryViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
-        
+
     @action(detail=False)
     def featured(self, request):
         featured = self.get_queryset().filter(is_featured=True)

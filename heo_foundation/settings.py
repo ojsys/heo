@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'storages',
+    'django_filters',
 
     # Local apps
     'users',
@@ -156,3 +157,17 @@ REST_FRAMEWORK = {
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+# Authentication settings
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = 'profile'
+LOGOUT_REDIRECT_URL = '/'
+
+
+# Add these settings for authentication
+AUTHENTICATION_BACKENDS = [
+    'users.backends.EmailBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]

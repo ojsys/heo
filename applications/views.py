@@ -12,10 +12,12 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 import io
 from django.http import HttpResponse
 from django.views.generic import ListView, DetailView, TemplateView
+from django.views.generic.edit import CreateView
 from django.contrib import messages
 from django.utils import timezone
-from django.db.models import Count, Q
-from .models import Program, Application, ApplicationDocument
+from django.db.models.functions import TruncMonth
+from django.db.models import Count, Avg, Q, F, FloatField, DurationField, ExpressionWrapper
+from .models import Program, Application, ApplicationDocument, NotificationPreference, ApplicationStatus
 from .forms import ApplicationForm, ApplicationDocumentForm, ApplicationReviewForm
 from .utils import send_application_status_update
 
@@ -33,48 +35,78 @@ class ProgramDetailView(DetailView):
     template_name = 'applications/program_detail.html'
     context_object_name = 'program'
 
-@login_required
-def application_create(request, program_id):
-    program = get_object_or_404(Program, pk=program_id)
+# @login_required
+# def application_create(request, program_id):
+#     program = get_object_or_404(Program, pk=program_id)
     
-    # Check if user already has an application for this program
-    existing_application = Application.objects.filter(
-        program=program,
-        applicant=request.user
-    ).first()
+#     # Check if user already has an application for this program
+#     existing_application = Application.objects.filter(
+#         program=program,
+#         applicant=request.user
+#     ).first()
     
-    if existing_application:
-        messages.warning(request, 'You have already applied for this program.')
-        return redirect('applications:application_detail', pk=existing_application.pk)
+#     if existing_application:
+#         messages.warning(request, 'You have already applied for this program.')
+#         return redirect('applications:application_detail', pk=existing_application.pk)
     
-    if request.method == 'POST':
-        form = ApplicationForm(program, request.POST)
-        document_form = ApplicationDocumentForm(request.POST, request.FILES)
+#     if request.method == 'POST':
+#         form = ApplicationForm(program, request.POST)
+#         document_form = ApplicationDocumentForm(request.POST, request.FILES)
         
-        if form.is_valid() and document_form.is_valid():
-            application = form.save(commit=False)
-            application.program = program
-            application.applicant = request.user
-            application.status = 'submitted'
-            application.submitted_at = timezone.now()
-            application.save()
+#         if form.is_valid() and document_form.is_valid():
+#             application = form.save(commit=False)
+#             application.program = program
+#             application.applicant = request.user
+#             application.status = 'submitted'
+#             application.submitted_at = timezone.now()
+#             application.save()
             
-            if document_form.cleaned_data.get('document'):
-                document = document_form.save(commit=False)
-                document.application = application
-                document.save()
+#             if document_form.cleaned_data.get('document'):
+#                 document = document_form.save(commit=False)
+#                 document.application = application
+#                 document.save()
             
-            messages.success(request, 'Your application has been submitted successfully.')
-            return redirect('applications:application_detail', pk=application.pk)
-    else:
-        form = ApplicationForm(program)
-        document_form = ApplicationDocumentForm()
+#             messages.success(request, 'Your application has been submitted successfully.')
+#             return redirect('applications:application_detail', pk=application.pk)
+#     else:
+#         form = ApplicationForm(program)
+#         document_form = ApplicationDocumentForm()
     
-    return render(request, 'applications/application_form.html', {
-        'form': form,
-        'document_form': document_form,
-        'program': program
-    })
+#     return render(request, 'applications/application_form.html', {
+#         'form': form,
+#         'document_form': document_form,
+#         'program': program
+#     })
+
+
+class ApplicationCreateView(LoginRequiredMixin, CreateView):
+    model = Application
+    template_name = 'applications/application_form.html'
+    form_class = ApplicationForm
+    login_url = '/login/'
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        self.program = get_object_or_404(Program, pk=self.kwargs['program_id'])
+        kwargs['program'] = self.program
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['program'] = self.program
+        return context
+
+    def form_valid(self, form):
+        form.instance.applicant = self.request.user
+        form.instance.program = self.program
+        form.instance.status = 'submitted'
+        form.instance.submitted_at = timezone.now()
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('applications:application_detail', kwargs={'pk': self.object.pk})
+
+        
 
 @login_required
 def application_detail(request, pk):
@@ -284,39 +316,34 @@ def export_applications(request):
 @login_required
 def bulk_application_review(request):
     if not request.user.is_staff:
-        messages.error(request, 'Permission denied.')
+        messages.error(request, 'You do not have permission to perform this action.')
         return redirect('applications:application_list')
 
-    if request.method == 'POST':
-        application_ids = request.POST.getlist('application_ids')
-        action = request.POST.get('action')
+    application_ids = request.POST.getlist('application_ids')
+    action = request.POST.get('action')
+    
+    # Map action to correct status
+    status_map = {
+        'approve': 'approved',
+        'reject': 'rejected',
+        'review': 'under_review'
+    }
+    status = status_map.get(action, action)
+
+    applications = Application.objects.filter(id__in=application_ids)
+    
+    for application in applications:
+        application.status = status
+        application.save()
         
-        if action in ['approve', 'reject', 'under_review']:
-            applications = Application.objects.filter(id__in=application_ids)
-            status_mapping = {
-                'approve': 'approved',
-                'reject': 'rejected',
-                'under_review': 'under_review'
-            }
-            
-            for application in applications:
-                old_status = application.status
-                application.status = status_mapping[action]
-                application.reviewed_by = request.user
-                application.save()
-                
-                # Create status update
-                ApplicationStatus.objects.create(
-                    application=application,
-                    status=application.status,
-                    created_by=request.user
-                )
-                
-                if old_status != application.status:
-                    send_application_status_update(application)
-            
-            messages.success(request, f'Successfully updated {len(application_ids)} applications.')
-        
+        ApplicationStatus.objects.create(
+            application=application,
+            status=status,
+            created_by=request.user,
+            notes=f'Bulk {action} action'
+        )
+
+    messages.success(request, f'Successfully processed selected applications.')
     return redirect('applications:application_list')
 
 class AnalyticsView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
@@ -371,3 +398,5 @@ def notification_preferences(request):
     return render(request, 'applications/notification_preferences.html', {
         'preference': preference
     })
+
+# Analytics View

@@ -1,4 +1,6 @@
 from django.db import models
+from django.conf import settings
+
 from users.models import User
 
 class Program(models.Model):
@@ -17,7 +19,7 @@ class Program(models.Model):
     end_date = models.DateField()
     is_active = models.BooleanField(default=True)
     max_beneficiaries = models.IntegerField(null=True, blank=True)
-    featured_image = models.ForeignKey(Media, on_delete=models.SET_NULL, null=True, blank=True)
+    featured_image = models.ForeignKey('cms.Media', on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -25,7 +27,7 @@ class Program(models.Model):
         return self.name
 
     class Meta:
-        verbose_name_plural = Programs
+        verbose_name_plural = "Programs"
 
 
 class FormField(models.Model):
@@ -114,5 +116,4 @@ class NotificationPreference(models.Model):
         return f"Notification preferences for {self.user.email}"
 
     class Meta:
-        ordering = ['-created_at']
         verbose_name_plural = "Notification Preferences"

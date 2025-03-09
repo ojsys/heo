@@ -5,6 +5,10 @@ from django.utils.text import slugify
 from django.conf import settings
 from django.urls import reverse
 from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.utils import timezone
+from django.core.exceptions import ValidationError
 
 User = get_user_model
 
@@ -48,6 +52,49 @@ class Category(models.Model):
             ancestors.append(current)
             current = current.parent
         return ancestors[::-1]
+
+class Media(models.Model):
+    title = models.CharField(max_length=200)
+    file = models.FileField(upload_to='media/')
+    file_type = models.CharField(max_length=50)
+    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    # Add alt text for accessibility
+    alt_text = models.CharField(max_length=255, blank=True)
+    
+    # Add file size tracking
+    file_size = models.PositiveIntegerField(editable=False, null=True)
+    
+    # Add mime type
+    mime_type = models.CharField(max_length=100, blank=True)
+
+    def save(self, *args, **kwargs):
+        if self.file:
+            self.file_size = self.file.size
+            self.mime_type = self.file.content_type
+        super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name_plural = 'Media'
+
+    def __str__(self):
+        return self.title
+
+    def get_file_url(self):
+        return self.file.url if self.file else None
+
+    def get_file_extension(self):
+        return self.file.name.split('.')[-1] if self.file else None
+
+    def clean(self):
+        if self.file:
+            if self.file_size > 10485760:  # 10MB limit
+                raise ValidationError('File size cannot exceed 10MB.')
+            allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf']
+            if self.mime_type not in allowed_types:
+                raise ValidationError('Invalid file type.')
+
 
 class Page(models.Model):
     title = models.CharField(max_length=200)
@@ -187,47 +234,6 @@ class Page(models.Model):
         ordering = ['order', '-published_at']
         verbose_name_plural = "Pages"        
 
-class Media(models.Model):
-    title = models.CharField(max_length=200)
-    file = models.FileField(upload_to='media/')
-    file_type = models.CharField(max_length=50)
-    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
-    uploaded_at = models.DateTimeField(auto_now_add=True)
-
-    # Add alt text for accessibility
-    alt_text = models.CharField(max_length=255, blank=True)
-    
-    # Add file size tracking
-    file_size = models.PositiveIntegerField(editable=False, null=True)
-    
-    # Add mime type
-    mime_type = models.CharField(max_length=100, blank=True)
-
-    def save(self, *args, **kwargs):
-        if self.file:
-            self.file_size = self.file.size
-            self.mime_type = self.file.content_type
-        super().save(*args, **kwargs)
-
-    class Meta:
-        verbose_name_plural = 'Media'
-
-    def __str__(self):
-        return self.title
-
-    def get_file_url(self):
-        return self.file.url if self.file else None
-
-    def get_file_extension(self):
-        return self.file.name.split('.')[-1] if self.file else None
-
-    def clean(self):
-        if self.file:
-            if self.file_size > 10485760:  # 10MB limit
-                raise ValidationError('File size cannot exceed 10MB.')
-            allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf']
-            if self.mime_type not in allowed_types:
-                raise ValidationError('Invalid file type.')
 
             
 
@@ -277,7 +283,7 @@ class Announcement(models.Model):
     is_published = models.BooleanField(default=False)
     publish_date = models.DateTimeField()
     expiry_date = models.DateTimeField(null=True, blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     objects = models.Manager()

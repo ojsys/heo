@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
+from django.contrib.auth.views import PasswordChangeView
 from django.urls import reverse_lazy
 from django.views.generic.edit import UpdateView
 from .forms import CustomUserCreationForm, UserProfileForm
@@ -12,7 +14,7 @@ def register(request):
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
+            login(request, user, backend='users.backends.EmailBackend')
             messages.success(request, 'Registration successful!')
             return redirect('users:profile')
     else:
@@ -31,8 +33,23 @@ def profile(request):
         form = UserProfileForm(instance=request.user)
     return render(request, 'users/profile.html', {'form': form})
 
-class UserUpdateView(UpdateView):
+
+class UserUpdateView(LoginRequiredMixin, UpdateView):
     model = User
     form_class = UserProfileForm
     template_name = 'users/profile_update.html'
     success_url = reverse_lazy('users:profile')
+    login_url = '/login/'
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+
+
+class CustomPasswordChangeView(PasswordChangeView):
+    template_name = 'users/password_change.html'
+    success_url = reverse_lazy('users:profile')
+    
+    def dispatch(self, *args, **kwargs):
+        # Override dispatch to remove login requirement
+        return super(PasswordChangeView, self).dispatch(*args, **kwargs)

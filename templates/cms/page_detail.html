@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-detail">
+    <h1>{{ page.title }}</h1>
+    <div class="meta">
+        <p>Published: {{ page.published_at|date:"F j, Y" }}</p>
+        {% if page.author %}
+        <p>Author: {{ page.author.get_full_name }}</p>
+        {% endif %}
+    </div>
+    <div class="content">
+        {{ page.content|safe }}
+    </div>
+</div>
+{% endblock %}
