@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gallery - {{ site_settings.site_name }}{% endblock %}
+
+{% block content %}
+<section class="py-6" style="margin-top: 80px;">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold" style="color: #02a65e;">Image Gallery</h2>
+            <p class="lead text-secondary">A complete collection of our community impact</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for image in gallery_images %}
+            <div class="col-md-4">
+                <div class="position-relative gallery-item" data-bs-toggle="modal" data-bs-target="#imageModal{{ image.id }}" style="cursor: pointer;">
+                    <span class="badge bg-success position-absolute" style="top: 15px; right: 15px; z-index: 2;">
+                        {{ image.get_category_display }}
+                    </span>
+                    <img src="{{ image.image.url }}" alt="{{ image.title }}" class="img-fluid rounded-4 shadow-sm">
+                    <div class="gallery-overlay rounded-4">
+                        <h4 class="text-white">{{ image.title }}</h4>
+                        <p class="text-white-50 mb-0">{{ image.description }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal for each image -->
+            <div class="modal fade" id="imageModal{{ image.id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header border-0">
+                            <h5 class="modal-title">{{ image.title }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-0">
+                            <img src="{{ image.image.url }}" alt="{{ image.title }}" class="img-fluid w-100">
+                            <div class="p-3">
+                                <span class="badge bg-success mb-2">{{ image.get_category_display }}</span>
+                                <p class="mb-0">{{ image.description }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<style>
+    .modal-content {
+        background-color: #fff;
+        border-radius: 1rem;
+        overflow: hidden;
+    }
+    
+    .modal-header {
+        padding: 1rem 1.5rem;
+    }
+    
+    .modal-body img {
+        max-height: 70vh;
+        object-fit: contain;
+    }
+</style>
+{% endblock %}

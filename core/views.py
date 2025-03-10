@@ -1,10 +1,14 @@
 from django.views.generic import TemplateView
 from django.contrib import messages
 from django.shortcuts import render, redirect
+from django.http import JsonResponse
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.utils.decorators import method_decorator
 from core.models import SiteSettings, SliderImage, GalleryImage
+from .forms import ContactForm
+from django.core.mail import send_mail
+
 
 def home_view(request):
     # Check all images, not just active ones
@@ -29,6 +33,9 @@ def home_view(request):
             print(f"- URL: {img.image.url}")
             print("---")
     
+    # Contact Form
+    form = ContactForm()
+
     context = {
         'slider_images': slider_images,
         'gallery_images': gallery_images,
@@ -37,7 +44,28 @@ def home_view(request):
         'DEBUG': settings.DEBUG,
         'all_slider_count': all_slider_images.count(),
         'all_gallery_count': all_gallery_images.count(),
+        'form': form,
     }
+    # Handle form submission
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            email = form.cleaned_data['email']
+            subject = form.cleaned_data['subject']
+            message = form.cleaned_data['message']
+            
+            # Send email
+            send_mail(
+                f'Contact Form: {subject}',
+                f'From: {name} ({email})\n\n{message}',
+                email,
+                [settings.DEFAULT_FROM_EMAIL],
+                fail_silently=False,
+            )
+            
+            messages.success(request, 'Your message has been sent successfully!')
+            return redirect('core:home')
     
     return render(request, 'pages/landing.html', context)
 
@@ -59,9 +87,61 @@ def dashboard_view(request):
     return render(request, 'core/dashboard.html', context)
 
 
+def gallery_view(request):
+    gallery_images = GalleryImage.objects.filter(is_active=True).order_by('category', 'order')
+    context = {
+        'gallery_images': gallery_images,
+        'site_settings': SiteSettings.objects.first()
+    }
+    return render(request, 'pages/gallery.html', context)
+
+
+def random_gallery_view(request):
+    all_gallery_images = GalleryImage.objects.filter(is_active=True)
+    random_ids = sample(list(all_gallery_images.values_list('id', flat=True)), 6)
+    gallery_images = all_gallery_images.filter(id__in=random_ids)
+    
+    html = render_to_string('includes/gallery_items.html', {
+        'gallery_images': gallery_images
+    })
+    
+    return JsonResponse({'html': html})
+
 
 def custom_404(request, exception):
     return render(request, 'core/404.html', status=404)
 
 def custom_500(request):
     return render(request, 'core/500.html', status=500)
+
+
+########## Contact View
+
+def contact_view(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            email = form.cleaned_data['email']
+            subject = form.cleaned_data['subject']
+            message = form.cleaned_data['message']
+            
+            # Send email
+            send_mail(
+                f'Contact Form: {subject}',
+                f'From: {name} ({email})\n\n{message}',
+                email,
+                [settings.DEFAULT_FROM_EMAIL],
+                fail_silently=False,
+            )
+            
+            messages.success(request, 'Your message has been sent successfully!')
+            return redirect('core:contact')
+    else:
+        form = ContactForm()
+    
+    context = {
+        'form': form,
+        'site_settings': SiteSettings.objects.first()
+    }
+    return render(request, 'pages/contact.html', context)

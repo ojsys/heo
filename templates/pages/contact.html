@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Contact Us - {{ site_settings.site_name }}{% endblock %}
+
+{% block content %}
+<section class="py-6" style="margin-top: 80px;">
+    <div class="container">
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-6 text-center">
+                <h1 class="fw-bold mb-4" style="color: #02a65e;">Get in Touch</h1>
+                <p class="text-secondary">Have questions about our programs? We're here to help.</p>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <div class="text-center">
+                            <i class="bi bi-envelope-fill display-4 mb-3" style="color: #02a65e;"></i>
+                            <h4>Email</h4>
+                            <p class="text-secondary mb-0">{{ site_settings.contact_email }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <div class="text-center">
+                            <i class="bi bi-telephone-fill display-4 mb-3" style="color: #02a65e;"></i>
+                            <h4>Phone</h4>
+                            <p class="text-secondary mb-0">{{ site_settings.contact_phone }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="text-center">
+                            <i class="bi bi-geo-alt-fill display-4 mb-3" style="color: #02a65e;"></i>
+                            <h4>Address</h4>
+                            <p class="text-secondary mb-0">{{ site_settings.contact_address }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h4 class="mb-4">Send us a Message</h4>
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    {{ form.name }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.email }}
+                                </div>
+                                <div class="col-12">
+                                    {{ form.subject }}
+                                </div>
+                                <div class="col-12">
+                                    {{ form.message }}
+                                </div>
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-success btn-lg">Send Message</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

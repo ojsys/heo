@@ -1,0 +1,14 @@
+{% for image in gallery_images %}
+<div class="col-md-4">
+    <div class="position-relative gallery-item">
+        <span class="badge bg-success position-absolute" style="top: 15px; right: 15px; z-index: 2;">
+            {{ image.get_category_display }}
+        </span>
+        <img src="{{ image.image.url }}" alt="{{ image.title }}" class="img-fluid rounded-4 shadow-sm">
+        <div class="gallery-overlay rounded-4">
+            <h4 class="text-white">{{ image.title }}</h4>
+            <p class="text-white-50 mb-0">{{ image.description }}</p>
+        </div>
+    </div>
+</div>
+{% endfor %}
