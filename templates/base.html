@@ -3,36 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HEO Eziokwu Foundation - {% block title %}{% endblock %}</title>
+    <title>{{ site_settings.site_name }}</title>
+    <meta name="description" content="{{ site_settings.meta_description }}">
+    <link rel="icon" type="image/x-icon" href="{{ site_settings.favicon.url }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
+
+    {% block extra_css %}
+    <style>
+        .py-6 { padding-top: 5rem; padding-bottom: 5rem; }
+        .hover-translate { transition: transform 0.3s ease; }
+        .hover-translate:hover { transform: translateY(-5px); }
+        .nav-link { transition: color 0.3s ease; }
+        .nav-link:hover { color: #02a65e !important; }
+        body { padding-top: 76px; }
+    </style>
+    {% endblock %}
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="{% url 'cms:page_list' %}">HEO Foundation</a>
-            <!-- Add navigation items -->
-        </div>
-    </nav>
-
-    <main class="container mt-4">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
-
-        {% block content %}
-        {% endblock %}
-    </main>
-
-    <footer class="footer mt-5 py-3 bg-light">
-        <div class="container">
-            <span class="text-muted">© 2024 HEO Eziokwu Foundation</span>
-        </div>
-    </footer>
-
+    {% include 'includes/navbar.html' %}
+    {% block content %}{% endblock %}
+    {% include 'includes/footer.html' %}
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

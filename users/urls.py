@@ -1,6 +1,5 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from users.views import CustomPasswordChangeView
 from . import views
 
 app_name = 'users'
@@ -10,11 +9,15 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     path('profile/update/<int:pk>/', views.UserUpdateView.as_view(), name='profile_update'),
     path('login/', auth_views.LoginView.as_view(
-        template_name='users/login.html'
+        template_name='users/login.html', 
+        redirect_field_name='next'
     ), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-    path('password-change/', CustomPasswordChangeView.as_view(), name='password_change'),
-    path('password-change/done/', auth_views.PasswordChangeDoneView.as_view(
+    path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
+    path('password-change/', auth_views.PasswordResetView.as_view(
+        template_name='users/password_change.html',
+        success_url='/password-change/done/'
+    ), name='password_change'),
+    path('password-change/done/', auth_views.PasswordResetDoneView.as_view(
         template_name='users/password_change_done.html'
     ), name='password_change_done'),
 ]

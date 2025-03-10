@@ -67,7 +67,7 @@ class UserViewsTest(TestCase):
         }
         response = self.client.post(self.profile_update_url, data)
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/users/profile/')
+        self.assertRedirects(response, '/profile/')
 
     def test_user_update_view_login_required(self):
         response = self.client.get(self.profile_update_url)
