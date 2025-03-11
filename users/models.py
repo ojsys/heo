@@ -41,13 +41,21 @@ class User(AbstractUser):
         return self.username
 
 class UserVerification(models.Model):
+    VERIFICATION_STATUS = (
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    )
+    
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    verification_documents = models.FileField(upload_to='verification_documents/')
-    is_verified = models.BooleanField(default=False)
+    id_document = models.FileField(upload_to='verification_documents/id/', null=True)
+    address_proof = models.FileField(upload_to='verification_documents/address/', null=True)
+    status = models.CharField(max_length=20, choices=VERIFICATION_STATUS, default='pending')
     submitted_at = models.DateTimeField(auto_now_add=True)
     verified_at = models.DateTimeField(null=True, blank=True)
     verified_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='verifications_done')
+    rejection_reason = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return f"{self.user.email} - {self.is_verified}"
+        return f"{self.user.email} - {self.status}"
 

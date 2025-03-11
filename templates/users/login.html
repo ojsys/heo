@@ -1,4 +1,6 @@
 {% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
 
 {% block title %}Login{% endblock %}
 
@@ -6,32 +8,69 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card mt-5">
-                <div class="card-body">
-                    <h2 class="card-title text-center mb-4">Login</h2>
+            <div class="card mt-5 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        {% if site_settings.logo %}
+                            <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.site_name }}" class="img-fluid mb-3" style="max-height: 80px;">
+                        {% endif %}
+                        <h2 class="card-title">Login</h2>
+                        {% if site_settings.login_subtitle %}
+                            <p class="text-muted">{{ site_settings.login_subtitle }}</p>
+                        {% endif %}
+                    </div>
+
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
                     <form method="post" novalidate>
                         {% csrf_token %}
-                        {% for field in form %}
-                        <div class="mb-3">
-                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                            {{ field }}
-                            {% if field.errors %}
-                            <div class="alert alert-danger">
-                                {{ field.errors }}
-                            </div>
-                            {% endif %}
-                        </div>
-                        {% endfor %}
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">Login</button>
+                        {{ form|crispy }}
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i>Login
+                            </button>
                         </div>
                     </form>
-                    <p class="text-center mt-3">
-                        Don't have an account? <a href="{% url 'users:register' %}">Register</a>
-                    </p>
-                    <p class="text-center mt-3">
-                        Don't remember your password? <a href="{% url 'password_change' %}">Change Password</a>
-                    </p>
+
+                    <div class="text-center mt-4">
+                        <p class="mb-2">
+                            Don't have an account? 
+                            <a href="{% url 'users:register' %}" class="text-success text-decoration-none">
+                                <i class="fas fa-user-plus me-1"></i>Register
+                            </a>
+                        </p>
+                        <p class="mb-0">
+                            Forgot your password? 
+                            <a href="{% url 'users:password_change' %}" class="text-success text-decoration-none">
+                                <i class="fas fa-key me-1"></i>Reset Password
+                            </a>
+                        </p>
+                    </div>
+
+                    {% if site_settings.show_social_login %}
+                    <div class="text-center mt-4">
+                        <p class="text-muted">Or login with</p>
+                        <div class="d-flex justify-content-center gap-3">
+                            {% if site_settings.enable_google_login %}
+                            <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-outline-secondary">
+                                <i class="fab fa-google me-2"></i>Google
+                            </a>
+                            {% endif %}
+                            {% if site_settings.enable_facebook_login %}
+                            <a href="{% url 'social:begin' 'facebook' %}" class="btn btn-outline-secondary">
+                                <i class="fab fa-facebook-f me-2"></i>Facebook
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

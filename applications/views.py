@@ -216,11 +216,7 @@ class ApplicationListView(LoginRequiredMixin, FilterView):
             )
         return queryset
 
-from openpyxl import Workbook
-from reportlab.lib import colors
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
-import io
+
 
 @login_required
 def export_applications(request):

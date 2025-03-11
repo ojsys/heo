@@ -6,8 +6,8 @@ from django.contrib import messages
 from django.contrib.auth.views import PasswordChangeView
 from django.urls import reverse_lazy
 from django.views.generic.edit import UpdateView
-from .forms import CustomUserCreationForm, UserProfileForm
-from .models import User
+from .forms import CustomUserCreationForm, UserProfileForm, UserVerificationForm
+from .models import User, UserVerification
 
 def register(request):
     if request.method == 'POST':
@@ -53,3 +53,29 @@ class CustomPasswordChangeView(PasswordChangeView):
     def dispatch(self, *args, **kwargs):
         # Override dispatch to remove login requirement
         return super(PasswordChangeView, self).dispatch(*args, **kwargs)
+
+
+
+@login_required
+def verification_view(request):
+    try:
+        verification = UserVerification.objects.get(user=request.user)
+    except UserVerification.DoesNotExist:
+        verification = None
+
+    if request.method == 'POST':
+        form = UserVerificationForm(request.POST, request.FILES)
+        if form.is_valid():
+            verification = form.save(commit=False)
+            verification.user = request.user
+            verification.status = 'pending'
+            verification.save()
+            messages.success(request, 'Verification documents submitted successfully!')
+            return redirect('users:profile')
+    else:
+        form = UserVerificationForm()
+
+    return render(request, 'users/verification.html', {
+        'form': form,
+        'verification': verification
+    })

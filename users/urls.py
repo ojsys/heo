@@ -13,6 +13,7 @@ urlpatterns = [
         redirect_field_name='next'
     ), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
+    path('verify/', views.verification_view, name='verify'),
     path('password-change/', auth_views.PasswordResetView.as_view(
         template_name='users/password_change.html',
         success_url='/password-change/done/'

@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Account Verification{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="card-title mb-4">Account Verification</h2>
+                    
+                    {% if verification and verification.status != 'rejected' %}
+                        {% if verification.status == 'pending' %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-clock me-2"></i>Your verification is pending review.
+                                <p class="small mb-0">Submitted on: {{ verification.submitted_at|date:"F d, Y" }}</p>
+                            </div>
+                        {% elif verification.status == 'approved' %}
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle me-2"></i>Your account is verified!
+                                <p class="small mb-0">Verified on: {{ verification.verified_at|date:"F d, Y" }}</p>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        {% if verification.rejection_reason %}
+                            <div class="alert alert-danger mb-4">
+                                <i class="fas fa-exclamation-circle me-2"></i>Previous submission was rejected
+                                <p class="small mb-0">Reason: {{ verification.rejection_reason }}</p>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="alert alert-info mb-4">
+                            <h5><i class="fas fa-info-circle me-2"></i>Required Documents:</h5>
+                            <ul class="mb-0">
+                                <li>Valid ID (passport, driver's license, or national ID)</li>
+                                <li>Proof of address (utility bill or bank statement, not older than 3 months)</li>
+                            </ul>
+                        </div>
+
+                        <form method="post" enctype="multipart/form-data" novalidate>
+                            {% csrf_token %}
+                            {{ form|crispy }}
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

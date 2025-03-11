@@ -1,30 +1,76 @@
 {% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
 
 {% block title %}Profile{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card mt-5">
-                <div class="card-body">
-                    <h2 class="card-title text-center mb-4">Profile</h2>
-                    <form method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        {% for field in form %}
-                        <div class="mb-3">
-                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                            {{ field }}
-                            {% if field.errors %}
-                            <div class="alert alert-danger">
-                                {{ field.errors }}
-                            </div>
-                            {% endif %}
+<div class="container mt-5">
+    <div class="row">
+        <!-- Profile Info Column -->
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    {% if user.profile_picture %}
+                        <img src="{{ user.profile_picture.url }}" alt="Profile Picture" 
+                             class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                    {% else %}
+                        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto mb-3"
+                             style="width: 150px; height: 150px;">
+                            <i class="fas fa-user fa-4x text-white"></i>
                         </div>
+                    {% endif %}
+                    <h3 class="mb-2">{{ user.get_full_name }}</h3>
+                    <p class="text-muted mb-3">{{ user.email }}</p>
+                    
+                    <hr>
+                    
+                    <div class="text-start">
+                        <p><i class="fas fa-phone me-2"></i>{{ user.phone_number|default:"Not provided" }}</p>
+                        <p><i class="fas fa-calendar me-2"></i>{{ user.date_of_birth|date:"F d, Y"|default:"Not provided" }}</p>
+                        <p><i class="fas fa-map-marker-alt me-2"></i>{{ user.address|default:"Not provided" }}</p>
+                    </div>
+
+                    {% if user.is_verified %}
+                        <div class="alert alert-success mt-3 mb-0">
+                            <i class="fas fa-check-circle me-2"></i>Verified Account
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning mt-3 mb-0">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Not Verified
+                            <a href="{% url 'users:verify' %}" class="alert-link">Submit Verification</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Column -->
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h4 class="card-title mb-4">Edit Profile</h4>
+
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
                         {% endfor %}
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">Update Profile</button>
-                            <a href="{% url 'password_change' %}" class="btn btn-secondary">Change Password</a>
+                    {% endif %}
+
+                    <form method="post" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save me-2"></i>Update Profile
+                            </button>
+                            <a href="{% url 'password_change' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-key me-2"></i>Change Password
+                            </a>
                         </div>
                     </form>
                 </div>

@@ -9,7 +9,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('users.urls')),
     path('cms/', include('cms.urls')),
-    path('applications/', include('applications.urls')),
+    path('appl/', include('applications.urls')),
     path('', include('core.urls')),
     path('pages/', include('pages.urls', namespace='pages')),
     path('password-change/', auth_views.PasswordChangeView.as_view(
