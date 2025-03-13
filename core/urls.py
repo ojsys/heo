@@ -9,4 +9,5 @@ urlpatterns = [
     path('gallery/', views.gallery_view, name='gallery'),
     path('gallery/random/', views.random_gallery_view, name='random_gallery'),
     path('contact/', views.contact_view, name='contact'),
+    path('about/', views.about_view, name='about'),
 ]

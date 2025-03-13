@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}About Us{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-5">
+    <!-- Hero Section -->
+    <div class="row align-items-center mb-5">
+        <div class="col-lg-6">
+            <h1 class="display-4 mb-4" style="color: #02a65e;"> {{ site_settings.about_title }} </h1>
+            <p class="lead">{{ site_settings.about_subtitle|default:"Our About Content will go here" }}</p>
+        </div>
+        <div class="col-lg-6">
+            {% if site_settings.about_image %}
+                <img src="{{ site_settings.about_image.url }}" alt="About Us" class="img-fluid rounded-3 shadow-lg">
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Mission & Vision -->
+    <div class="row mb-5 g-4">
+        <div class="col-md-6">
+            <div class="card h-100 border-0 shadow-sm hover-shadow">
+                <div class="card-body p-4">
+                    <h3 class="card-title mb-4">
+                        <i class="fas fa-bullseye text-success me-2"></i>Our Mission
+                    </h3>
+                    <p class="card-text">{{ site_settings.mission_statement|default:"To facilitate access to quality education by connecting students with prestigious educational institutions worldwide, providing comprehensive support throughout their academic journey." }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100 border-0 shadow-sm hover-shadow">
+                <div class="card-body p-4">
+                    <h3 class="card-title mb-4">
+                        <i class="fas fa-eye text-success me-2"></i>Our Vision
+                    </h3>
+                    <p class="card-text">{{ site_settings.vision_statement|default:"To become the leading platform for educational opportunities, breaking down barriers and creating pathways for academic excellence globally." }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- What We Do -->
+    <!-- What We Do -->
+    <div class="mt-5 mb-5">
+        <h2 class="text-center mb-4" style="color: #02a65e;">{{ site_settings.what_we_do_title }}</h2>
+        {% if site_settings.what_we_do_subtitle %}
+            <p class="text-center text-muted mb-5">{{ site_settings.what_we_do_subtitle }}</p>
+        {% endif %}
+        <div class="row g-4">
+            {% for item in what_we_do_items %}
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm hover-shadow">
+                    <div class="card-body p-4 text-center">
+                        <div class="rounded-circle bg-success bg-opacity-10 p-3 mx-auto mb-4" style="width: 80px; height: 80px;">
+                            <i class="fas {{ item.icon }} fa-2x text-success"></i>
+                        </div>
+                        <h4 class="mb-3">{{ item.title }}</h4>
+                        <p class="text-muted">{{ item.description }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="bg-success bg-opacity-10 py-5 rounded-3 mb-5">
+        <div class="row text-center g-4">
+            <div class="col-md-3">
+                <h2 class="display-4 fw-bold text-success">{{ site_settings.successful_applications|default:"500+" }}</h2>
+                <p class="text-muted">Successful Applications</p>
+            </div>
+            <div class="col-md-3">
+                <h2 class="display-4 fw-bold text-success">{{ site_settings.partner_institutions|default:"50+" }}</h2>
+                <p class="text-muted">Partner Institutions</p>
+            </div>
+            <div class="col-md-3">
+                <h2 class="display-4 fw-bold text-success">{{ site_settings.countries_served|default:"30+" }}</h2>
+                <p class="text-muted">Countries Served</p>
+            </div>
+            <div class="col-md-3">
+                <h2 class="display-4 fw-bold text-success">{{ site_settings.student_satisfaction|default:"95%" }}</h2>
+                <p class="text-muted">Student Satisfaction</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Team Section -->
+    <div class="mb-5">
+        <h2 class="text-center mb-4" style="color: #02a65e;">Our Team</h2>
+        <div class="row g-4">
+            {% for team_member in team_members %}
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm hover-shadow">
+                    {% if team_member.photo %}
+                    <img src="{{ team_member.photo.url }}" class="card-img-top" alt="{{ team_member.name }}" style="height: 250px; object-fit: cover;">
+                    {% endif %}
+                    <div class="card-body p-4 text-center">
+                        <h5 class="card-title mb-1">{{ team_member.name }}</h5>
+                        <p class="text-success mb-0">{{ team_member.position }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="text-center py-5">
+        <h2 class="mb-4" style="color: #02a65e;">Ready to Start Your Journey?</h2>
+        <a href="{% url 'users:register' %}" class="btn btn-success btn-lg px-4 me-3">Get Started</a>
+        <a href="{% url 'core:contact' %}" class="btn btn-outline-success btn-lg px-4">Contact Us</a>
+    </div>
+</div>
+
+<style>
+.hover-shadow {
+    transition: all 0.3s ease;
+}
+.hover-shadow:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+}
+</style>
+{% endblock %}

@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.utils.decorators import method_decorator
-from core.models import SiteSettings, SliderImage, GalleryImage
+from core.models import SiteSettings, SliderImage, GalleryImage, TeamMember, Achievement, WhatWeDo
 from .forms import ContactForm
 from django.core.mail import send_mail
 
@@ -67,11 +67,15 @@ def home_view(request):
             messages.success(request, 'Your message has been sent successfully!')
             return redirect('core:home')
     
-    return render(request, 'pages/landing.html', context)
+    return render(request, 'pages/landing1.html', context)
 
 
 def about_view(request):
-    return render(request, 'pages/about.html')
+    context = {
+        'team_members': TeamMember.objects.all(),  # If you have a TeamMember model
+        'what_we_do_items': WhatWeDo.objects.filter(is_active=True),
+    }
+    return render(request, 'pages/about.html', context)
 
 
 def contact_view(request):

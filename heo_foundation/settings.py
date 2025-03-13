@@ -21,6 +21,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -32,6 +33,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'storages',
     'django_filters',
+    
 
     # Local apps
     'users',
@@ -180,3 +182,43 @@ AUTHENTICATION_BACKENDS = [
     'users.backends.EmailBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
+
+# Jazzmin Settings
+JAZZMIN_SETTINGS = {
+    "site_title": "Eziokwu Foundation",
+    "site_header": "Eziokwu Foundation",
+    "site_brand": "Eziokwu Foundation",
+    "welcome_sign": "Welcome to Eziokwu Foundation Admin",
+    "copyright": "Eziokwu Foundation",
+    "site_logo": "images/HEO_logo_1.jpg",
+    "login_logo": None,
+    "login_logo_dark": None,
+    "site_logo_classes": "img-circle",
+    "site_icon": None,
+    "topmenu_links": [
+        {"name": "Home", "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"name": "View Site", "url": "/", "new_window": True},
+    ],
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "hide_apps": [],
+    "hide_models": [],
+    "order_with_respect_to": ["auth", "users", "applications", "cms", "core"],
+    "custom_links": {},
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "users": "fas fa-users",
+        "applications": "fas fa-file-alt",
+        "cms": "fas fa-newspaper",
+        "core": "fas fa-cog",
+    },
+    "default_icon_parents": "fas fa-chevron-circle-right",
+    "default_icon_children": "fas fa-circle",
+    "related_modal_active": True,
+    "custom_css": None,
+    "custom_js": None,
+    "use_google_fonts_cdn": True,
+    "show_ui_builder": False,
+    "changeform_format": "horizontal_tabs",
+    "changeform_format_overrides": {"auth.user": "collapsible", "auth.group": "vertical_tabs"},
+}

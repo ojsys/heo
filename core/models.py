@@ -6,9 +6,26 @@ class SiteSettings(models.Model):
     site_name = models.CharField(max_length=100, default='HEO Foundation')
     logo = models.ImageField(upload_to='site/', null=True, blank=True)
     favicon = models.ImageField(upload_to='site/', null=True, blank=True)
+    
+    about_image = models.ImageField(upload_to='site/about/', null=True, blank=True)
+    about_title = models.CharField(max_length=200, default="About Us")
+    about_subtitle = models.TextField(blank=True)
+    mission_statement = models.TextField(blank=True)
+    vision_statement = models.TextField(blank=True)
+
     primary_color = models.CharField(max_length=7, default='#0d6efd', help_text='Hex color code')
     secondary_color = models.CharField(max_length=7, default='#6c757d', help_text='Hex color code')
     
+    # Statistics
+    successful_applications = models.CharField(max_length=20, blank=True)
+    partner_institutions = models.CharField(max_length=20, blank=True)
+    countries_served = models.CharField(max_length=20, blank=True)
+    student_satisfaction = models.CharField(max_length=20, blank=True)
+
+    # What We Do Section
+    what_we_do_title = models.CharField(max_length=200, default="What We Do")
+    what_we_do_subtitle = models.TextField(blank=True)
+
     # Hero Section
     hero_title = models.CharField(max_length=200, default='Empowering Dreams Through Education')
     hero_subtitle = models.TextField(default='HEO Foundation provides educational opportunities and support to ambitious students worldwide.')
@@ -96,3 +113,48 @@ class GalleryImage(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class TeamMember(models.Model):
+    name = models.CharField(max_length=100)
+    position = models.CharField(max_length=100)
+    photo = models.ImageField(upload_to='team/', null=True, blank=True)
+    bio = models.TextField(blank=True)
+    order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['order', 'name']
+
+    def __str__(self):
+        return self.name
+
+class Achievement(models.Model):
+    title = models.CharField(max_length=100)
+    description = models.TextField()
+    icon = models.CharField(max_length=50, help_text="Font Awesome icon class")
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return self.title
+
+
+class WhatWeDo(models.Model):
+    title = models.CharField(max_length=100)
+    description = models.TextField()
+    icon = models.CharField(max_length=50, help_text="Font Awesome icon class name (e.g., fa-search)")
+    order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return self.title
+
+
+
+
