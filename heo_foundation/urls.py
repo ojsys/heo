@@ -12,6 +12,7 @@ urlpatterns = [
     path('appl/', include('applications.urls')),
     path('', include('core.urls')),
     path('pages/', include('pages.urls', namespace='pages')),
+    path('ckeditor/', include('ckeditor_uploader.urls')), 
     path('password-change/', auth_views.PasswordChangeView.as_view(
         template_name='users/password_change.html',
         success_url='/users/profile/'

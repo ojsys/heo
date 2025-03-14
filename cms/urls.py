@@ -41,4 +41,8 @@ urlpatterns = [
     path('page/create/', views.PageCreateView.as_view(), name='page_create'),
     path('impact-stories/', views.ImpactStoryListView.as_view(), name='impact_story_list'),
     path('announcements/', views.AnnouncementListView.as_view(), name='announcement_list'),
+
+    path('blog/', views.BlogListView.as_view(), name='blog_list'),
+    path('blog/<slug:slug>/', views.BlogDetailView.as_view(), name='blog_detail'),
+    path('blog/category/<slug:slug>/', views.CategoryListView.as_view(), name='blog_category'),
 ]

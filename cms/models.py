@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.postgres.search import SearchVectorField, SearchVector
 from django.db.models import Q
 from django.utils.text import slugify
+from ckeditor_uploader.fields import RichTextUploadingField
+from taggit.managers import TaggableManager
 from django.conf import settings
 from django.urls import reverse
 from django.contrib.auth import get_user_model
@@ -338,3 +340,41 @@ class ContentVersion(models.Model):
 
     def __str__(self):
         return f"Version {self.version_number} of {self.content_object}"
+
+
+class BlogPost(models.Model):
+    STATUS_CHOICES = (
+        ('draft', 'Draft'),
+        ('published', 'Published'),
+    )
+
+    title = models.CharField(max_length=200)
+    slug = models.SlugField(unique=True)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='blog_posts')
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='posts')
+    featured_image = models.ImageField(upload_to='blog/images/', blank=True, null=True)
+    excerpt = models.TextField(max_length=500, help_text="A short description that appears in blog listings")
+    content = RichTextUploadingField()
+    tags = TaggableManager()
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='draft')
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    published_at = models.DateTimeField(null=True, blank=True)
+    
+    featured = models.BooleanField(default=False)
+    views_count = models.PositiveIntegerField(default=0)
+    
+    class Meta:
+        ordering = ['-published_at', '-created_at']
+
+    def __str__(self):
+        return self.title
+
+    def get_absolute_url(self):
+        return reverse('cms:post_detail', kwargs={'slug': self.slug})
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)

@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from django.utils import timezone
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from .models import Category, Page, Media, ImpactStory, Announcement, ContentVersion
+from .models import Category, Page, Media, ImpactStory, Announcement, ContentVersion, BlogPost
 from .serializers import (CategorySerializer, PageSerializer, MediaSerializer,
                         ImpactStorySerializer, AnnouncementSerializer)
 
@@ -348,3 +348,100 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
         if self.request.user.is_staff:
             return Announcement.objects.all()
         return Announcement.get_active()
+
+
+class BlogListView(ListView):
+    model = BlogPost
+    template_name = 'cms/blog_list.html'
+    context_object_name = 'posts'
+    paginate_by = 9
+
+    def get_queryset(self):
+        queryset = BlogPost.objects.filter(
+            status='published',
+            published_at__lte=timezone.now()
+        ).order_by('-published_at')
+
+        # Handle search
+        search_query = self.request.GET.get('search')
+        if search_query:
+            queryset = queryset.filter(
+                Q(title__icontains=search_query) |
+                Q(excerpt__icontains=search_query) |
+                Q(content__icontains=search_query)
+            )
+
+        # Handle category filter
+        category_slug = self.kwargs.get('category_slug')
+        if category_slug:
+            queryset = queryset.filter(category__slug=category_slug)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()
+        context['featured_post'] = BlogPost.objects.filter(
+            status='published',
+            featured=True,
+            published_at__lte=timezone.now()
+        ).first()
+        return context
+
+class BlogDetailView(DetailView):
+    model = BlogPost
+    template_name = 'cms/blog_detail.html'
+    context_object_name = 'post'
+
+    def get_queryset(self):
+        return BlogPost.objects.filter(
+            status='published',
+            published_at__lte=timezone.now()
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Get related posts based on category and tags
+        post = self.get_object()
+        related_posts = BlogPost.objects.filter(
+            status='published',
+            published_at__lte=timezone.now()
+        ).exclude(id=post.id)
+
+        if post.category:
+            related_posts = related_posts.filter(category=post.category)
+
+        # Increment view count
+        post.views_count += 1
+        post.save()
+
+        # Get recent posts
+        context['recent_posts'] = BlogPost.objects.filter(
+            status='published',
+            published_at__lte=timezone.now()
+        ).exclude(id=post.id)[:3]
+
+        context['related_posts'] = related_posts[:3]
+        context['categories'] = Category.objects.all()
+        return context
+
+
+class CategoryListView(ListView):
+    model = BlogPost
+    template_name = 'cms/category_list.html'
+    context_object_name = 'posts'
+    paginate_by = 9
+
+    def get_queryset(self):
+        self.category = get_object_or_404(Category, slug=self.kwargs['slug'])
+        return BlogPost.objects.filter(
+            category=self.category,
+            status='published',
+            published_at__lte=timezone.now()
+        ).order_by('-published_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['category'] = self.category
+        context['categories'] = Category.objects.all()
+        return context

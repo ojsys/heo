@@ -1,5 +1,12 @@
 from django.contrib import admin
-from .models import Page, Media, ImpactStory, Announcement
+from .models import Page, Media, ImpactStory, Announcement, BlogPost, Category
+
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ('name', 'slug')
+    prepopulated_fields = {'slug': ('name',)}
+    search_fields = ('name',)
 
 @admin.register(Page)
 class PageAdmin(admin.ModelAdmin):
@@ -37,3 +44,26 @@ class AnnouncementAdmin(admin.ModelAdmin):
     list_display = ('title', 'is_published', 'publish_date', 'expiry_date')
     list_filter = ('is_published', 'publish_date')
     search_fields = ('title', 'content')
+
+
+@admin.register(BlogPost)
+class BlogPostAdmin(admin.ModelAdmin):
+    list_display = ('title', 'author', 'category', 'status', 'published_at', 'featured')
+    list_filter = ('status', 'category', 'created_at', 'featured')
+    search_fields = ('title', 'content')
+    prepopulated_fields = {'slug': ('title',)}
+    date_hierarchy = 'created_at'
+    ordering = ('-created_at',)
+    list_editable = ('status', 'featured')
+    
+    fieldsets = (
+        ('Content', {
+            'fields': ('title', 'slug', 'author', 'category', 'featured_image', 'excerpt', 'content')
+        }),
+        ('Tags', {
+            'fields': ('tags',),
+        }),
+        ('Publication', {
+            'fields': ('status', 'published_at', 'featured'),
+        }),
+    )
