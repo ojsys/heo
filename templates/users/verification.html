@@ -5,7 +5,7 @@
 {% block title %}Account Verification{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card shadow-sm">
@@ -43,6 +43,11 @@
                         <form method="post" enctype="multipart/form-data" novalidate>
                             {% csrf_token %}
                             {{ form|crispy }}
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-upload me-2"></i>Submit Verification
+                                </button>
+                            </div>
                         </form>
                     {% endif %}
                 </div>
