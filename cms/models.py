@@ -11,6 +11,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.utils import timezone
 from django.core.exceptions import ValidationError
+import os
+from PIL import Image
+from io import BytesIO
+from django.core.files.base import ContentFile
+
 
 User = get_user_model
 
@@ -58,23 +63,51 @@ class Category(models.Model):
 class Media(models.Model):
     title = models.CharField(max_length=200)
     file = models.FileField(upload_to='media/')
-    file_type = models.CharField(max_length=50)
     uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
-
-    # Add alt text for accessibility
     alt_text = models.CharField(max_length=255, blank=True)
-    
-    # Add file size tracking
-    file_size = models.PositiveIntegerField(editable=False, null=True)
-    
-    # Add mime type
-    mime_type = models.CharField(max_length=100, blank=True)
+
+    def compress_image(self, image_file):
+        img = Image.open(image_file)
+        if img.mode in ('RGBA', 'P'):
+            img = img.convert('RGB')
+        
+        # Calculate compression quality
+        img_io = BytesIO()
+        quality = 95
+        img.save(img_io, format='JPEG', quality=quality, optimize=True)
+        
+        # Keep reducing quality until file size is under 200KB
+        while img_io.tell() > 200 * 1024 and quality > 10:
+            img_io = BytesIO()
+            quality -= 5
+            img.save(img_io, format='JPEG', quality=quality, optimize=True)
+        
+        img_io.seek(0)
+        return ContentFile(img_io.getvalue())
 
     def save(self, *args, **kwargs):
-        if self.file:
-            self.file_size = self.file.size
-            self.mime_type = self.file.content_type
+        if self.file and not self.title:
+            filename = os.path.splitext(self.file.name)[0]
+            self.title = filename.replace('-', ' ').replace('_', ' ').title()
+            if not self.alt_text:
+                self.alt_text = self.title
+
+        # Compress image if it's an image file
+        if self.file and not self.file._committed:
+            try:
+                file_ext = self.file.name.split('.')[-1].lower()
+                if file_ext in ['jpg', 'jpeg', 'png', 'gif']:
+                    compressed_image = self.compress_image(self.file)
+                    self.file.save(
+                        f"{self.file.name.rsplit('.', 1)[0]}_compressed.jpg",
+                        compressed_image,
+                        save=False
+                    )
+            except Exception as e:
+                # If compression fails, continue with original file
+                pass
+
         super().save(*args, **kwargs)
 
     class Meta:
@@ -88,14 +121,6 @@ class Media(models.Model):
 
     def get_file_extension(self):
         return self.file.name.split('.')[-1] if self.file else None
-
-    def clean(self):
-        if self.file:
-            if self.file_size > 10485760:  # 10MB limit
-                raise ValidationError('File size cannot exceed 10MB.')
-            allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf']
-            if self.mime_type not in allowed_types:
-                raise ValidationError('Invalid file type.')
 
 
 class Page(models.Model):

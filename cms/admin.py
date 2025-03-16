@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.html import format_html
 from .models import Page, Media, ImpactStory, Announcement, BlogPost, Category
 
 
@@ -24,10 +25,21 @@ class PageAdmin(admin.ModelAdmin):
 
 @admin.register(Media)
 class MediaAdmin(admin.ModelAdmin):
-    list_display = ('title', 'file_type', 'uploaded_by', 'uploaded_at')
-    list_filter = ('file_type', 'uploaded_at')
-    search_fields = ('title',)
-    
+    list_display = ('title', 'file_preview', 'uploaded_by', 'uploaded_at')
+    list_filter = ('uploaded_at',)
+    search_fields = ('title', 'alt_text')
+    readonly_fields = ('file_preview', 'uploaded_at')
+    fields = ('title', 'file', 'alt_text', 'file_preview', 'uploaded_at')
+
+    def file_preview(self, obj):
+        if obj.file and obj.file.url:
+            file_ext = obj.get_file_extension()
+            if file_ext and file_ext.lower() in ['jpg', 'jpeg', 'png', 'gif']:
+                return format_html('<img src="{}" style="max-height: 50px;"/>', obj.file.url)
+            return format_html('<a href="{}" target="_blank">View File</a>', obj.file.url)
+        return "No file"
+    file_preview.short_description = 'Preview'
+
     def save_model(self, request, obj, form, change):
         if not change:
             obj.uploaded_by = request.user
