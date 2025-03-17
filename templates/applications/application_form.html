@@ -1,60 +1,231 @@
 {% extends 'base.html' %}
-
-{% block title %}Apply for {{ program.name }}{% endblock %}
+{% load crispy_forms_tags %}
 
 {% block content %}
-<div class="container">
+<div class="container my-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <h1 class="mb-4">Apply for {{ program.name }}</h1>
+        <div class="col-lg-8">
+            <div class="text-center mb-4">
+                <h1 class="display-5 fw-bold">Apply for {{ program.name }}</h1>
+                <p class="lead text-muted">Please complete the application form below.</p>
+            </div>
             
-            <div class="card mb-4">
-                <div class="card-body">
-                    <form method="post" enctype="multipart/form-data" novalidate>
-                        {% csrf_token %}
-                        
-                        <h4 class="mb-3">Application Details</h4>
-                        {% for field in form %}
-                            {% if field.name != 'form_data' %}
-                            <div class="mb-3">
-                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                                {{ field }}
-                                {% if field.help_text %}
-                                <div class="form-text">{{ field.help_text }}</div>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                {{ form.form_data }}
+                
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="card-title mb-0">Application Questions</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        {% for field in form_fields %}
+                        <div class="mb-4">
+                            <label for="field_{{ field.id }}" class="form-label fw-bold">
+                                {{ field.label }}
+                                {% if field.is_required %}<span class="text-danger">*</span>{% endif %}
+                            </label>
+                            
+                            {% if field.field_type == 'text' %}
+                            <input type="text" class="form-control" id="field_{{ field.id }}" name="field_{{ field.id }}" 
+                                   {% if field.is_required %}required{% endif %}>
+                            
+                            {% elif field.field_type == 'textarea' %}
+                            <textarea class="form-control" id="field_{{ field.id }}" name="field_{{ field.id }}" rows="3"
+                                      {% if field.is_required %}required{% endif %}></textarea>
+                            
+                            {% elif field.field_type == 'number' %}
+                            <input type="number" class="form-control" id="field_{{ field.id }}" name="field_{{ field.id }}" 
+                                   {% if field.is_required %}required{% endif %}>
+                            
+                            {% elif field.field_type == 'email' %}
+                            <input type="email" class="form-control" id="field_{{ field.id }}" name="field_{{ field.id }}" 
+                                   {% if field.is_required %}required{% endif %}>
+                            
+                            {% elif field.field_type == 'date' %}
+                            <input type="date" class="form-control" id="field_{{ field.id }}" name="field_{{ field.id }}" 
+                                   {% if field.is_required %}required{% endif %}>
+                            
+                            {% elif field.field_type == 'file' %}
+                            <input type="file" class="form-control" id="field_{{ field.id }}" name="field_{{ field.id }}" 
+                                   {% if field.is_required %}required{% endif %}>
+                            
+                            {% elif field.field_type == 'select' %}
+                            <select class="form-select" id="field_{{ field.id }}" name="field_{{ field.id }}"
+                                    {% if field.is_required %}required{% endif %}>
+                                <option value="">Select an option</option>
+                                {% if field.options %}
+                                    {% for option in field.options %}
+                                    <option value="{{ option }}">{{ option }}</option>
+                                    {% endfor %}
                                 {% endif %}
-                                {% if field.errors %}
-                                <div class="alert alert-danger mt-2">
-                                    {{ field.errors }}
+                            </select>
+                            
+                            {% elif field.field_type == 'checkbox' %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="field_{{ field.id }}" name="field_{{ field.id }}" value="yes">
+                                <label class="form-check-label" for="field_{{ field.id }}">
+                                    {{ field.help_text }}
+                                </label>
+                            </div>
+                            
+                            {% elif field.field_type == 'radio' %}
+                            {% if field.options %}
+                                <div class="mt-2">
+                                {% for option in field.options %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="field_{{ field.id }}" 
+                                        id="field_{{ field.id }}_{{ forloop.counter }}" value="{{ option }}"
+                                        {% if forloop.first and field.is_required %}required{% endif %}>
+                                    <label class="form-check-label" for="field_{{ field.id }}_{{ forloop.counter }}">
+                                        {{ option }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                                </div>
+                            {% endif %}
+                            {% endif %}
+                            
+                            {% if field.help_text and field.field_type != 'checkbox' %}
+                            <div class="form-text text-muted">{{ field.help_text }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="card-title mb-0">Supporting Documents</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        {{ document_formset.management_form }}
+                        
+                        <div id="document-formset">
+                            {% for form in document_formset %}
+                            <div class="document-form mb-3 p-3 border rounded {% if not forloop.first %}mt-3{% endif %}">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {{ form.document|as_crispy_field }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        {{ form.document_type|as_crispy_field }}
+                                    </div>
+                                </div>
+                                {% if not forloop.first %}
+                                <div class="text-end mt-2">
+                                    <button type="button" class="btn btn-sm btn-outline-danger remove-document">
+                                        <i class="fas fa-trash-alt me-1"></i> Remove
+                                    </button>
                                 </div>
                                 {% endif %}
                             </div>
-                            {% endif %}
-                        {% endfor %}
-
-                        <h4 class="mb-3 mt-4">Supporting Documents</h4>
-                        {% for field in document_form %}
-                        <div class="mb-3">
-                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                            {{ field }}
-                            {% if field.help_text %}
-                            <div class="form-text">{{ field.help_text }}</div>
-                            {% endif %}
-                            {% if field.errors %}
-                            <div class="alert alert-danger mt-2">
-                                {{ field.errors }}
-                            </div>
-                            {% endif %}
+                            {% endfor %}
                         </div>
-                        {% endfor %}
-
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">Submit Application</button>
-                            <a href="{% url 'applications:program_detail' program.pk %}" class="btn btn-secondary">Cancel</a>
+                        
+                        <div class="mt-3">
+                            <button type="button" class="btn btn-outline-success" id="add-document">
+                                <i class="fas fa-plus-circle me-1"></i> Add Another Document
+                            </button>
                         </div>
-                    </form>
+                    </div>
                 </div>
-            </div>
+                
+                <div class="d-grid gap-2 col-md-6 mx-auto mt-4 mb-5">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-paper-plane me-2"></i> Submit Application
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle form data collection before submit
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            const formData = {};
+            const dynamicFields = document.querySelectorAll('input[name^="field_"], textarea[name^="field_"], select[name^="field_"]');
+            
+            dynamicFields.forEach(field => {
+                if (field.type === 'checkbox') {
+                    formData[field.name] = field.checked ? 'yes' : 'no';
+                } else if (field.type === 'radio') {
+                    if (field.checked) {
+                        formData[field.name] = field.value;
+                    }
+                } else {
+                    formData[field.name] = field.value;
+                }
+            });
+            
+            document.querySelector('input[name="form_data"]').value = JSON.stringify(formData);
+        });
+        
+        // Document formset handling
+        const addDocumentBtn = document.getElementById('add-document');
+        const documentFormset = document.getElementById('document-formset');
+        
+        if (addDocumentBtn && documentFormset) {
+            addDocumentBtn.addEventListener('click', function() {
+                const forms = documentFormset.querySelectorAll('.document-form');
+                const formCount = forms.length;
+                
+                // Clone the first form
+                const newForm = forms[0].cloneNode(true);
+                
+                // Update form index
+                newForm.innerHTML = newForm.innerHTML.replace(/-0-/g, `-${formCount}-`);
+                newForm.innerHTML = newForm.innerHTML.replace(/\[0\]/g, `[${formCount}]`);
+                
+                // Clear input values
+                newForm.querySelectorAll('input[type="file"]').forEach(input => {
+                    input.value = '';
+                });
+                
+                // Add remove button if not exists
+                if (!newForm.querySelector('.remove-document')) {
+                    const btnContainer = document.createElement('div');
+                    btnContainer.className = 'text-end mt-2';
+                    
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.className = 'btn btn-sm btn-outline-danger remove-document';
+                    removeBtn.innerHTML = '<i class="fas fa-trash-alt me-1"></i> Remove';
+                    
+                    btnContainer.appendChild(removeBtn);
+                    newForm.appendChild(btnContainer);
+                }
+                
+                // Add the new form
+                documentFormset.appendChild(newForm);
+                
+                // Update management form
+                const totalForms = document.querySelector('[name="documents-TOTAL_FORMS"]');
+                if (totalForms) {
+                    totalForms.value = parseInt(totalForms.value) + 1;
+                }
+            });
+            
+            // Handle remove buttons
+            documentFormset.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-document') || e.target.closest('.remove-document')) {
+                    const formElement = e.target.closest('.document-form');
+                    if (formElement) {
+                        formElement.remove();
+                        
+                        // Update management form
+                        const totalForms = document.querySelector('[name="documents-TOTAL_FORMS"]');
+                        if (totalForms) {
+                            totalForms.value = parseInt(totalForms.value) - 1;
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
 {% endblock %}

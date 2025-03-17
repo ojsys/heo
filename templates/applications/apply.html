@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container my-5">
+    <h1>Apply for {{ program.name }}</h1>
+    <p class="lead">Please complete the application form below.</p>
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Application Questions</h5>
+                
+                <div id="dynamic-form-fields">
+                    {% for field in form_fields %}
+                    <div class="mb-3">
+                        <label for="field_{{ field.id }}" class="form-label">
+                            {{ field.label }}
+                            {% if field.required %}<span class="text-danger">*</span>{% endif %}
+                        </label>
+                        
+                        {% if field.field_type == 'text' %}
+                        <input type="text" class="form-control" id="field_{{ field.id }}" name="field_{{ field.id }}" 
+                               {% if field.required %}required{% endif %}>
+                        
+                        {% elif field.field_type == 'textarea' %}
+                        <textarea class="form-control" id="field_{{ field.id }}" name="field_{{ field.id }}" rows="3"
+                                  {% if field.required %}required{% endif %}></textarea>
+                        
+                        {% elif field.field_type == 'select' %}
+                        <select class="form-select" id="field_{{ field.id }}" name="field_{{ field.id }}"
+                                {% if field.required %}required{% endif %}>
+                            <option value="">Select an option</option>
+                            {% for option in field.options.split(',') %}
+                            <option value="{{ option.strip }}">{{ option.strip }}</option>
+                            {% endfor %}
+                        </select>
+                        
+                        {% elif field.field_type == 'checkbox' %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="field_{{ field.id }}" name="field_{{ field.id }}" value="yes">
+                            <label class="form-check-label" for="field_{{ field.id }}">
+                                {{ field.help_text }}
+                            </label>
+                        </div>
+                        
+                        {% elif field.field_type == 'radio' %}
+                        {% for option in field.options.split(',') %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="field_{{ field.id }}" 
+                                   id="field_{{ field.id }}_{{ forloop.counter }}" value="{{ option.strip }}"
+                                   {% if forloop.first and field.required %}required{% endif %}>
+                            <label class="form-check-label" for="field_{{ field.id }}_{{ forloop.counter }}">
+                                {{ option.strip }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        
+                        {% if field.help_text and field.field_type != 'checkbox' %}
+                        <div class="form-text">{{ field.help_text }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                {{ form.form_data }}
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Supporting Documents</h5>
+                <p>Please upload any required documents for your application.</p>
+                
+                {{ document_formset.management_form }}
+                
+                <div id="document-formset">
+                    {% for form in document_formset %}
+                    <div class="document-form mb-3">
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form.document|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.document_type|as_crispy_field }}
+                            </div>
+                        </div>
+                        {% if not forloop.first %}
+                        <button type="button" class="btn btn-sm btn-danger remove-document">Remove</button>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <button type="button" class="btn btn-sm btn-secondary" id="add-document">Add Another Document</button>
+            </div>
+        </div>
+        
+        <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary btn-lg">Submit Application</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle form data collection before submit
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            const formData = {};
+            const dynamicFields = document.querySelectorAll('#dynamic-form-fields input, #dynamic-form-fields textarea, #dynamic-form-fields select');
+            
+            dynamicFields.forEach(field => {
+                if (field.type === 'checkbox') {
+                    formData[field.name] = field.checked ? 'yes' : 'no';
+                } else if (field.type === 'radio') {
+                    if (field.checked) {
+                        formData[field.name] = field.value;
+                    }
+                } else {
+                    formData[field.name] = field.value;
+                }
+            });
+            
+            document.querySelector('input[name="form_data"]').value = JSON.stringify(formData);
+        });
+        
+        // Document formset handling
+        const addDocumentBtn = document.getElementById('add-document');
+        const documentFormset = document.getElementById('document-formset');
+        
+        if (addDocumentBtn) {
+            addDocumentBtn.addEventListener('click', function() {
+                const forms = documentFormset.querySelectorAll('.document-form');
+                const formCount = forms.length;
+                
+                // Clone the first form
+                const newForm = forms[0].cloneNode(true);
+                
+                // Update form index
+                newForm.innerHTML = newForm.innerHTML.replace(/-0-/g, `-${formCount}-`);
+                newForm.innerHTML = newForm.innerHTML.replace(/\[0\]/g, `[${formCount}]`);
+                
+                // Clear input values
+                newForm.querySelectorAll('input[type="file"]').forEach(input => {
+                    input.value = '';
+                });
+                
+                // Add remove button
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'btn btn-sm btn-danger remove-document';
+                removeBtn.textContent = 'Remove';
+                newForm.appendChild(removeBtn);
+                
+                // Add the new form
+                documentFormset.appendChild(newForm);
+                
+                // Update management form
+                const totalForms = document.querySelector('input[name="documents-TOTAL_FORMS"]');
+                totalForms.value = parseInt(totalForms.value) + 1;
+            });
+            
+            // Handle remove buttons
+            documentFormset.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-document')) {
+                    e.target.closest('.document-form').remove();
+                    
+                    // Update management form
+                    const totalForms = document.querySelector('input[name="documents-TOTAL_FORMS"]');
+                    totalForms.value = parseInt(totalForms.value) - 1;
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

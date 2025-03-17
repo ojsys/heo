@@ -1,57 +1,738 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ program.name }}{% endblock %}
-
 {% block content %}
-<div class="container">
-    <div class="row">
-        <div class="col-md-8">
-            <h1 class="mb-3">{{ program.name }}</h1>
-            <span class="badge bg-primary mb-3">{{ program.get_program_type_display }}</span>
-            
-            {% if program.featured_image %}
-            <img src="{{ program.featured_image.file.url }}" class="img-fluid rounded mb-4" alt="{{ program.name }}">
-            {% endif %}
-            
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h5 class="card-title">Program Description</h5>
-                    <p class="card-text">{{ program.description|linebreaks }}</p>
+<!-- Hero Banner with Featured Image -->
+<div class="hero-section position-relative">
+    {% if program.featured_image %}
+    <div class="hero-image" style="background-image: url('{{ program.featured_image.file.url }}');">
+        <div class="hero-overlay"></div>
+    </div>
+    {% else %}
+    <div class="hero-image bg-success">
+        <div class="hero-overlay"></div>
+    </div>
+    {% endif %}
+    
+    <div class="container hero-content">
+        <div class="row">
+            <div class="col-lg-7">
+                <div class="program-badge">{{ program.get_program_type_display }}</div>
+                <h1 class="hero-title">{{ program.name }}</h1>
+                <p class="hero-subtitle">{{ program.description|truncatewords:25 }}</p>
+                
+                <div class="hero-actions">
+                    <a href="{% url 'applications:program_apply' program.id %}" class="btn-apply">
+                        <span class="btn-icon"><i class="fas fa-paper-plane"></i></span>
+                        <span class="btn-text">Apply Now</span>
+                    </a>
+                    <a href="#program-details" class="btn-learn">
+                        <span class="btn-icon"><i class="fas fa-info-circle"></i></span>
+                        <span class="btn-text">Learn More</span>
+                    </a>
                 </div>
             </div>
-            
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h5 class="card-title">Eligibility Criteria</h5>
-                    <p class="card-text">{{ program.eligibility_criteria|linebreaks }}</p>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Program Details</h5>
-                    <ul class="list-unstyled">
-                        <li><strong>Start Date:</strong> {{ program.start_date }}</li>
-                        <li><strong>End Date:</strong> {{ program.end_date }}</li>
-                        {% if program.max_beneficiaries %}
-                        <li><strong>Maximum Beneficiaries:</strong> {{ program.max_beneficiaries }}</li>
-                        {% endif %}
-                    </ul>
-                    
-                    {% if program.is_active %}
-                        {% if user.is_authenticated %}
-                        <a href="{% url 'applications:application_create' program.pk %}" class="btn btn-primary w-100">Apply Now</a>
-                        {% else %}
-                        <a href="{% url 'users:login' %}?next={{ request.path }}" class="btn btn-primary w-100">Login to Apply</a>
-                        {% endif %}
-                    {% else %}
-                    <div class="alert alert-warning">This program is no longer accepting applications.</div>
-                    {% endif %}
+            <div class="col-lg-5 d-none d-lg-block">
+                <div class="program-stats">
+                    <div class="stat-item">
+                        <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-label">Deadline</div>
+                            <div class="stat-value">{{ program.application_deadline|default:"Open" }}</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon"><i class="fas fa-users"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-label">Spots</div>
+                            <div class="stat-value">{{ program.max_beneficiaries|default:"Unlimited" }}</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-label">Duration</div>
+                            <div class="stat-value">{{ program.duration|default:"Ongoing" }}</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<div class="content-section">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <!-- Program Overview -->
+                <div class="content-card" id="program-details">
+                    <div class="card-header">
+                        <div class="header-icon"><i class="fas fa-clipboard-list"></i></div>
+                        <h2 class="header-title">Program Overview</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="program-highlights">
+                            <div class="highlight-row">
+                                <div class="highlight-item">
+                                    <div class="highlight-icon"><i class="fas fa-calendar-alt"></i></div>
+                                    <div class="highlight-content">
+                                        <div class="highlight-label">Start Date</div>
+                                        <div class="highlight-value">{{ program.start_date }}</div>
+                                    </div>
+                                </div>
+                                <div class="highlight-item">
+                                    <div class="highlight-icon"><i class="fas fa-calendar-check"></i></div>
+                                    <div class="highlight-content">
+                                        <div class="highlight-label">End Date</div>
+                                        <div class="highlight-value">{{ program.end_date|default:"Ongoing" }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="highlight-row">
+                                <div class="highlight-item">
+                                    <div class="highlight-icon"><i class="fas fa-users"></i></div>
+                                    <div class="highlight-content">
+                                        <div class="highlight-label">Beneficiaries</div>
+                                        <div class="highlight-value">{{ program.max_beneficiaries|default:"Unlimited" }}</div>
+                                    </div>
+                                </div>
+                                <div class="highlight-item">
+                                    <div class="highlight-icon"><i class="fas fa-map-marker-alt"></i></div>
+                                    <div class="highlight-content">
+                                        <div class="highlight-label">Location</div>
+                                        <div class="highlight-value">{{ program.location|default:"Various locations" }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="program-description">
+                            <h3>About This Program</h3>
+                            <p>{{ program.description }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Eligibility Criteria -->
+                {% if program.eligibility_criteria %}
+                <div class="content-card">
+                    <div class="card-header">
+                        <div class="header-icon"><i class="fas fa-check-circle"></i></div>
+                        <h2 class="header-title">Eligibility Criteria</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="eligibility-content">
+                            {{ program.eligibility_criteria|linebreaks }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Application Process -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <div class="header-icon"><i class="fas fa-tasks"></i></div>
+                        <h2 class="header-title">Application Process</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="process-steps">
+                            <div class="process-step">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <h4>Review Eligibility</h4>
+                                    <p>Carefully review the eligibility criteria to ensure you qualify for this program.</p>
+                                </div>
+                            </div>
+                            <div class="process-step">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <h4>Complete Application</h4>
+                                    <p>Fill out the application form with all required information and documents.</p>
+                                </div>
+                            </div>
+                            <div class="process-step">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <h4>Submit Application</h4>
+                                    <p>Submit your application before the deadline for consideration.</p>
+                                </div>
+                            </div>
+                            <div class="process-step">
+                                <div class="step-number">4</div>
+                                <div class="step-content">
+                                    <h4>Application Review</h4>
+                                    <p>Your application will be reviewed by our team. You may be contacted for additional information.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <!-- Application Timeline -->
+                <div class="sidebar-card sticky-top">
+                    <div class="card-header">
+                        <div class="header-icon"><i class="fas fa-clock"></i></div>
+                        <h2 class="header-title">Application Timeline</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-marker"></div>
+                                <div class="timeline-content">
+                                    <h4>Application Opens</h4>
+                                    <p>{{ program.application_start_date|default:"Immediately" }}</p>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-marker"></div>
+                                <div class="timeline-content">
+                                    <h4>Application Deadline</h4>
+                                    <p>{{ program.application_deadline|default:"Open until filled" }}</p>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-marker"></div>
+                                <div class="timeline-content">
+                                    <h4>Notification Date</h4>
+                                    <p>{{ program.notification_date|default:"Rolling basis" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <a href="{% url 'applications:program_apply' program.id %}" class="apply-button">
+                            <i class="fas fa-paper-plane"></i> Apply Now
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Contact Card -->
+                <div class="sidebar-card">
+                    <div class="card-header">
+                        <div class="header-icon"><i class="fas fa-question-circle"></i></div>
+                        <h2 class="header-title">Have Questions?</h2>
+                    </div>
+                    <div class="card-body">
+                        <p>If you have any questions about this program or the application process, please contact us.</p>
+                        <a href="{% url 'core:contact' %}" class="contact-button">
+                            <i class="fas fa-envelope"></i> Contact Us
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Share Card -->
+                <div class="sidebar-card">
+                    <div class="card-header">
+                        <div class="header-icon"><i class="fas fa-share-alt"></i></div>
+                        <h2 class="header-title">Share This Program</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="share-buttons">
+                            <a href="#" class="share-btn facebook"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#" class="share-btn twitter"><i class="fab fa-twitter"></i></a>
+                            <a href="#" class="share-btn linkedin"><i class="fab fa-linkedin-in"></i></a>
+                            <a href="#" class="share-btn whatsapp"><i class="fab fa-whatsapp"></i></a>
+                            <a href="#" class="share-btn email"><i class="fas fa-envelope"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Hero Section */
+    .hero-section {
+        margin-bottom: 2rem;
+    }
+    
+    .hero-image {
+        height: 500px;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+    }
+    
+    .hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(1, 58, 14, 0.9) 0%, rgba(0, 0, 0, 0.8) 100%);
+    }
+    
+    .hero-content {
+        position: relative;
+        padding: 5rem 0;
+        color: white;
+    }
+    
+    .program-badge {
+        display: inline-block;
+        background-color: rgba(255, 255, 255, 0.2);
+        color: white;
+        font-weight: 600;
+        padding: 0.5rem 1.5rem;
+        border-radius: 30px;
+        margin-bottom: 1rem;
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    .hero-subtitle {
+        font-size: 1.25rem;
+        margin-bottom: 2rem;
+        max-width: 600px;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+    }
+    
+    .hero-actions {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .btn-apply, .btn-learn {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .btn-apply {
+        background-color: white;
+        color: #28a745;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-apply:hover {
+        background-color: #f8f9fa;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+    
+    .btn-learn {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        backdrop-filter: blur(5px);
+    }
+    
+    .btn-learn:hover {
+        background-color: rgba(255, 255, 255, 0.3);
+        transform: translateY(-3px);
+    }
+    
+    .btn-icon {
+        margin-right: 0.5rem;
+    }
+    
+    /* Program Stats */
+    .program-stats {
+        background-color: rgba(255, 255, 255, 0.15);
+        border-radius: 15px;
+        padding: 1.5rem;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stat-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.25rem;
+    }
+    
+    .stat-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1
+        font-size: 1.5rem;
+        color: white;
+    }
+    
+    .stat-info {
+        margin-left: 1rem;
+    }
+    
+    .stat-label {
+        font-size: 0.875rem;
+        opacity: 0.8;
+    }
+    
+    .stat-value {
+        font-weight: 600;
+        font-size: 1.125rem;
+    }
+    
+    /* Content Section */
+    .content-section {
+        padding: 2rem 0 4rem;
+    }
+    
+    .content-card, .sidebar-card {
+        background-color: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+    }
+    
+    .card-header {
+        display: flex;
+        align-items: center;
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .header-icon {
+        width: 40px;
+        height: 40px;
+        background-color: rgba(40, 167, 69, 0.1);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        color: #28a745;
+        margin-right: 1rem;
+    }
+    
+    .header-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin: 0;
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    /* Program Highlights */
+    .program-highlights {
+        margin-bottom: 2rem;
+    }
+    
+    .highlight-row {
+        display: flex;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+    
+    .highlight-item {
+        display: flex;
+        align-items: center;
+        flex: 1;
+        min-width: 250px;
+        margin-bottom: 1rem;
+    }
+    
+    .highlight-icon {
+        width: 45px;
+        height: 45px;
+        background-color: rgba(40, 167, 69, 0.1);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        color: #28a745;
+    }
+    
+    .highlight-content {
+        margin-left: 1rem;
+    }
+    
+    .highlight-label {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+    
+    .highlight-value {
+        font-weight: 600;
+    }
+    
+    .program-description h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #212529;
+    }
+    
+    /* Process Steps */
+    .process-steps {
+        position: relative;
+    }
+    
+    .process-step {
+        display: flex;
+        margin-bottom: 2rem;
+        position: relative;
+    }
+    
+    .process-step:last-child {
+        margin-bottom: 0;
+    }
+    
+    .process-step:not(:last-child):after {
+        content: '';
+        position: absolute;
+        left: 20px;
+        top: 45px;
+        bottom: -15px;
+        width: 2px;
+        background-color: rgba(40, 167, 69, 0.2);
+    }
+    
+    .step-number {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #28a745;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        margin-right: 1rem;
+        flex-shrink: 0;
+        box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3);
+    }
+    
+    .step-content h4 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .step-content p {
+        color: #6c757d;
+        margin-bottom: 0;
+    }
+    
+    /* Timeline */
+    .timeline {
+        position: relative;
+        padding-left: 25px;
+        margin-bottom: 2rem;
+    }
+    
+    .timeline:before {
+        content: '';
+        position: absolute;
+        left: 9px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background-color: rgba(40, 167, 69, 0.2);
+    }
+    
+    .timeline-item {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+    
+    .timeline-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .timeline-marker {
+        position: absolute;
+        left: -25px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background-color: #28a745;
+        top: 5px;
+        border: 3px solid white;
+        box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.3);
+    }
+    
+    .timeline-content h4 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+    
+    .timeline-content p {
+        color: #6c757d;
+        margin-bottom: 0;
+    }
+    
+    /* Buttons */
+    .apply-button, .contact-button {
+        display: block;
+        width: 100%;
+        padding: 0.875rem 1.5rem;
+        border-radius: 10px;
+        text-align: center;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .apply-button {
+        background-color: #28a745;
+        color: white;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    }
+    
+    .apply-button:hover {
+        background-color: #218838;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        color: white;
+    }
+    
+    .contact-button {
+        background-color: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+        border: 1px solid rgba(40, 167, 69, 0.2);
+    }
+    
+    .contact-button:hover {
+        background-color: rgba(40, 167, 69, 0.15);
+        color: #28a745;
+        transform: translateY(-3px);
+    }
+    
+    /* Share Buttons */
+    .share-buttons {
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .share-btn {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.125rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .share-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        color: white;
+    }
+    
+    .facebook {
+        background-color: #3b5998;
+    }
+    
+    .twitter {
+        background-color: #1da1f2;
+    }
+    
+    .linkedin {
+        background-color: #0077b5;
+    }
+    
+    .whatsapp {
+        background-color: #25d366;
+    }
+    
+    .email {
+        background-color: #ea4335;
+    }
+    
+    /* Sticky Sidebar */
+    .sticky-top {
+        top: 20px;
+        z-index: 1000;
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 991.98px) {
+        .hero-title {
+            font-size: 2.5rem;
+        }
+        
+        .hero-content {
+            padding: 3rem 0;
+        }
+        
+        .highlight-item {
+            flex: 0 0 100%;
+        }
+        
+        .sticky-top {
+            position: relative;
+            top: 0;
+        }
+    }
+    
+    @media (max-width: 767.98px) {
+        .hero-image {
+            height: 400px;
+        }
+        
+        .hero-title {
+            font-size: 2rem;
+        }
+        
+        .hero-actions {
+            flex-direction: column;
+        }
+        
+        .btn-apply, .btn-learn {
+            width: 100%;
+        }
+        
+        .hero-subtitle {
+            font-size: 1rem;
+        }
+    }
+    
+    @media (max-width: 575.98px) {
+        .hero-image {
+            height: 350px;
+        }
+        
+        .hero-content {
+            padding: 2rem 0;
+        }
+        
+        .card-header, .card-body {
+            padding: 1rem;
+        }
+        
+        .header-icon {
+            width: 35px;
+            height: 35px;
+            font-size: 1rem;
+        }
+        
+        .header-title {
+            font-size: 1.125rem;
+        }
+    }
+</style>
 {% endblock %}

@@ -20,6 +20,14 @@ class Program(models.Model):
     is_active = models.BooleanField(default=True)
     max_beneficiaries = models.IntegerField(null=True, blank=True)
     featured_image = models.ForeignKey('cms.Media', on_delete=models.SET_NULL, null=True, blank=True)
+    
+    # New fields for enhanced program detail page
+    location = models.CharField(max_length=200, blank=True, null=True)
+    application_start_date = models.DateField(null=True, blank=True)
+    application_deadline = models.DateField(null=True, blank=True)
+    notification_date = models.DateField(null=True, blank=True)
+    duration = models.CharField(max_length=100, blank=True, null=True, help_text="e.g., '6 months', '1 year'")
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -68,6 +76,7 @@ class Application(models.Model):
     program = models.ForeignKey(Program, on_delete=models.CASCADE)
     applicant = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     form_data = models.JSONField()
+    application_deadline = models.DateField(null=True, blank=True, help_text="Deadline for applications")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
     submitted_at = models.DateTimeField(null=True, blank=True)
     reviewed_by = models.ForeignKey(

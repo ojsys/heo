@@ -15,9 +15,12 @@ from django.views.generic import ListView, DetailView, TemplateView
 from django.views.generic.edit import CreateView
 from django.contrib import messages
 from django.utils import timezone
+from django.urls import reverse
+from django.forms import modelformset_factory
+import json
 from django.db.models.functions import TruncMonth
 from django.db.models import Count, Avg, Q, F, FloatField, DurationField, ExpressionWrapper
-from .models import Program, Application, ApplicationDocument, NotificationPreference, ApplicationStatus
+from .models import Program, Application, ApplicationDocument, NotificationPreference, ApplicationStatus, FormField
 from .forms import ApplicationForm, ApplicationDocumentForm, ApplicationReviewForm
 from .utils import send_application_status_update
 
@@ -35,49 +38,6 @@ class ProgramDetailView(DetailView):
     template_name = 'applications/program_detail.html'
     context_object_name = 'program'
 
-# @login_required
-# def application_create(request, program_id):
-#     program = get_object_or_404(Program, pk=program_id)
-    
-#     # Check if user already has an application for this program
-#     existing_application = Application.objects.filter(
-#         program=program,
-#         applicant=request.user
-#     ).first()
-    
-#     if existing_application:
-#         messages.warning(request, 'You have already applied for this program.')
-#         return redirect('applications:application_detail', pk=existing_application.pk)
-    
-#     if request.method == 'POST':
-#         form = ApplicationForm(program, request.POST)
-#         document_form = ApplicationDocumentForm(request.POST, request.FILES)
-        
-#         if form.is_valid() and document_form.is_valid():
-#             application = form.save(commit=False)
-#             application.program = program
-#             application.applicant = request.user
-#             application.status = 'submitted'
-#             application.submitted_at = timezone.now()
-#             application.save()
-            
-#             if document_form.cleaned_data.get('document'):
-#                 document = document_form.save(commit=False)
-#                 document.application = application
-#                 document.save()
-            
-#             messages.success(request, 'Your application has been submitted successfully.')
-#             return redirect('applications:application_detail', pk=application.pk)
-#     else:
-#         form = ApplicationForm(program)
-#         document_form = ApplicationDocumentForm()
-    
-#     return render(request, 'applications/application_form.html', {
-#         'form': form,
-#         'document_form': document_form,
-#         'program': program
-#     })
-
 
 class ApplicationCreateView(LoginRequiredMixin, CreateView):
     model = Application
@@ -94,18 +54,111 @@ class ApplicationCreateView(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['program'] = self.program
+        
+        # Add form fields specific to this program
+        context['form_fields'] = FormField.objects.filter(program=self.program).order_by('order')
+        
+        # Add document formset
+        DocumentFormSet = modelformset_factory(
+            ApplicationDocument,
+            form=ApplicationDocumentForm,
+            extra=1,
+            can_delete=True
+        )
+        
+        if self.request.POST:
+            context['document_formset'] = DocumentFormSet(
+                self.request.POST, 
+                self.request.FILES,
+                queryset=ApplicationDocument.objects.none()
+            )
+        else:
+            context['document_formset'] = DocumentFormSet(queryset=ApplicationDocument.objects.none())
+            
         return context
 
     def form_valid(self, form):
+        context = self.get_context_data()
+        document_formset = context['document_formset']
+        
+        # Process form data from dynamic fields
+        form_data = {}
+        for field in FormField.objects.filter(program=self.program):
+            field_name = f'field_{field.id}'
+            if field_name in self.request.POST:
+                form_data[field_name] = self.request.POST.get(field_name)
+        
+        form.instance.form_data = json.dumps(form_data)
         form.instance.applicant = self.request.user
         form.instance.program = self.program
         form.instance.status = 'submitted'
         form.instance.submitted_at = timezone.now()
+        
+        self.object = form.save()
+        
+        # Save documents if formset is valid
+        if document_formset.is_valid():
+            documents = document_formset.save(commit=False)
+            for document in documents:
+                document.application = self.object
+                document.save()
+        
+        # Create initial application status
+        ApplicationStatus.objects.create(
+            application=self.object,
+            status='submitted',
+            created_by=self.request.user,
+            notes='Application submitted'
+        )
+        
+        messages.success(self.request, f'Your application for {self.program.name} has been submitted successfully!')
         return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        context = self.get_context_data()
+        document_formset = context['document_formset']
+        
+        if not document_formset.is_valid():
+            messages.error(self.request, 'There was an error with your document uploads. Please check and try again.')
+        
+        messages.error(self.request, 'There was an error with your application. Please check the form and try again.')
+        return super().form_invalid(form)
 
     def get_success_url(self):
         return reverse('applications:application_detail', kwargs={'pk': self.object.pk})
 
+@login_required
+def my_applications(request):
+    """View for users to see all their applications"""
+    applications = Application.objects.filter(
+        applicant=request.user
+    ).select_related('program').order_by('-submitted_at')
+    
+    return render(request, 'applications/my_applications.html', {
+        'applications': applications
+    })
+
+@login_required
+def program_apply(request, program_id):
+    """Redirect to application form or existing application"""
+    program = get_object_or_404(Program, pk=program_id, is_active=True)
+    
+    # Check if application deadline has passed (if the field exists)
+    if hasattr(program, 'application_deadline') and program.application_deadline and program.application_deadline < timezone.now().date():
+        messages.error(request, f"The application deadline for {program.name} has passed.")
+        return redirect('applications:program_detail', pk=program_id)
+    
+    # Check if user already has an application for this program
+    existing_application = Application.objects.filter(
+        applicant=request.user,
+        program=program
+    ).first()
+    
+    if existing_application:
+        messages.info(request, f"You already have an application for {program.name}.")
+        return redirect('applications:application_detail', pk=existing_application.pk)
+    
+    return redirect('applications:application_create', program_id=program_id)
         
 
 @login_required

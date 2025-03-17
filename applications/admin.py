@@ -1,12 +1,29 @@
 from django.contrib import admin
 from .models import Program, FormField, Application, ApplicationDocument
 
+class FormFieldInline(admin.TabularInline):
+    model = FormField
+    extra = 3
+    fields = ('label', 'field_type', 'is_required', 'options', 'help_text', 'order')
+
 @admin.register(Program)
 class ProgramAdmin(admin.ModelAdmin):
     list_display = ('name', 'program_type', 'start_date', 'end_date', 'is_active')
     list_filter = ('program_type', 'is_active', 'start_date')
     search_fields = ('name', 'description')
     date_hierarchy = 'start_date'
+    inlines = [FormFieldInline]
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'program_type', 'description', 'eligibility_criteria')
+        }),
+        ('Dates', {
+            'fields': ('start_date', 'end_date', 'application_deadline')
+        }),
+        ('Settings', {
+            'fields': ('is_active', 'max_beneficiaries', 'featured_image')
+        }),
+    )
 
 class FormFieldInline(admin.TabularInline):
     model = FormField
