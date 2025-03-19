@@ -1,63 +1,81 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<!-- Hero Banner with Featured Image -->
-<div class="hero-section position-relative">
+<div class="hero-section">
     {% if program.featured_image %}
     <div class="hero-image" style="background-image: url('{{ program.featured_image.file.url }}');">
         <div class="hero-overlay"></div>
     </div>
     {% else %}
-    <div class="hero-image bg-success">
+    <div class="hero-image bg-gradient">
         <div class="hero-overlay"></div>
     </div>
     {% endif %}
     
-    <div class="container hero-content">
-        <div class="row">
-            <div class="col-lg-7">
-                <div class="program-badge">{{ program.get_program_type_display }}</div>
-                <h1 class="hero-title">{{ program.name }}</h1>
-                <p class="hero-subtitle">{{ program.description|truncatewords:25 }}</p>
+    <div class="container position-relative">
+        <div class="hero-content-wrapper">
+            <div class="program-badge">
+                <i class="fas {% if program.program_type == 'scholarship' %}fa-graduation-cap{% elif program.program_type == 'healthcare' %}fa-heartbeat{% elif program.program_type == 'housing' %}fa-home{% else %}fa-hands-helping{% endif %} me-2"></i>
+                {{ program.get_program_type_display }}
+            </div>
+            
+            <h1 class="hero-title">{{ program.name }}</h1>
+            <p class="hero-description">{{ program.description|truncatewords:30 }}</p>
+            
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Deadline</span>
+                        <span class="stat-value">{{ program.application_deadline|date:"F d, Y"|default:"Open Enrollment" }}</span>
+                    </div>
+                </div>
                 
-                <div class="hero-actions">
-                    <a href="{% url 'applications:program_apply' program.id %}" class="btn-apply">
-                        <span class="btn-icon"><i class="fas fa-paper-plane"></i></span>
-                        <span class="btn-text">Apply Now</span>
-                    </a>
-                    <a href="#program-details" class="btn-learn">
-                        <span class="btn-icon"><i class="fas fa-info-circle"></i></span>
-                        <span class="btn-text">Learn More</span>
-                    </a>
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Spots</span>
+                        <span class="stat-value">{{ program.max_beneficiaries|default:"Unlimited" }}</span>
+                    </div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Duration</span>
+                        <span class="stat-value">{{ program.duration|default:"Ongoing" }}</span>
+                    </div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Location</span>
+                        <span class="stat-value">{{ program.location|default:"Various Locations" }}</span>
+                    </div>
                 </div>
             </div>
-            <div class="col-lg-5 d-none d-lg-block">
-                <div class="program-stats">
-                    <div class="stat-item">
-                        <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
-                        <div class="stat-info">
-                            <div class="stat-label">Deadline</div>
-                            <div class="stat-value">{{ program.application_deadline|default:"Open" }}</div>
-                        </div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-icon"><i class="fas fa-users"></i></div>
-                        <div class="stat-info">
-                            <div class="stat-label">Spots</div>
-                            <div class="stat-value">{{ program.max_beneficiaries|default:"Unlimited" }}</div>
-                        </div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-icon"><i class="fas fa-clock"></i></div>
-                        <div class="stat-info">
-                            <div class="stat-label">Duration</div>
-                            <div class="stat-value">{{ program.duration|default:"Ongoing" }}</div>
-                        </div>
-                    </div>
-                </div>
+            
+            <div class="hero-actions">
+                <a href="{% url 'applications:program_apply' program.id %}" class="btn-apply">
+                    <i class="fas fa-paper-plane me-2"></i>Apply Now
+                </a>
+                <a href="#program-details" class="btn-learn">
+                    <i class="fas fa-info-circle me-2"></i>Learn More
+                </a>
             </div>
         </div>
     </div>
+    
+    
 </div>
 
 <div class="content-section">
@@ -242,17 +260,25 @@
     </div>
 </div>
 
+
+
 <style>
-    /* Hero Section */
+    /* New Integrated Hero Section Styles */
     .hero-section {
-        margin-bottom: 2rem;
+        position: relative;
+        margin-bottom: 0;
+        overflow: hidden;
     }
     
     .hero-image {
-        height: 500px;
+        height: 650px;
         background-size: cover;
         background-position: center;
         position: relative;
+    }
+    
+    .bg-gradient {
+        background: linear-gradient(135deg, #28a745 0%, #155724 100%);
     }
     
     .hero-overlay {
@@ -261,43 +287,127 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: linear-gradient(135deg, rgba(1, 58, 14, 0.9) 0%, rgba(0, 0, 0, 0.8) 100%);
+        background: linear-gradient(135deg, rgba(21, 87, 36, 0.9) 0%, rgba(0, 0, 0, 0.9) 100%);
     }
     
-    .hero-content {
+    .hero-content-wrapper {
         position: relative;
-        padding: 5rem 0;
         color: white;
+        padding: 5rem 0;
+        max-width: 900px;
+        margin: 0 auto;
+        text-align: center;
+        z-index: 2;
     }
     
     .program-badge {
-        display: inline-block;
-        background-color: rgba(255, 255, 255, 0.2);
+        display: inline-flex;
+        align-items: center;
+        background-color: rgba(255, 255, 255, 0.15);
         color: white;
         font-weight: 600;
         padding: 0.5rem 1.5rem;
         border-radius: 30px;
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
         backdrop-filter: blur(5px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .program-badge:hover {
+        background-color: rgba(255, 255, 255, 0.25);
+        transform: translateY(-2px);
     }
     
     .hero-title {
         font-size: 3.5rem;
         font-weight: 800;
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        line-height: 1.2;
     }
     
-    .hero-subtitle {
+    .hero-description {
         font-size: 1.25rem;
-        margin-bottom: 2rem;
-        max-width: 600px;
+        margin-bottom: 2.5rem;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
         text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        line-height: 1.6;
+        opacity: 0.9;
+    }
+    
+    .hero-stats {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
+        padding: 1rem;
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .stat-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        min-width: 200px;
+    }
+    
+    .stat-item:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        transform: translateY(-3px);
+    }
+    
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        background-color: rgba(255, 255, 255, 0.15);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        color: white;
+        margin-right: 1rem;
+        flex-shrink: 0;
+        transition: all 0.3s ease;
+    }
+    
+    .stat-item:hover .stat-icon {
+        background-color: rgba(255, 255, 255, 0.25);
+        transform: scale(1.05);
+    }
+    
+    .stat-info {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .stat-label {
+        font-size: 0.75rem;
+        opacity: 0.8;
+        margin-bottom: 0.25rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .stat-value {
+        font-weight: 700;
+        font-size: 1rem;
     }
     
     .hero-actions {
         display: flex;
+        justify-content: center;
         gap: 1rem;
         margin-bottom: 1rem;
     }
@@ -305,7 +415,7 @@
     .btn-apply, .btn-learn {
         display: flex;
         align-items: center;
-        padding: 0.75rem 1.5rem;
+        padding: 0.875rem 2rem;
         border-radius: 50px;
         font-weight: 600;
         transition: all 0.3s ease;
@@ -315,33 +425,146 @@
     .btn-apply {
         background-color: #28a745;
         color: white;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        border: 2px solid #28a745;
     }
     
     .btn-apply:hover {
-        background-color: #f8f9fa;
-        color: #28a745;
-        border: 1px solid rgba(40, 167, 69, 0.4);
+        background-color: #218838;
+        color: white;
         transform: translateY(-3px);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
     }
     
     .btn-learn {
-        background-color: rgba(255, 255, 255, 0.2);
+        background-color: transparent;
         color: white;
-        border: 1px solid rgba(255, 255, 255, 0.4);
+        border: 2px solid rgba(255, 255, 255, 0.5);
         backdrop-filter: blur(5px);
     }
     
     .btn-learn:hover {
-        background-color: rgba(255, 255, 255, 0.3);
+        background-color: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.8);
         transform: translateY(-3px);
+        color: white;
     }
     
-    .btn-icon {
-        margin-right: 0.5rem;
+    /* Wave separator */
+    .hero-wave {
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 100%;
+        overflow: hidden;
+        line-height: 0;
+        z-index: 3;
     }
     
+    .hero-wave svg {
+        display: block;
+        width: 100%;
+        height: 70px;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 1199.98px) {
+        .hero-title {
+            font-size: 3rem;
+        }
+        
+        .hero-image {
+            height: 600px;
+        }
+    }
+    
+    @media (max-width: 991.98px) {
+        .hero-content-wrapper {
+            padding: 4rem 0;
+        }
+        
+        .hero-title {
+            font-size: 2.5rem;
+        }
+        
+        .hero-image {
+            height: 550px;
+        }
+        
+        .hero-stats {
+            gap: 1rem;
+        }
+        
+        .stat-item {
+            min-width: 180px;
+        }
+    }
+    
+    @media (max-width: 767.98px) {
+        .hero-image {
+            height: 700px;
+        }
+        
+        .hero-content-wrapper {
+            padding: 3rem 0;
+        }
+        
+        .hero-title {
+            font-size: 2.25rem;
+        }
+        
+        .hero-description {
+            font-size: 1.1rem;
+        }
+        
+        .hero-stats {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .stat-item {
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .hero-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .btn-apply, .btn-learn {
+            width: 100%;
+            max-width: 300px;
+            justify-content: center;
+            margin-bottom: 0.75rem;
+        }
+    }
+    
+    @media (max-width: 575.98px) {
+        .hero-image {
+            height: 750px;
+        }
+        
+        .hero-content-wrapper {
+            padding: 2.5rem 0;
+        }
+        
+        .hero-title {
+            font-size: 2rem;
+        }
+        
+        .program-badge {
+            padding: 0.4rem 1.2rem;
+            font-size: 0.9rem;
+        }
+        
+        .hero-description {
+            font-size: 1rem;
+        }
+    }
+</style>
+
+<style>    
     /* Program Stats */
     .program-stats {
         background-color: rgba(255, 255, 255, 0.15);
@@ -389,18 +612,26 @@
         font-size: 1.125rem;
     }
     
+
     /* Content Section */
     .content-section {
         padding: 2rem 0 4rem;
+        background-color: #f8f9fa;
     }
     
     .content-card, .sidebar-card {
         background-color: white;
-        color: #28a745;
         border-radius: 15px;
         overflow: hidden;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
         margin-bottom: 2rem;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .content-card:hover, .sidebar-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
     }
     
     .card-header {
@@ -408,11 +639,12 @@
         align-items: center;
         padding: 1.5rem;
         border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        background-color: rgba(40, 167, 69, 0.03);
     }
     
     .header-icon {
-        width: 40px;
-        height: 40px;
+        width: 45px;
+        height: 45px;
         background-color: rgba(40, 167, 69, 0.1);
         border-radius: 10px;
         display: flex;
@@ -421,16 +653,23 @@
         font-size: 1.25rem;
         color: #28a745;
         margin-right: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .content-card:hover .header-icon, .sidebar-card:hover .header-icon {
+        background-color: rgba(40, 167, 69, 0.2);
+        transform: scale(1.05);
     }
     
     .header-title {
         font-size: 1.25rem;
         font-weight: 700;
         margin: 0;
+        color: #212529;
     }
     
     .card-body {
-        padding: 1.5rem;
+        padding: 1.75rem;
     }
     
     /* Program Highlights */
