@@ -47,5 +47,5 @@ urlpatterns = [
     path('blog/<slug:slug>/', views.BlogDetailView.as_view(), name='blog_detail'),
     path('blog/category/<slug:slug>/', views.CategoryListView.as_view(), name='blog_category'),
 
-    path('media-upload/', views.admin_media_upload, name='admin_media_upload'),
+    path('admin/cms/media/upload/', views.admin_media_upload, name='admin_media_upload'),
 ]

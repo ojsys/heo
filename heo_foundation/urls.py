@@ -4,8 +4,10 @@ from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.conf.urls.static import static
 from core.views import custom_404, custom_500
+from cms.views import admin_media_upload
 
 urlpatterns = [
+    #path('admin/cms/media/upload/', admin_media_upload, name='admin_media_upload'),
     path('admin/', admin.site.urls),
     path('', include('users.urls')),
     path('cms/', include('cms.urls')),

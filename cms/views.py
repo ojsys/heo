@@ -8,6 +8,7 @@ from django.utils import timezone
 from drf_yasg.utils import swagger_auto_schema
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import JsonResponse
+from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from drf_yasg import openapi
 from .models import Category, Page, Media, ImpactStory, Announcement, ContentVersion, BlogPost
@@ -493,7 +494,7 @@ class CategoryListView(ListView):
 
 
 @staff_member_required
-@csrf_protect
+@csrf_exempt  # Use csrf_exempt for AJAX uploads
 def admin_media_upload(request):
     if request.method == 'POST':
         file = request.FILES.get('file')
@@ -502,20 +503,23 @@ def admin_media_upload(request):
         if not file:
             return JsonResponse({'error': 'No file provided'}, status=400)
         
-        # Create a new Media object
-        media = Media(
-            title=title,
-            file=file,
-            uploaded_by=request.user
-        )
-        media.save()
-        
-        return JsonResponse({
-            'success': True,
-            'id': media.id,
-            'title': media.title,
-            'url': media.file.url
-        })
+        try:
+            # Create a new Media object
+            media = Media(
+                title=title,
+                file=file,
+                uploaded_by=request.user
+            )
+            media.save()
+            
+            return JsonResponse({
+                'success': True,
+                'id': media.id,
+                'title': media.title,
+                'url': media.file.url
+            })
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
     
     # For GET requests, render the upload template
     return render(request, 'admin/cms/media/upload.html')

@@ -2,12 +2,125 @@
 {% load i18n static %}
 
 {% block extrastyle %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/admin/media_upload.css' %}">
-{% endblock %}
-
-{% block extrahead %}
-<script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/admin/media_upload.js' %}"></script>
+<style>
+    .upload-container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    
+    .file-input-container {
+        margin: 20px 0;
+        padding: 20px;
+        border: 2px dashed #ccc;
+        border-radius: 5px;
+        text-align: center;
+        background-color: #f9f9f9;
+        cursor: pointer;
+    }
+    
+    .file-input-container:hover {
+        background-color: #f0f0f0;
+        border-color: #79aec8;
+    }
+    
+    .file-input-container input[type="file"] {
+        display: none;
+    }
+    
+    .file-input-label {
+        display: block;
+        font-size: 16px;
+        color: #444;
+        margin-bottom: 10px;
+    }
+    
+    .file-input-icon {
+        font-size: 48px;
+        color: #79aec8;
+        margin-bottom: 15px;
+    }
+    
+    .file-list {
+        margin-top: 20px;
+    }
+    
+    .file-item {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        margin-bottom: 10px;
+        background-color: #f5f5f5;
+        border-radius: 4px;
+    }
+    
+    .file-item img {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        margin-right: 15px;
+        border-radius: 4px;
+    }
+    
+    .file-name {
+        flex-grow: 1;
+    }
+    
+    .file-status {
+        margin-left: 15px;
+        font-weight: bold;
+    }
+    
+    .file-status.pending {
+        color: #f0ad4e;
+    }
+    
+    .file-status.success {
+        color: #5cb85c;
+    }
+    
+    .file-status.error {
+        color: #d9534f;
+    }
+    
+    .submit-btn {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        background-color: #79aec8;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        cursor: pointer;
+        margin-top: 20px;
+    }
+    
+    .submit-btn:hover {
+        background-color: #417690;
+    }
+    
+    .progress-container {
+        margin-top: 20px;
+    }
+    
+    .progress-bar-outer {
+        height: 20px;
+        background-color: #f5f5f5;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .progress-bar-inner {
+        height: 100%;
+        background-color: #79aec8;
+        width: 0%;
+        transition: width 0.3s ease;
+    }
+</style>
 {% endblock %}
 
 {% block breadcrumbs %}
@@ -15,31 +128,210 @@
     <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
     &rsaquo; <a href="{% url 'admin:app_list' app_label='cms' %}">{% trans 'CMS' %}</a>
     &rsaquo; <a href="{% url 'admin:cms_media_changelist' %}">{% trans 'Media' %}</a>
-    &rsaquo; {% trans 'Bulk Upload' %}
+    &rsaquo; {% trans 'Upload Media' %}
 </div>
 {% endblock %}
 
 {% block content %}
 <div id="content-main">
-    <div class="module">
-        <h2>{% trans 'Upload Media Files' %}</h2>
-        <div class="form-container">
-            <form id="media_form" method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                <div class="dropzone">
-                    <div class="icon">📁</div>
-                    <p>{% trans 'Drag & drop files here' %}</p>
-                    <p>{% trans 'or' %}</p>
-                    <button type="button" class="button">{% trans 'Select Files' %}</button>
+    <div class="upload-container">
+        <h1>{% trans 'Upload Media Files' %}</h1>
+        <p>{% trans 'Select files to upload to the media library.' %}</p>
+        
+        <form id="upload-form" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <label for="file-input" class="file-input-container">
+                <div class="file-input-icon">📁</div>
+                <span class="file-input-label">{% trans 'Click to select files or drag and drop them here' %}</span>
+                <input type="file" id="file-input" name="file" multiple>
+            </label>
+            
+            <div id="file-list" class="file-list"></div>
+            
+            <div id="progress-container" class="progress-container" style="display: none;">
+                <p>{% trans 'Uploading...' %}</p>
+                <div class="progress-bar-outer">
+                    <div id="progress-bar" class="progress-bar-inner"></div>
                 </div>
-                <div class="upload-progress" style="display: none;">
-                    <div class="progress">
-                        <div class="progress-bar" role="progressbar"></div>
-                    </div>
-                    <div class="upload-list"></div>
-                </div>
-            </form>
-        </div>
+            </div>
+            
+            <button type="button" id="submit-btn" class="submit-btn">{% trans 'Upload Files' %}</button>
+        </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('file-input');
+    const fileList = document.getElementById('file-list');
+    const submitBtn = document.getElementById('submit-btn');
+    const progressContainer = document.getElementById('progress-container');
+    const progressBar = document.getElementById('progress-bar');
+    const fileInputContainer = document.querySelector('.file-input-container');
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    let selectedFiles = [];
+    
+    // Handle file selection
+    fileInput.addEventListener('change', function() {
+        handleFiles(this.files);
+    });
+    
+    // Handle drag and drop
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        fileInputContainer.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+        fileInputContainer.addEventListener(eventName, highlight, false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+        fileInputContainer.addEventListener(eventName, unhighlight, false);
+    });
+    
+    function highlight() {
+        fileInputContainer.style.borderColor = '#79aec8';
+        fileInputContainer.style.backgroundColor = '#f0f7fc';
+    }
+    
+    function unhighlight() {
+        fileInputContainer.style.borderColor = '#ccc';
+        fileInputContainer.style.backgroundColor = '#f9f9f9';
+    }
+    
+    fileInputContainer.addEventListener('drop', handleDrop, false);
+    
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        handleFiles(files);
+    }
+    
+    function handleFiles(files) {
+        selectedFiles = Array.from(files);
+        fileList.innerHTML = '';
+        
+        selectedFiles.forEach((file, index) => {
+            const fileItem = document.createElement('div');
+            fileItem.className = 'file-item';
+            
+            const fileName = document.createElement('div');
+            fileName.className = 'file-name';
+            fileName.textContent = file.name;
+            
+            const fileStatus = document.createElement('div');
+            fileStatus.className = 'file-status pending';
+            fileStatus.textContent = 'Pending';
+            
+            fileItem.appendChild(fileName);
+            fileItem.appendChild(fileStatus);
+            
+            // Add preview for images
+            if (file.type.startsWith('image/')) {
+                const img = document.createElement('img');
+                img.file = file;
+                fileItem.insertBefore(img, fileName);
+                
+                const reader = new FileReader();
+                reader.onload = (function(aImg) { 
+                    return function(e) { 
+                        aImg.src = e.target.result; 
+                    }; 
+                })(img);
+                reader.readAsDataURL(file);
+            }
+            
+            fileList.appendChild(fileItem);
+        });
+        
+        if (selectedFiles.length > 0) {
+            submitBtn.style.display = 'block';
+        } else {
+            submitBtn.style.display = 'none';
+        }
+    }
+    
+    // Handle form submission
+    submitBtn.addEventListener('click', function() {
+        if (selectedFiles.length === 0) {
+            alert('Please select at least one file to upload.');
+            return;
+        }
+        
+        progressContainer.style.display = 'block';
+        submitBtn.disabled = true;
+        
+        uploadFiles();
+    });
+    
+    function uploadFiles() {
+        const fileItems = fileList.querySelectorAll('.file-item');
+        let completed = 0;
+        
+        selectedFiles.forEach((file, index) => {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('title', file.name.split('.')[0].replace(/[_-]/g, ' '));
+            formData.append('csrfmiddlewaretoken', csrfToken);
+            
+            const xhr = new XMLHttpRequest();
+            
+            xhr.open('POST', '/admin/cms/media/upload/', true);
+            
+            xhr.upload.addEventListener('progress', function(e) {
+                if (e.lengthComputable) {
+                    const percent = Math.round((e.loaded / e.total) * 100);
+                    fileItems[index].querySelector('.file-status').textContent = percent + '%';
+                }
+            });
+            
+            xhr.onload = function() {
+                completed++;
+                const fileStatus = fileItems[index].querySelector('.file-status');
+                
+                if (xhr.status === 200 || xhr.status === 201) {
+                    fileStatus.textContent = 'Uploaded';
+                    fileStatus.className = 'file-status success';
+                } else {
+                    fileStatus.textContent = 'Error';
+                    fileStatus.className = 'file-status error';
+                }
+                
+                // Update overall progress
+                progressBar.style.width = (completed / selectedFiles.length * 100) + '%';
+                
+                // If all files are uploaded, enable the submit button again
+                if (completed === selectedFiles.length) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Upload Complete';
+                    
+                    // Redirect back to media list after 2 seconds
+                    setTimeout(function() {
+                        window.location.href = '{% url "admin:cms_media_changelist" %}';
+                    }, 2000);
+                }
+            };
+            
+            xhr.onerror = function() {
+                completed++;
+                const fileStatus = fileItems[index].querySelector('.file-status');
+                fileStatus.textContent = 'Error';
+                fileStatus.className = 'file-status error';
+                
+                // Update overall progress
+                progressBar.style.width = (completed / selectedFiles.length * 100) + '%';
+            };
+            
+            xhr.send(formData);
+        });
+    }
+});
+</script>
 {% endblock %}
