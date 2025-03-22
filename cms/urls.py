@@ -40,9 +40,12 @@ urlpatterns = [
     path('page/<slug:slug>/', views.PageDetailView.as_view(), name='page_detail'),
     path('page/create/', views.PageCreateView.as_view(), name='page_create'),
     path('impact-stories/', views.ImpactStoryListView.as_view(), name='impact_story_list'),
+    path('impact-stories/<int:pk>/', views.ImpactStoryDetailView.as_view(), name='impact_story_detail'),
     path('announcements/', views.AnnouncementListView.as_view(), name='announcement_list'),
 
     path('blog/', views.BlogListView.as_view(), name='blog_list'),
     path('blog/<slug:slug>/', views.BlogDetailView.as_view(), name='blog_detail'),
     path('blog/category/<slug:slug>/', views.CategoryListView.as_view(), name='blog_category'),
+
+    path('media-upload/', views.admin_media_upload, name='admin_media_upload'),
 ]

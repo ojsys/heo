@@ -11,9 +11,9 @@
             <p class="lead text-secondary">A complete collection of our community impact</p>
         </div>
         
-        <div class="row g-4">
+        <div class="row g-4" id="gallery-container">
             {% for image in gallery_images %}
-            <div class="col-md-4">
+            <div class="col-md-4 gallery-item-container">
                 <div class="position-relative gallery-item" data-bs-toggle="modal" data-bs-target="#imageModal{{ image.id }}" style="cursor: pointer;">
                     <span class="badge bg-success position-absolute" style="top: 15px; right: 15px; z-index: 2;">
                         {{ image.get_category_display }}
@@ -46,6 +46,16 @@
             </div>
             {% endfor %}
         </div>
+        
+        <!-- Load More Button -->
+        <div class="text-center mt-5" id="load-more-container" {% if gallery_images.count < 6 %}style="display: none;"{% endif %}>
+            <button id="load-more-btn" class="btn btn-outline-success btn-lg px-4" data-page="1">
+                <span>Load More</span>
+                <div class="spinner-border spinner-border-sm ms-2 d-none" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </button>
+        </div>
     </div>
 </section>
 
@@ -64,5 +74,111 @@
         max-height: 70vh;
         object-fit: contain;
     }
+    
+    .gallery-item {
+        transition: transform 0.3s ease;
+        overflow: hidden;
+    }
+    
+    .gallery-item:hover {
+        transform: translateY(-5px);
+    }
+    
+    .gallery-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+        padding: 20px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .gallery-item:hover .gallery-overlay {
+        opacity: 1;
+    }
+    
+    .gallery-item-container {
+        opacity: 0;
+        animation: fadeIn 0.5s forwards;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .gallery-item-container:nth-child(1) { animation-delay: 0.1s; }
+    .gallery-item-container:nth-child(2) { animation-delay: 0.2s; }
+    .gallery-item-container:nth-child(3) { animation-delay: 0.3s; }
+    .gallery-item-container:nth-child(4) { animation-delay: 0.4s; }
+    .gallery-item-container:nth-child(5) { animation-delay: 0.5s; }
+    .gallery-item-container:nth-child(6) { animation-delay: 0.6s; }
 </style>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const loadMoreBtn = document.getElementById('load-more-btn');
+        const galleryContainer = document.getElementById('gallery-container');
+        const spinner = loadMoreBtn.querySelector('.spinner-border');
+        
+        loadMoreBtn.addEventListener('click', function() {
+            const nextPage = parseInt(loadMoreBtn.dataset.page);
+            spinner.classList.remove('d-none');
+            loadMoreBtn.querySelector('span').textContent = 'Loading...';
+            loadMoreBtn.disabled = true;
+            
+            fetch(`/gallery/load-more/?page=${nextPage}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.html) {
+                        // Append new content
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = data.html;
+                        
+                        // Get all new gallery items
+                        const newItems = tempDiv.querySelectorAll('.gallery-item-container');
+                        
+                        // Append each item to the gallery container
+                        newItems.forEach(item => {
+                            galleryContainer.appendChild(item);
+                            
+                            // Initialize animation with a delay
+                            setTimeout(() => {
+                                item.style.animation = 'fadeIn 0.5s forwards';
+                            }, 100);
+                        });
+                        
+                        // Update page number
+                        loadMoreBtn.dataset.page = nextPage + 1;
+                        
+                        // Initialize Bootstrap modals for new items
+                        const newModals = tempDiv.querySelectorAll('.modal');
+                        newModals.forEach(modal => {
+                            document.body.appendChild(modal);
+                        });
+                        
+                        // Hide load more button if no more images
+                        if (data.has_more === false) {
+                            loadMoreBtn.parentElement.style.display = 'none';
+                        }
+                    }
+                    
+                    // Reset button state
+                    spinner.classList.add('d-none');
+                    loadMoreBtn.querySelector('span').textContent = 'Load More';
+                    loadMoreBtn.disabled = false;
+                })
+                .catch(error => {
+                    console.error('Error loading more images:', error);
+                    spinner.classList.add('d-none');
+                    loadMoreBtn.querySelector('span').textContent = 'Try Again';
+                    loadMoreBtn.disabled = false;
+                });
+        });
+    });
+</script>
+{% endblock %}
 {% endblock %}

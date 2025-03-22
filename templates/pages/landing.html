@@ -308,24 +308,60 @@
     </div>
 </section>
 
-<!-- Featured Story Section -->
-<section class="py-6 bg-light">
+<!-- Featured Impact Stories Section -->
+<section class="featured-stories py-5 bg-light">
     <div class="container">
-        <div class="row align-items-center">
+        <div class="row mb-4">
             <div class="col-lg-6">
-                <img src="{% static 'images/impact-story.jpg' %}" alt="Impact Story" class="img-fluid rounded-4 shadow-lg">
+                <h2 class="section-title">Featured Impact Stories</h2>
+                <p class="section-subtitle">Real stories of transformation and hope from the people we've helped.</p>
             </div>
-            <div class="col-lg-6 ps-lg-5">
-                <h2 class="fw-bold mb-4" style="color: #02a65e;">Making Real Impact</h2>
-                <p class="lead text-secondary mb-4">"The HEO Eziokwu Foundation scholarship changed my life. I was able to complete my education and now I'm giving back to my community."</p>
-                <div class="d-flex align-items-center">
-                    <img src="{% static 'images/testimonial-avatar.jpg' %}" alt="Student" class="rounded-circle" style="width: 60px; height: 60px; object-fit: cover;">
-                    <div class="ms-3">
-                        <h5 class="mb-1">Sarah Johnson</h5>
-                        <p class="text-secondary mb-0">Medical Student, Class of 2023</p>
+            <div class="col-lg-6 text-lg-end">
+                <a href="{% url 'cms:impact_story_list' %}" class="btn btn-outline-success">
+                    View All Stories <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+        
+        <div class="row">
+            {% for story in featured_stories %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm story-card">
+                    {% if story.featured_image %}
+                    <div class="card-img-container">
+                        <img src="{{ story.featured_image.url }}" class="card-img-top" alt="{{ story.title }}">
+                    </div>
+                    {% else %}
+                    <div class="card-img-placeholder">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ story.title }}</h5>
+                        <p class="card-text">{{ story.excerpt|truncatewords:20 }}</p>
+                    </div>
+                    <div class="card-footer bg-white border-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="story-meta">
+                                {% if story.beneficiary_name %}
+                                <small class="text-muted"><i class="far fa-user me-1"></i> {{ story.beneficiary_name }}</small>
+                                {% endif %}
+                                <small class="text-muted d-block"><i class="far fa-calendar-alt me-1"></i> {{ story.created_at|date:"F d, Y" }}</small>
+                            </div>
+                            <a href="{% url 'cms:impact_story_detail' story.slug %}" class="btn btn-sm btn-outline-success">Read More</a>
+                        </div>
                     </div>
                 </div>
             </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <div class="empty-state">
+                    <i class="fas fa-heart fa-3x text-muted mb-3"></i>
+                    <h4>No impact stories yet</h4>
+                    <p class="text-muted">Check back soon for inspiring stories from our beneficiaries.</p>
+                </div>
+            </div>
+            {% endfor %}
         </div>
     </div>
 </section>
@@ -475,7 +511,61 @@
     </div>
 </section>
 
+<style>
+/* Impact Story Cards Styling */
+.story-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+}
 
+.story-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+}
+
+.card-img-container {
+    height: 200px;
+    overflow: hidden;
+}
+
+.card-img-top {
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.story-card:hover .card-img-top {
+    transform: scale(1.05);
+}
+
+.card-img-placeholder {
+    height: 200px;
+    background: linear-gradient(135deg, #28a745 0%, #155724 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 3rem;
+}
+
+.section-title {
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    position: relative;
+}
+
+.section-subtitle {
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+}
+
+.empty-state {
+    padding: 3rem;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    border: 1px dashed #dee2e6;
+}
+</style>
 {% endblock %}
 
     

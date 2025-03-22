@@ -1,0 +1,45 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/admin/media_upload.css' %}">
+{% endblock %}
+
+{% block extrahead %}
+<script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/admin/media_upload.js' %}"></script>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a href="{% url 'admin:app_list' app_label='cms' %}">{% trans 'CMS' %}</a>
+    &rsaquo; <a href="{% url 'admin:cms_media_changelist' %}">{% trans 'Media' %}</a>
+    &rsaquo; {% trans 'Bulk Upload' %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <div class="module">
+        <h2>{% trans 'Upload Media Files' %}</h2>
+        <div class="form-container">
+            <form id="media_form" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="dropzone">
+                    <div class="icon">📁</div>
+                    <p>{% trans 'Drag & drop files here' %}</p>
+                    <p>{% trans 'or' %}</p>
+                    <button type="button" class="button">{% trans 'Select Files' %}</button>
+                </div>
+                <div class="upload-progress" style="display: none;">
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar"></div>
+                    </div>
+                    <div class="upload-list"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

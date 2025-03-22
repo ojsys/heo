@@ -6,6 +6,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.utils import timezone
 from drf_yasg.utils import swagger_auto_schema
+from django.contrib.admin.views.decorators import staff_member_required
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from drf_yasg import openapi
 from .models import Category, Page, Media, ImpactStory, Announcement, ContentVersion, BlogPost
 from .serializers import (CategorySerializer, PageSerializer, MediaSerializer,
@@ -38,11 +41,7 @@ class PageCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     def test_func(self):
         return self.request.user.is_staff
 
-class ImpactStoryListView(ListView):
-    model = ImpactStory
-    template_name = 'cms/impact_story_list.html'
-    context_object_name = 'stories'
-    queryset = ImpactStory.objects.filter(is_featured=True)
+
 
 class AnnouncementListView(ListView):
     model = Announcement
@@ -310,6 +309,51 @@ class ImpactStoryViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(featured, many=True)
         return Response(serializer.data)
 
+
+class ImpactStoryListView(ListView):
+    model = ImpactStory
+    template_name = 'cms/impact_story_list.html'
+    context_object_name = 'stories'
+    paginate_by = 6  # Show 6 stories per page
+    
+    def get_queryset(self):
+        # Get all published impact stories, ordered by date (newest first)
+        return ImpactStory.objects.filter(is_featured=True).order_by('-created_at')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Add featured stories to the context
+        context['featured_stories'] = ImpactStory.objects.filter( 
+            is_featured=True
+        ).order_by('-created_at')[:3]  # Get top 3 featured stories
+        
+        # Add total count of impact stories
+        context['total_stories'] = ImpactStory.objects.filter(is_featured=True).count()
+        
+        return context
+
+class ImpactStoryDetailView(DetailView):
+    model = ImpactStory
+    template_name = 'cms/impact_story_detail.html'
+    context_object_name = 'story'
+    
+    def get_queryset(self):
+        # Only show published stories
+        return ImpactStory.objects.filter(is_featured=True)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        story = self.get_object()
+        
+        # Get related stories (same category or tags if you have those fields)
+        related_stories = ImpactStory.objects.filter(
+            is_featured=True
+        ).exclude(id=story.id).order_by('-created_at')[:3]
+        
+        context['related_stories'] = related_stories
+        return context
+
+
 class AnnouncementViewSet(viewsets.ModelViewSet):
     serializer_class = AnnouncementSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
@@ -445,3 +489,33 @@ class CategoryListView(ListView):
         context['category'] = self.category
         context['categories'] = Category.objects.all()
         return context
+
+
+
+@staff_member_required
+@csrf_protect
+def admin_media_upload(request):
+    if request.method == 'POST':
+        file = request.FILES.get('file')
+        title = request.POST.get('title', '')
+        
+        if not file:
+            return JsonResponse({'error': 'No file provided'}, status=400)
+        
+        # Create a new Media object
+        media = Media(
+            title=title,
+            file=file,
+            uploaded_by=request.user
+        )
+        media.save()
+        
+        return JsonResponse({
+            'success': True,
+            'id': media.id,
+            'title': media.title,
+            'url': media.file.url
+        })
+    
+    # For GET requests, render the upload template
+    return render(request, 'admin/cms/media/upload.html')

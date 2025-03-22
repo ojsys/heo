@@ -1,29 +1,178 @@
 {% extends 'base.html' %}
 
-{% block title %}Impact Stories{% endblock %}
+{% block title %}Impact Stories - Our Success Stories{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1 class="mb-4">Impact Stories</h1>
-    
-    <div class="row">
-        {% for story in stories %}
-        <div class="col-md-4 mb-4">
-            <div class="card">
-                {% if story.image %}
-                <img src="{{ story.image.file.url }}" class="card-img-top" alt="{{ story.title }}">
-                {% endif %}
-                <div class="card-body">
-                    <h5 class="card-title">{{ story.title }}</h5>
-                    <h6 class="card-subtitle mb-2 text-muted">{{ story.beneficiary_name }}</h6>
-                    <p class="card-text">{{ story.story|truncatewords:50 }}</p>
-                    {% if story.program %}
-                    <p class="badge bg-primary">{{ story.program.name }}</p>
-                    {% endif %}
+<!-- Hero Section -->
+<section class="hero-section bg-light py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">Our Impact Stories</h1>
+                <p class="lead mb-4">Real stories of transformation and hope from the people we've helped.</p>
+                <p class="text-muted">Discover how our programs have made a difference in the lives of {{ total_stories }} individuals and communities.</p>
+            </div>
+            <div class="col-lg-6">
+                {% if featured_stories.0.image %}
+                <img src="{{ featured_stories.0.image.file.url }}" alt="{{ featured_stories.0.title }}" class="img-fluid rounded-4 shadow-lg">
+                {% else %}
+                <div class="hero-image-placeholder rounded-4 shadow-lg d-flex align-items-center justify-content-center">
+                    <i class="fas fa-heart fa-5x text-white"></i>
                 </div>
+                {% endif %}
             </div>
         </div>
-        {% endfor %}
     </div>
-</div>
+</section>
+
+<!-- Featured Stories Section -->
+{% if featured_stories %}
+<section class="featured-stories py-5">
+    <div class="container">
+        <h2 class="section-title text-center mb-5">Featured Stories</h2>
+        <div class="row">
+            {% for story in featured_stories %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm hover-card">
+                    {% if story.image %}
+                    <img src="{{ story.image.file.url }}" class="card-img-top" alt="{{ story.title }}">
+                    {% else %}
+                    <div class="bg-light text-center py-5">
+                        <i class="fas fa-heart fa-3x text-muted"></i>
+                    </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <span class="badge bg-success mb-2">Featured</span>
+                        <h5 class="card-title">{{ story.title }}</h5>
+                        <p class="card-text text-muted">{{ story.story|truncatewords:20 }}</p>
+                    </div>
+                    <div class="card-footer bg-white border-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">{{ story.created_at|date:"F d, Y" }}</small>
+                            <a href="{% url 'cms:impact_story_detail' story.id %}" class="btn btn-sm btn-outline-success">Read More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- All Stories Section -->
+<section class="all-stories py-5 bg-light">
+    <div class="container">
+        <h2 class="section-title text-center mb-5">All Impact Stories</h2>
+        
+        <div class="row">
+            {% for story in stories %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm hover-card">
+                    {% if story.image %}
+                    <img src="{{ story.image.file.url }}" class="card-img-top" alt="{{ story.title }}">
+                    {% else %}
+                    <div class="bg-light text-center py-5">
+                        <i class="fas fa-heart fa-3x text-muted"></i>
+                    </div>
+                    {% endif %}
+                    <div class="card-body">
+                        {% if story.is_featured %}
+                        <span class="badge bg-success mb-2">Featured</span>
+                        {% endif %}
+                        <h5 class="card-title">{{ story.title }}</h5>
+                        <p class="card-text text-muted">{{ story.story|truncatewords:20 }}</p>
+                    </div>
+                    <div class="card-footer bg-white border-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted">{{ story.created_at|date:"F d, Y" }}</small>
+                                {% if story.beneficiary_name %}
+                                <small class="text-muted d-block">{{ story.beneficiary_name }}</small>
+                                {% endif %}
+                            </div>
+                            <a href="{% url 'cms:impact_story_detail' story.id %}" class="btn btn-sm btn-outline-success">Read More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <div class="pagination-container mt-5">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1" aria-label="First">
+                            <span aria-hidden="true">&laquo;&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                            <span aria-hidden="true">&raquo;&raquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<style>
+    .hover-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .hover-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+    
+    .card-img-top {
+        height: 200px;
+        object-fit: cover;
+    }
+    
+    .section-title {
+        position: relative;
+        padding-bottom: 15px;
+    }
+    
+    .section-title:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 50px;
+        height: 3px;
+        background-color: #28a745;
+    }
+</style>
 {% endblock %}

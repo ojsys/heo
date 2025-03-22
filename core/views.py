@@ -4,8 +4,10 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
+from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from core.models import SiteSettings, SliderImage, GalleryImage, TeamMember, Achievement, WhatWeDo
+from cms.models import ImpactStory
 from .forms import ContactForm
 from django.core.mail import send_mail
 
@@ -46,6 +48,10 @@ def home_view(request):
         'all_gallery_count': all_gallery_images.count(),
         'form': form,
     }
+    context['featured_stories'] = ImpactStory.objects.filter( 
+        is_featured=True
+    ).order_by('-created_at')[:3]
+    
     # Handle form submission
     if request.method == 'POST':
         form = ContactForm(request.POST)
@@ -149,3 +155,26 @@ def contact_view(request):
         'site_settings': SiteSettings.objects.first()
     }
     return render(request, 'pages/contact.html', context)
+
+
+# View to load more gallery images using AJAX
+def load_more_gallery(request):
+    page = int(request.GET.get('page', 1))
+    per_page = 6  # Number of images to load per request
+    offset = page * per_page
+    
+    # Get the next batch of images
+    next_images = GalleryImage.objects.filter(is_active=True).order_by('category', 'order')[offset:offset+per_page]
+    
+    # Check if there are more images after this batch
+    has_more = GalleryImage.objects.filter(is_active=True).count() > (offset + per_page)
+    
+    # Render the HTML for the new images
+    html = render_to_string('pages/includes/gallery_items.html', {
+        'gallery_images': next_images
+    })
+    
+    return JsonResponse({
+        'html': html,
+        'has_more': has_more
+    })

@@ -1,6 +1,6 @@
 {% for image in gallery_images %}
-<div class="col-md-4">
-    <div class="position-relative gallery-item">
+<div class="col-md-4 gallery-item-container" style="opacity: 0;">
+    <div class="position-relative gallery-item" data-bs-toggle="modal" data-bs-target="#imageModal{{ image.id }}" style="cursor: pointer;">
         <span class="badge bg-success position-absolute" style="top: 15px; right: 15px; z-index: 2;">
             {{ image.get_category_display }}
         </span>
@@ -8,6 +8,25 @@
         <div class="gallery-overlay rounded-4">
             <h4 class="text-white">{{ image.title }}</h4>
             <p class="text-white-50 mb-0">{{ image.description }}</p>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for each image -->
+<div class="modal fade" id="imageModal{{ image.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">{{ image.title }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <img src="{{ image.image.url }}" alt="{{ image.title }}" class="img-fluid w-100">
+                <div class="p-3">
+                    <span class="badge bg-success mb-2">{{ image.get_category_display }}</span>
+                    <p class="mb-0">{{ image.description }}</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>

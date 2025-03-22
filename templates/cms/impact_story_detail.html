@@ -1,0 +1,261 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ story.title }} - Impact Story{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="story-hero py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'cms:impact_story_list' %}">Impact Stories</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">{{ story.title }}</li>
+                    </ol>
+                </nav>
+                
+                <div class="text-center mb-4">
+                    <span class="badge bg-success mb-2">Impact Story</span>
+                    <h1 class="display-4 fw-bold mb-3">{{ story.title }}</h1>
+                    <div class="d-flex justify-content-center align-items-center text-muted mb-4">
+                        <span><i class="far fa-calendar-alt me-1"></i> {{ story.created_at|date:"F d, Y" }}</span>
+                        {% if story.beneficiary_name %}
+                        <span class="mx-3">|</span>
+                        <span><i class="far fa-user me-1"></i> {{ story.beneficiary_name }}</span>
+                        {% endif %}
+                        {% if story.location %}
+                        <span class="mx-3">|</span>
+                        <span><i class="fas fa-map-marker-alt me-1"></i> {{ story.location }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Story Content -->
+<section class="story-content py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                {% if story.featured_image %}
+                <div class="featured-image-container mb-5">
+                    <img src="{{ story.featured_image.url }}" alt="{{ story.title }}" class="img-fluid rounded-4 shadow">
+                </div>
+                {% endif %}
+                
+                <div class="story-excerpt mb-4">
+                    <p class="lead">{{ story.excerpt }}</p>
+                </div>
+                
+                <div class="story-body">
+                    {{ story.story|safe }}
+                </div>
+                
+                {% if story.quote %}
+                <div class="story-quote my-5">
+                    <blockquote class="blockquote">
+                        <p class="mb-0">{{ story.quote }}</p>
+                        {% if story.beneficiary_name %}
+                        <footer class="blockquote-footer">{{ story.beneficiary_name }}</footer>
+                        {% endif %}
+                    </blockquote>
+                </div>
+                {% endif %}
+                
+                <!-- Social Share -->
+                <div class="social-share mt-5 pt-4 border-top">
+                    <h5>Share This Story</h5>
+                    <div class="d-flex gap-2 mt-3">
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <i class="fab fa-facebook-f me-1"></i> Facebook
+                        </a>
+                        <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ story.title }}" target="_blank" class="btn btn-sm btn-outline-info">
+                            <i class="fab fa-twitter me-1"></i> Twitter
+                        </a>
+                        <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri }}&title={{ story.title }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                            <i class="fab fa-linkedin-in me-1"></i> LinkedIn
+                        </a>
+                        <a href="mailto:?subject={{ story.title }}&body={{ request.build_absolute_uri }}" class="btn btn-sm btn-outline-dark">
+                            <i class="fas fa-envelope me-1"></i> Email
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+
+<!-- Related Stories -->
+{% if related_stories %}
+<section class="related-stories py-5 bg-light">
+    <div class="container">
+        <h3 class="section-title text-center mb-4">More Impact Stories</h3>
+        <div class="row">
+            {% for related in related_stories %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm hover-card">
+                    {% if related.featured_image %}
+                    <img src="{{ related.featured_image.url }}" class="card-img-top" alt="{{ related.title }}">
+                    {% else %}
+                    <div class="bg-light text-center py-5">
+                        <i class="fas fa-heart fa-3x text-muted"></i>
+                    </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ related.title }}</h5>
+                        <p class="card-text text-muted">{{ related.excerpt|truncatewords:15 }}</p>
+                    </div>
+                    <div class="card-footer bg-white border-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">{{ related.created_at|date:"F d, Y" }}</small>
+                            <a href="{% url 'cms:impact_story_detail' related.id %}" class="btn btn-sm btn-outline-success">Read More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Call to Action -->
+<section class="cta-section py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h3 class="mb-4">Want to make a difference?</h3>
+                <p class="lead mb-4">Join us in our mission to create positive change in communities around the world.</p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="#" class="btn btn-success btn-lg">
+                        <i class="fas fa-heart me-2"></i> Donate Now
+                    </a>
+                    <a href="#" class="btn btn-outline-success btn-lg">
+                        <i class="fas fa-hands-helping me-2"></i> Volunteer
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .story-hero {
+        padding-top: 7rem;
+        background-color: #f8f9fa;
+    }
+    
+    .story-excerpt p {
+        font-size: 1.25rem;
+        line-height: 1.8;
+        color: #495057;
+    }
+    
+    .story-body {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #212529;
+    }
+    
+    .story-body h2, .story-body h3 {
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .story-body p {
+        margin-bottom: 1.5rem;
+    }
+    
+    .story-body img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        margin: 1.5rem 0;
+    }
+    
+    .story-quote {
+        background-color: #f8f9fa;
+        border-left: 5px solid #28a745;
+        padding: 2rem;
+        border-radius: 8px;
+    }
+    
+    .story-quote .blockquote {
+        font-size: 1.25rem;
+        font-style: italic;
+    }
+    
+    .featured-image-container {
+        position: relative;
+    }
+    
+    .featured-image-container img {
+        width: 100%;
+        max-height: 500px;
+        object-fit: cover;
+    }
+    
+    .hover-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .hover-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+    
+    .card-img-top {
+        height: 200px;
+        object-fit: cover;
+    }
+    
+    .section-title {
+        position: relative;
+        padding-bottom: 15px;
+    }
+    
+    .section-title:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 50px;
+        height: 3px;
+        background-color: #28a745;
+    }
+    
+    .cta-section {
+        background-color: #f8f9fa;
+        border-top: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    @media (max-width: 767.98px) {
+        .story-hero {
+            padding-top: 5rem;
+        }
+        
+        .d-flex.justify-content-center.align-items-center.text-muted {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .d-flex.justify-content-center.align-items-center.text-muted .mx-3 {
+            display: none;
+        }
+        
+        .story-excerpt p {
+            font-size: 1.1rem;
+        }
+        
+        .story-body {
+            font-size: 1rem;
+        }
+    }
+</style>
+{% endblock %}

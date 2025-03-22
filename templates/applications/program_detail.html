@@ -1,83 +1,58 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="hero-section">
-    {% if program.featured_image %}
-    <div class="hero-image" style="background-image: url('{{ program.featured_image.file.url }}');">
-        <div class="hero-overlay"></div>
-    </div>
-    {% else %}
-    <div class="hero-image bg-gradient">
-        <div class="hero-overlay"></div>
-    </div>
-    {% endif %}
-    
-    <div class="container position-relative">
-        <div class="hero-content-wrapper">
-            <div class="program-badge">
-                <i class="fas {% if program.program_type == 'scholarship' %}fa-graduation-cap{% elif program.program_type == 'healthcare' %}fa-heartbeat{% elif program.program_type == 'housing' %}fa-home{% else %}fa-hands-helping{% endif %} me-2"></i>
-                {{ program.get_program_type_display }}
-            </div>
-            
-            <h1 class="hero-title">{{ program.name }}</h1>
-            <p class="hero-description">{{ program.description|truncatewords:30 }}</p>
-            
-            <div class="hero-stats">
-                <div class="stat-item">
-                    <div class="stat-icon">
+<!-- Simplified Hero Section -->
+<div class="program-hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-7 hero-content">
+                <div class="program-type-badge">
+                    <i class="fas {% if program.program_type == 'scholarship' %}fa-graduation-cap{% elif program.program_type == 'healthcare' %}fa-heartbeat{% elif program.program_type == 'housing' %}fa-home{% else %}fa-hands-helping{% endif %}"></i>
+                    {{ program.get_program_type_display }}
+                </div>
+                
+                <h1 class="program-title">{{ program.name }}</h1>
+                <p class="program-description">{{ program.description|truncatewords:30 }}</p>
+                
+                <div class="program-meta">
+                    <div class="meta-item">
                         <i class="fas fa-calendar-alt"></i>
+                        <span>Deadline: {{ program.application_deadline|date:"F d, Y"|default:"Open Enrollment" }}</span>
                     </div>
-                    <div class="stat-info">
-                        <span class="stat-label">Deadline</span>
-                        <span class="stat-value">{{ program.application_deadline|date:"F d, Y"|default:"Open Enrollment" }}</span>
-                    </div>
-                </div>
-                
-                <div class="stat-item">
-                    <div class="stat-icon">
+                    <div class="meta-item">
                         <i class="fas fa-users"></i>
+                        <span>Spots: {{ program.max_beneficiaries|default:"Unlimited" }}</span>
                     </div>
-                    <div class="stat-info">
-                        <span class="stat-label">Spots</span>
-                        <span class="stat-value">{{ program.max_beneficiaries|default:"Unlimited" }}</span>
-                    </div>
-                </div>
-                
-                <div class="stat-item">
-                    <div class="stat-icon">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <div class="stat-info">
-                        <span class="stat-label">Duration</span>
-                        <span class="stat-value">{{ program.duration|default:"Ongoing" }}</span>
-                    </div>
-                </div>
-                
-                <div class="stat-item">
-                    <div class="stat-icon">
+                    <div class="meta-item">
                         <i class="fas fa-map-marker-alt"></i>
+                        <span>Location: {{ program.location|default:"Various Locations" }}</span>
                     </div>
-                    <div class="stat-info">
-                        <span class="stat-label">Location</span>
-                        <span class="stat-value">{{ program.location|default:"Various Locations" }}</span>
-                    </div>
+                </div>
+                
+                <div class="hero-buttons mt-5">
+                    <a href="{% url 'applications:program_apply' program.id %}" class="btn btn-success btn-lg">
+                        <i class="fas fa-paper-plane me-2"></i>Apply Now
+                    </a>
+                    <a href="#program-details" class="btn btn-outline-success btn-lg ms-2">
+                        <i class="fas fa-info-circle me-2"></i>Learn More
+                    </a>
                 </div>
             </div>
             
-            <div class="hero-actions">
-                <a href="{% url 'applications:program_apply' program.id %}" class="btn-apply">
-                    <i class="fas fa-paper-plane me-2"></i>Apply Now
-                </a>
-                <a href="#program-details" class="btn-learn">
-                    <i class="fas fa-info-circle me-2"></i>Learn More
-                </a>
+            <div class="col-lg-5 hero-image-container">
+                {% if program.featured_image %}
+                <img src="{{ program.featured_image.file.url }}" alt="{{ program.name }}" class="hero-image">
+                {% else %}
+                <div class="hero-image-placeholder">
+                    <i class="fas {% if program.program_type == 'scholarship' %}fa-graduation-cap{% elif program.program_type == 'healthcare' %}fa-heartbeat{% elif program.program_type == 'housing' %}fa-home{% else %}fa-hands-helping{% endif %}"></i>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
-    
-    
 </div>
 
+<!-- Program Content Section -->
 <div class="content-section">
     <div class="container">
         <div class="row g-4">
@@ -220,7 +195,7 @@
                         </div>
                         
                         <a href="{% url 'applications:program_apply' program.id %}" class="apply-button">
-                            <i class="fas fa-paper-plane"></i> Apply Now
+                            <i class="fas fa-paper-plane me-2"></i> Apply Now
                         </a>
                     </div>
                 </div>
@@ -234,7 +209,7 @@
                     <div class="card-body">
                         <p>If you have any questions about this program or the application process, please contact us.</p>
                         <a href="{% url 'core:contact' %}" class="contact-button">
-                            <i class="fas fa-envelope"></i> Contact Us
+                            <i class="fas fa-envelope me-2"></i> Contact Us
                         </a>
                     </div>
                 </div>
@@ -247,11 +222,11 @@
                     </div>
                     <div class="card-body">
                         <div class="share-buttons">
-                            <a href="#" class="share-btn facebook"><i class="fab fa-facebook-f"></i></a>
-                            <a href="#" class="share-btn twitter"><i class="fab fa-twitter"></i></a>
-                            <a href="#" class="share-btn linkedin"><i class="fab fa-linkedin-in"></i></a>
-                            <a href="#" class="share-btn whatsapp"><i class="fab fa-whatsapp"></i></a>
-                            <a href="#" class="share-btn email"><i class="fas fa-envelope"></i></a>
+                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="share-btn facebook"><i class="fab fa-facebook-f"></i></a>
+                            <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text=Check out this program: {{ program.name }}" target="_blank" class="share-btn twitter"><i class="fab fa-twitter"></i></a>
+                            <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri }}&title={{ program.name }}" target="_blank" class="share-btn linkedin"><i class="fab fa-linkedin-in"></i></a>
+                            <a href="https://api.whatsapp.com/send?text=Check out this program: {{ program.name }} {{ request.build_absolute_uri }}" target="_blank" class="share-btn whatsapp"><i class="fab fa-whatsapp"></i></a>
+                            <a href="mailto:?subject=Check out this program: {{ program.name }}&body={{ request.build_absolute_uri }}" class="share-btn email"><i class="fas fa-envelope"></i></a>
                         </div>
                     </div>
                 </div>
@@ -260,10 +235,8 @@
     </div>
 </div>
 
-
-
 <style>
-    /* New Integrated Hero Section Styles */
+    /* Enhanced Hero Section Styles */
     .hero-section {
         position: relative;
         margin-bottom: 0;
@@ -287,7 +260,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: linear-gradient(135deg, rgba(21, 87, 36, 0.9) 0%, rgba(0, 0, 0, 0.9) 100%);
+        background: linear-gradient(135deg, rgba(21, 87, 36, 0.85) 0%, rgba(0, 0, 0, 0.9) 100%);
     }
     
     .hero-content-wrapper {
@@ -326,6 +299,7 @@
         margin-bottom: 1.5rem;
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         line-height: 1.2;
+        animation: fadeInDown 1s ease-out;
     }
     
     .hero-description {
@@ -337,6 +311,7 @@
         text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
         line-height: 1.6;
         opacity: 0.9;
+        animation: fadeIn 1.2s ease-out;
     }
     
     .hero-stats {
@@ -350,6 +325,7 @@
         border-radius: 15px;
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.1);
+        animation: fadeInUp 1.4s ease-out;
     }
     
     .stat-item {
@@ -410,6 +386,7 @@
         justify-content: center;
         gap: 1rem;
         margin-bottom: 1rem;
+        animation: fadeInUp 1.6s ease-out;
     }
     
     .btn-apply, .btn-learn {
@@ -450,172 +427,9 @@
         color: white;
     }
     
-    /* Wave separator */
-    .hero-wave {
-        position: absolute;
-        bottom: -5px;
-        left: 0;
-        width: 100%;
-        overflow: hidden;
-        line-height: 0;
-        z-index: 3;
-    }
-    
-    .hero-wave svg {
-        display: block;
-        width: 100%;
-        height: 70px;
-    }
-    
-    /* Responsive adjustments */
-    @media (max-width: 1199.98px) {
-        .hero-title {
-            font-size: 3rem;
-        }
-        
-        .hero-image {
-            height: 600px;
-        }
-    }
-    
-    @media (max-width: 991.98px) {
-        .hero-content-wrapper {
-            padding: 4rem 0;
-        }
-        
-        .hero-title {
-            font-size: 2.5rem;
-        }
-        
-        .hero-image {
-            height: 550px;
-        }
-        
-        .hero-stats {
-            gap: 1rem;
-        }
-        
-        .stat-item {
-            min-width: 180px;
-        }
-    }
-    
-    @media (max-width: 767.98px) {
-        .hero-image {
-            height: 700px;
-        }
-        
-        .hero-content-wrapper {
-            padding: 3rem 0;
-        }
-        
-        .hero-title {
-            font-size: 2.25rem;
-        }
-        
-        .hero-description {
-            font-size: 1.1rem;
-        }
-        
-        .hero-stats {
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .stat-item {
-            width: 100%;
-            max-width: 300px;
-        }
-        
-        .hero-actions {
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .btn-apply, .btn-learn {
-            width: 100%;
-            max-width: 300px;
-            justify-content: center;
-            margin-bottom: 0.75rem;
-        }
-    }
-    
-    @media (max-width: 575.98px) {
-        .hero-image {
-            height: 750px;
-        }
-        
-        .hero-content-wrapper {
-            padding: 2.5rem 0;
-        }
-        
-        .hero-title {
-            font-size: 2rem;
-        }
-        
-        .program-badge {
-            padding: 0.4rem 1.2rem;
-            font-size: 0.9rem;
-        }
-        
-        .hero-description {
-            font-size: 1rem;
-        }
-    }
-</style>
-
-<style>    
-    /* Program Stats */
-    .program-stats {
-        background-color: rgba(255, 255, 255, 0.15);
-        border-radius: 15px;
-        padding: 1.5rem;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    }
-    
-    .stat-item {
-        display: flex;
-        align-items: center;
-        margin-bottom: 1.25rem;
-    }
-    
-    .stat-item:last-child {
-        margin-bottom: 0;
-    }
-    
-    .stat-icon {
-        width: 50px;
-        height: 50px;
-        background-color: rgba(255, 255, 255, 0.2);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1
-        font-size: 1.5rem;
-        color: white;
-    }
-    
-    .stat-info {
-        margin-left: 1rem;
-    }
-    
-    .stat-label {
-        font-size: 0.875rem;
-        opacity: 0.8;
-    }
-    
-    .stat-value {
-        font-weight: 600;
-        font-size: 1.125rem;
-    }
-    
-
-    /* Content Section */
+    /* Content Section Styles */
     .content-section {
-        padding: 2rem 0 4rem;
+        padding: 4rem 0;
         background-color: #f8f9fa;
     }
     
@@ -728,6 +542,16 @@
         position: relative;
     }
     
+    .process-steps:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 20px;
+        width: 2px;
+        background-color: rgba(40, 167, 69, 0.2);
+    }
+    
     .process-step {
         display: flex;
         margin-bottom: 2rem;
@@ -738,35 +562,31 @@
         margin-bottom: 0;
     }
     
-    .process-step:not(:last-child):after {
-        content: '';
-        position: absolute;
-        left: 20px;
-        top: 45px;
-        bottom: -15px;
-        width: 2px;
-        background-color: rgba(40, 167, 69, 0.2);
-    }
-    
     .step-number {
         width: 40px;
         height: 40px;
-        border-radius: 50%;
         background-color: #28a745;
-        color: white;
+        border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-weight: 600;
-        margin-right: 1rem;
-        flex-shrink: 0;
-        box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3);
+        color: white;
+        font-weight: 700;
+        margin-right: 1.5rem;
+        position: relative;
+        z-index: 1;
+        box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
+    }
+    
+    .step-content {
+        flex: 1;
     }
     
     .step-content h4 {
         font-size: 1.125rem;
-        font-weight: 600;
+        font-weight: 700;
         margin-bottom: 0.5rem;
+        color: #212529;
     }
     
     .step-content p {
@@ -777,112 +597,113 @@
     /* Timeline */
     .timeline {
         position: relative;
-        padding-left: 25px;
+        padding-left: 1.5rem;
         margin-bottom: 2rem;
     }
     
     .timeline:before {
         content: '';
         position: absolute;
-        left: 9px;
         top: 0;
         bottom: 0;
+        left: 7px;
         width: 2px;
         background-color: rgba(40, 167, 69, 0.2);
     }
     
     .timeline-item {
         position: relative;
-        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
     }
     
     .timeline-item:last-child {
-        margin-bottom: 0;
+        padding-bottom: 0;
     }
     
     .timeline-marker {
         position: absolute;
-        left: -25px;
-        width: 20px;
-        height: 20px;
+        top: 5px;
+        left: -1.5rem;
+        width: 16px;
+        height: 16px;
         border-radius: 50%;
         background-color: #28a745;
-        top: 5px;
-        border: 3px solid white;
-        box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.3);
+        box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.2);
     }
     
     .timeline-content h4 {
-        font-size: 1.125rem;
-        font-weight: 600;
+        font-size: 1rem;
+        font-weight: 700;
         margin-bottom: 0.25rem;
     }
     
     .timeline-content p {
+        font-size: 0.9rem;
         color: #6c757d;
         margin-bottom: 0;
     }
     
     /* Buttons */
     .apply-button, .contact-button {
-        display: block;
-        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         padding: 0.875rem 1.5rem;
-        border-radius: 10px;
-        text-align: center;
+        border-radius: 50px;
         font-weight: 600;
-        text-decoration: none;
         transition: all 0.3s ease;
+        text-decoration: none;
+        width: 100%;
+        margin-top: 1.5rem;
     }
     
     .apply-button {
         background-color: #28a745;
         color: white;
-        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     }
     
     .apply-button:hover {
         background-color: #218838;
-        transform: translateY(-3px);
-        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
         color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     }
     
     .contact-button {
-        background-color: rgba(40, 167, 69, 0.1);
-        color: #28a745;
-        border: 1px solid rgba(40, 167, 69, 0.2);
+        background-color: #f8f9fa;
+        color: #212529;
+        border: 1px solid #dee2e6;
     }
     
     .contact-button:hover {
-        background-color: rgba(40, 167, 69, 0.15);
-        color: #28a745;
+        background-color: #e9ecef;
         transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
     }
     
     /* Share Buttons */
     .share-buttons {
         display: flex;
-        justify-content: space-between;
+        justify-content: center;
+        gap: 0.75rem;
     }
     
     .share-btn {
-        width: 45px;
-        height: 45px;
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         color: white;
-        font-size: 1.125rem;
+        font-size: 1rem;
         transition: all 0.3s ease;
-        text-decoration: none;
     }
     
     .share-btn:hover {
         transform: translateY(-3px);
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        color: white;
     }
     
     .facebook {
@@ -902,30 +723,74 @@
     }
     
     .email {
-        background-color: #ea4335;
+        background-color: #6c757d;
     }
     
-    /* Sticky Sidebar */
-    .sticky-top {
-        top: 20px;
-        z-index: 1000;
+    /* Animations */
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
     
-    /* Responsive Adjustments */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 1199.98px) {
+        .hero-title {
+            font-size: 3rem;
+        }
+        
+        .hero-image {
+            height: 600px;
+        }
+    }
+    
     @media (max-width: 991.98px) {
+        .hero-content-wrapper {
+            padding: 4rem 0;
+        }
+        
         .hero-title {
             font-size: 2.5rem;
         }
         
-        .hero-content {
-            padding: 3rem 0;
+        .hero-image {
+            height: 550px;
         }
         
-        .highlight-item {
-            flex: 0 0 100%;
+        .hero-stats {
+            gap: 1rem;
         }
         
-        .sticky-top {
+        .stat-item {
+            min-width: 180px;
+        }
+        
+        .sidebar-card.sticky-top {
             position: relative;
             top: 0;
         }
@@ -933,48 +798,121 @@
     
     @media (max-width: 767.98px) {
         .hero-image {
-            height: 400px;
+            height: 700px;
+        }
+        
+        .hero-content-wrapper {
+            padding: 3rem 0;
+        }
+        
+        .hero-title {
+            font-size: 2.25rem;
+        }
+        
+        .hero-description {
+            font-size: 1.1rem;
+        }
+        
+        .hero-stats {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .stat-item {
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .hero-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .btn-apply, .btn-learn {
+            width: 100%;
+            max-width: 300px;
+            justify-content: center;
+            margin-bottom: 0.75rem;
+        }
+        
+        .highlight-row {
+            flex-direction: column;
+        }
+    }
+    
+    @media (max-width: 575.98px) {
+        .hero-image {
+            height: 750px;
         }
         
         .hero-title {
             font-size: 2rem;
         }
         
-        .hero-actions {
+        .hero-description {
+            font-size: 1rem;
+        }
+        
+        .process-step {
             flex-direction: column;
         }
         
-        .btn-apply, .btn-learn {
-            width: 100%;
+        .step-number {
+            margin-bottom: 1rem;
+            margin-right: 0;
         }
         
-        .hero-subtitle {
-            font-size: 1rem;
-        }
-    }
-    
-    @media (max-width: 575.98px) {
-        .hero-image {
-            height: 350px;
-        }
-        
-        .hero-content {
-            padding: 2rem 0;
-        }
-        
-        .card-header, .card-body {
-            padding: 1rem;
-        }
-        
-        .header-icon {
-            width: 35px;
-            height: 35px;
-            font-size: 1rem;
-        }
-        
-        .header-title {
-            font-size: 1.125rem;
+        .process-steps:before {
+            left: 20px;
+            height: calc(100% - 60px);
+            top: 40px;
         }
     }
 </style>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                if (targetElement) {
+                    const headerOffset = 100;
+                    const elementPosition = targetElement.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                    
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        // Animate elements when they come into view
+        const animateOnScroll = function() {
+            const elements = document.querySelectorAll('.content-card, .sidebar-card');
+            
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.classList.add('animated');
+                }
+            });
+        };
+        
+        // Run animation check on load and scroll
+        window.addEventListener('scroll', animateOnScroll);
+        animateOnScroll();
+    });
+</script>
 {% endblock %}
+{% endblock %}
+        

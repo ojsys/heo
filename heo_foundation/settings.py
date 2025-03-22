@@ -282,3 +282,5 @@ CKEDITOR_CONFIGS = {
         ]),
     },
 }
+
+IMAGE_COMPRESSION_QUALITY = 70 
