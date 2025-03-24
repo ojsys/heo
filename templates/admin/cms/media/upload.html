@@ -120,6 +120,51 @@
         width: 0%;
         transition: width 0.3s ease;
     }
+    
+    .view-link {
+        display: inline-block;
+        margin-left: 10px;
+        color: #417690;
+        text-decoration: none;
+    }
+    
+    .view-link:hover {
+        text-decoration: underline;
+    }
+    
+    .uploaded-media-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+    }
+    
+    .uploaded-media-item {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        overflow: hidden;
+        transition: transform 0.2s;
+    }
+    
+    .uploaded-media-item:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .uploaded-media-item img {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+    }
+    
+    .uploaded-media-item .media-title {
+        padding: 8px;
+        font-size: 12px;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 </style>
 {% endblock %}
 
@@ -158,6 +203,14 @@
             
             <button type="button" id="submit-btn" class="submit-btn">{% trans 'Upload Files' %}</button>
         </form>
+        
+        <div id="uploaded-media-container" style="display: none; margin-top: 30px;">
+            <h2>{% trans 'Uploaded Media' %}</h2>
+            <div id="uploaded-media-grid" class="uploaded-media-grid"></div>
+            <a href="{% url 'admin:cms_media_changelist' %}" class="submit-btn" style="text-align: center; text-decoration: none; margin-top: 20px;">
+                {% trans 'View All Media' %}
+            </a>
+        </div>
     </div>
 </div>
 
@@ -170,8 +223,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const progressBar = document.getElementById('progress-bar');
     const fileInputContainer = document.querySelector('.file-input-container');
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const uploadedMediaContainer = document.getElementById('uploaded-media-container');
+    const uploadedMediaGrid = document.getElementById('uploaded-media-grid');
     
     let selectedFiles = [];
+    let uploadedFiles = [];
     
     // Handle file selection
     fileInput.addEventListener('change', function() {
@@ -267,6 +323,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         progressContainer.style.display = 'block';
         submitBtn.disabled = true;
+        submitBtn.textContent = 'Uploading...';
         
         uploadFiles();
     });
@@ -274,6 +331,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function uploadFiles() {
         const fileItems = fileList.querySelectorAll('.file-item');
         let completed = 0;
+        uploadedFiles = [];
         
         selectedFiles.forEach((file, index) => {
             const formData = new FormData();
@@ -297,40 +355,125 @@ document.addEventListener('DOMContentLoaded', function() {
                 const fileStatus = fileItems[index].querySelector('.file-status');
                 
                 if (xhr.status === 200 || xhr.status === 201) {
-                    fileStatus.textContent = 'Uploaded';
-                    fileStatus.className = 'file-status success';
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        fileStatus.textContent = 'Uploaded';
+                        fileStatus.className = 'file-status success';
+                        
+                        // Store uploaded file info
+                        if (response.url) {
+                            uploadedFiles.push({
+                                id: response.id,
+                                title: response.title || file.name,
+                                url: response.url,
+                                isImage: file.type.startsWith('image/')
+                            });
+                            
+                            // Add view link
+                            const viewLink = document.createElement('a');
+                            viewLink.href = response.url;
+                            viewLink.textContent = 'View';
+                            viewLink.className = 'view-link';
+                            viewLink.target = '_blank';
+                            fileStatus.parentNode.appendChild(viewLink);
+                        }
+                    } catch (e) {
+                        console.error('Error parsing response:', e);
+                        fileStatus.textContent = 'Uploaded';
+                        fileStatus.className = 'file-status success';
+                    }
                 } else {
                     fileStatus.textContent = 'Error';
                     fileStatus.className = 'file-status error';
+                    
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.error) {
+                            fileStatus.textContent = 'Error: ' + response.error;
+                        }
+                    } catch (e) {
+                        console.error('Error parsing error response:', e);
+                    }
                 }
                 
                 // Update overall progress
                 progressBar.style.width = (completed / selectedFiles.length * 100) + '%';
                 
-                // If all files are uploaded, enable the submit button again
+                // If all files are uploaded, show the uploaded media
                 if (completed === selectedFiles.length) {
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Upload Complete';
                     
-                    // Redirect back to media list after 2 seconds
-                    setTimeout(function() {
-                        window.location.href = '{% url "admin:cms_media_changelist" %}';
-                    }, 2000);
+                    // Display uploaded files in a grid
+                    if (uploadedFiles.length > 0) {
+                        displayUploadedMedia();
+                    }
                 }
             };
             
             xhr.onerror = function() {
                 completed++;
                 const fileStatus = fileItems[index].querySelector('.file-status');
-                fileStatus.textContent = 'Error';
+                fileStatus.textContent = 'Error: Network failure';
                 fileStatus.className = 'file-status error';
                 
                 // Update overall progress
                 progressBar.style.width = (completed / selectedFiles.length * 100) + '%';
+                
+                if (completed === selectedFiles.length) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Upload Complete';
+                    
+                    // Display uploaded files in a grid
+                    if (uploadedFiles.length > 0) {
+                        displayUploadedMedia();
+                    }
+                }
             };
             
             xhr.send(formData);
         });
+    }
+    
+    function displayUploadedMedia() {
+        // Clear the grid
+        uploadedMediaGrid.innerHTML = '';
+        
+        // Add each uploaded file to the grid
+        uploadedFiles.forEach(file => {
+            const mediaItem = document.createElement('div');
+            mediaItem.className = 'uploaded-media-item';
+            
+            if (file.isImage) {
+                const img = document.createElement('img');
+                img.src = file.url;
+                img.alt = file.title;
+                mediaItem.appendChild(img);
+            } else {
+                // For non-image files, show an icon
+                const fileIcon = document.createElement('div');
+                fileIcon.className = 'file-input-icon';
+                fileIcon.textContent = '📄';
+                fileIcon.style.textAlign = 'center';
+                fileIcon.style.padding = '30px 0';
+                mediaItem.appendChild(fileIcon);
+            }
+            
+            const mediaTitle = document.createElement('div');
+            mediaTitle.className = 'media-title';
+            mediaTitle.textContent = file.title;
+            mediaItem.appendChild(mediaTitle);
+            
+            // Make the whole item clickable to view the file
+            mediaItem.addEventListener('click', function() {
+                window.open(file.url, '_blank');
+            });
+            
+            uploadedMediaGrid.appendChild(mediaItem);
+        });
+        
+        // Show the uploaded media container
+        uploadedMediaContainer.style.display = 'block';
     }
 });
 </script>
