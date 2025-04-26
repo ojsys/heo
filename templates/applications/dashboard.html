@@ -9,7 +9,7 @@
     <!-- Overview Cards -->
     <div class="row mb-4">
         <div class="col-md-4">
-            <div class="card bg-primary text-white">
+            <div class="card bg-success text-white">
                 <div class="card-body">
                     <h5 class="card-title">Total Applications</h5>
                     <h2 class="card-text">{{ total_applications }}</h2>
@@ -89,7 +89,7 @@
                             <td>{{ application.submitted_at|date:"M d, Y" }}</td>
                             <td>
                                 <a href="{% url 'applications:application_detail' application.pk %}" 
-                                   class="btn btn-sm btn-primary">View</a>
+                                   class="btn btn-sm btn-success">View</a>
                             </td>
                         </tr>
                         {% endfor %}

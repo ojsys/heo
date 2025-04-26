@@ -1,231 +1,165 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% load static %}
+{% load application_filters %}
 {% load crispy_forms_tags %}
+{% load widget_tweaks %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="text-center mb-4">
-                <h1 class="display-5 fw-bold">Apply for {{ program.name }}</h1>
-                <p class="lead text-muted">Please complete the application form below.</p>
+<div class="container py-5">
+    <h1>Apply for {{ program.name }}</h1>
+    
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        <h4>Please correct the following errors:</h4>
+        <ul>
+            {% for field in form %}
+                {% for error in field.errors %}
+                    <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+    
+    <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h3 class="mb-0">Personal Information</h3>
             </div>
-            
-            <form method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                {{ form.non_field_errors }}
-                {{ form.form_data }}
-                
-                <div class="card mb-4 shadow-sm">
-                    <div class="card-header bg-success text-white">
-                        <h5 class="card-title mb-0">Application Questions</h5>
-                    </div>
-                    <div class="card-body p-4">
-                        {% for field in form_fields %}
-                        <div class="mb-4">
-                            <label for="field_{{ field.id }}" class="form-label fw-bold">
+            <div class="card-body">
+                {% crispy form %}
+            </div>
+        </div>
+        
+        {% if form_fields %}
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h3 class="mb-0">Program-Specific Information</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for field in form_fields %}
+                        <div class="col-md-6 mb-3">
+                            <label for="field_{{ field.id }}" class="form-label">
                                 {{ field.label }}
-                                {% if field.is_required %}<span class="text-danger">*</span>{% endif %}
+                                {% if field.required %}<span class="text-danger">*</span>{% endif %}
                             </label>
                             
                             {% if field.field_type == 'text' %}
-                            <input type="text" class="form-control" id="field_{{ field.id }}" name="field_{{ field.id }}" 
-                                   {% if field.is_required %}required{% endif %}>
-                            
+                                <input type="text" name="field_{{ field.id }}" id="field_{{ field.id }}" 
+                                       class="form-control" {% if field.required %}required{% endif %}>
                             {% elif field.field_type == 'textarea' %}
-                            <textarea class="form-control" id="field_{{ field.id }}" name="field_{{ field.id }}" rows="3"
-                                      {% if field.is_required %}required{% endif %}></textarea>
-                            
-                            {% elif field.field_type == 'number' %}
-                            <input type="number" class="form-control" id="field_{{ field.id }}" name="field_{{ field.id }}" 
-                                   {% if field.is_required %}required{% endif %}>
-                            
-                            {% elif field.field_type == 'email' %}
-                            <input type="email" class="form-control" id="field_{{ field.id }}" name="field_{{ field.id }}" 
-                                   {% if field.is_required %}required{% endif %}>
-                            
-                            {% elif field.field_type == 'date' %}
-                            <input type="date" class="form-control" id="field_{{ field.id }}" name="field_{{ field.id }}" 
-                                   {% if field.is_required %}required{% endif %}>
-                            
-                            {% elif field.field_type == 'file' %}
-                            <input type="file" class="form-control" id="field_{{ field.id }}" name="field_{{ field.id }}" 
-                                   {% if field.is_required %}required{% endif %}>
-                            
+                                <textarea name="field_{{ field.id }}" id="field_{{ field.id }}" 
+                                          class="form-control" rows="3" {% if field.required %}required{% endif %}></textarea>
                             {% elif field.field_type == 'select' %}
-                            <select class="form-select" id="field_{{ field.id }}" name="field_{{ field.id }}"
-                                    {% if field.is_required %}required{% endif %}>
-                                <option value="">Select an option</option>
-                                {% if field.options %}
-                                    {% for option in field.options %}
-                                    <option value="{{ option }}">{{ option }}</option>
+                                <select name="field_{{ field.id }}" id="field_{{ field.id }}" 
+                                        class="form-control" {% if field.required %}required{% endif %}>
+                                    <option value="">Select an option</option>
+                                    {% for option in field.options|split:"," %}
+                                        <option value="{{ option|trim }}">{{ option|trim }}</option>
                                     {% endfor %}
-                                {% endif %}
-                            </select>
-                            
+                                </select>
                             {% elif field.field_type == 'checkbox' %}
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="field_{{ field.id }}" name="field_{{ field.id }}" value="yes">
-                                <label class="form-check-label" for="field_{{ field.id }}">
-                                    {{ field.help_text }}
-                                </label>
-                            </div>
-                            
-                            {% elif field.field_type == 'radio' %}
-                            {% if field.options %}
-                                <div class="mt-2">
-                                {% for option in field.options %}
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="field_{{ field.id }}" 
-                                        id="field_{{ field.id }}_{{ forloop.counter }}" value="{{ option }}"
-                                        {% if forloop.first and field.is_required %}required{% endif %}>
-                                    <label class="form-check-label" for="field_{{ field.id }}_{{ forloop.counter }}">
-                                        {{ option }}
+                                    <input type="checkbox" name="field_{{ field.id }}" id="field_{{ field.id }}" 
+                                           class="form-check-input" value="yes" {% if field.required %}required{% endif %}>
+                                    <label class="form-check-label" for="field_{{ field.id }}">
+                                        {{ field.help_text }}
                                     </label>
                                 </div>
-                                {% endfor %}
-                                </div>
-                            {% endif %}
                             {% endif %}
                             
                             {% if field.help_text and field.field_type != 'checkbox' %}
-                            <div class="form-text text-muted">{{ field.help_text }}</div>
+                                <small class="form-text text-muted">{{ field.help_text }}</small>
                             {% endif %}
                         </div>
-                        {% endfor %}
-                    </div>
+                    {% endfor %}
                 </div>
-                
-                <div class="card mb-4 shadow-sm">
-                    <div class="card-header bg-success text-white">
-                        <h5 class="card-title mb-0">Supporting Documents</h5>
-                    </div>
-                    <div class="card-body p-4">
-                        {{ document_formset.management_form }}
-                        
-                        <div id="document-formset">
-                            {% for form in document_formset %}
-                            <div class="document-form mb-3 p-3 border rounded {% if not forloop.first %}mt-3{% endif %}">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        {{ form.document|as_crispy_field }}
-                                    </div>
-                                    <div class="col-md-6">
-                                        {{ form.document_type|as_crispy_field }}
-                                    </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h3 class="mb-0">Supporting Documents</h3>
+            </div>
+            <div class="card-body">
+                {{ document_formset.management_form }}
+                <div id="document-forms">
+                    {% for form in document_formset %}
+                        <div class="document-form mb-3 p-3 border rounded">
+                            {{ form.id }}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="{{ form.document_type.id_for_label }}" class="form-label">Document Type</label>
+                                    {% render_field form.document_type class="form-control" %}
                                 </div>
-                                {% if not forloop.first %}
-                                <div class="text-end mt-2">
-                                    <button type="button" class="btn btn-sm btn-outline-danger remove-document">
-                                        <i class="fas fa-trash-alt me-1"></i> Remove
-                                    </button>
+                                <div class="col-md-6">
+                                    <label for="{{ form.document.id_for_label }}" class="form-label">Document</label>
+                                    {% render_field form.document class="form-control" %}
                                 </div>
+                                {% if form.non_field_errors %}
+                                    <div class="col-12">
+                                        <div class="alert alert-danger mt-2">
+                                            {{ form.non_field_errors }}
+                                        </div>
+                                    </div>
                                 {% endif %}
                             </div>
-                            {% endfor %}
+                            {% if document_formset.can_delete %}
+                                <div class="form-check mt-2">
+                                    {{ form.DELETE }}
+                                    <label class="form-check-label" for="{{ form.DELETE.id_for_label }}">
+                                        Delete this document
+                                    </label>
+                                </div>
+                            {% endif %}
                         </div>
-                        
-                        <div class="mt-3">
-                            <button type="button" class="btn btn-outline-success" id="add-document">
-                                <i class="fas fa-plus-circle me-1"></i> Add Another Document
-                            </button>
-                        </div>
-                    </div>
+                    {% endfor %}
                 </div>
-                
-                <div class="d-grid gap-2 col-md-6 mx-auto mt-4 mb-5">
-                    <button type="submit" class="btn btn-success btn-lg">
-                        <i class="fas fa-paper-plane me-2"></i> Submit Application
-                    </button>
-                </div>
-            </form>
+                <button type="button" id="add-document" class="btn btn-outline-secondary">
+                    <i class="fas fa-plus"></i> Add Another Document
+                </button>
+            </div>
         </div>
-    </div>
+        
+        <div class="form-group mt-4">
+            <button type="submit" class="btn btn-primary btn-lg">Submit Application</button>
+            <a href="{% url 'applications:program_detail' pk=program.pk %}" class="btn btn-outline-secondary btn-lg ms-2">Cancel</a>
+        </div>
+    </form>
 </div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Handle form data collection before submit
-        const form = document.querySelector('form');
-        form.addEventListener('submit', function(e) {
-            const formData = {};
-            const dynamicFields = document.querySelectorAll('input[name^="field_"], textarea[name^="field_"], select[name^="field_"]');
-            
-            dynamicFields.forEach(field => {
-                if (field.type === 'checkbox') {
-                    formData[field.name] = field.checked ? 'yes' : 'no';
-                } else if (field.type === 'radio') {
-                    if (field.checked) {
-                        formData[field.name] = field.value;
-                    }
-                } else {
-                    formData[field.name] = field.value;
-                }
-            });
-            
-            document.querySelector('input[name="form_data"]').value = JSON.stringify(formData);
-        });
-        
-        // Document formset handling
         const addDocumentBtn = document.getElementById('add-document');
-        const documentFormset = document.getElementById('document-formset');
+        const documentForms = document.getElementById('document-forms');
+        const totalFormsInput = document.querySelector('[name="form-TOTAL_FORMS"]');
         
-        if (addDocumentBtn && documentFormset) {
-            addDocumentBtn.addEventListener('click', function() {
-                const forms = documentFormset.querySelectorAll('.document-form');
-                const formCount = forms.length;
-                
-                // Clone the first form
-                const newForm = forms[0].cloneNode(true);
-                
-                // Update form index
-                newForm.innerHTML = newForm.innerHTML.replace(/-0-/g, `-${formCount}-`);
-                newForm.innerHTML = newForm.innerHTML.replace(/\[0\]/g, `[${formCount}]`);
-                
-                // Clear input values
-                newForm.querySelectorAll('input[type="file"]').forEach(input => {
-                    input.value = '';
-                });
-                
-                // Add remove button if not exists
-                if (!newForm.querySelector('.remove-document')) {
-                    const btnContainer = document.createElement('div');
-                    btnContainer.className = 'text-end mt-2';
-                    
-                    const removeBtn = document.createElement('button');
-                    removeBtn.type = 'button';
-                    removeBtn.className = 'btn btn-sm btn-outline-danger remove-document';
-                    removeBtn.innerHTML = '<i class="fas fa-trash-alt me-1"></i> Remove';
-                    
-                    btnContainer.appendChild(removeBtn);
-                    newForm.appendChild(btnContainer);
-                }
-                
-                // Add the new form
-                documentFormset.appendChild(newForm);
-                
-                // Update management form
-                const totalForms = document.querySelector('[name="documents-TOTAL_FORMS"]');
-                if (totalForms) {
-                    totalForms.value = parseInt(totalForms.value) + 1;
-                }
+        addDocumentBtn.addEventListener('click', function() {
+            const formCount = parseInt(totalFormsInput.value);
+            const newForm = documentForms.querySelector('.document-form').cloneNode(true);
+            
+            // Update form index
+            newForm.innerHTML = newForm.innerHTML.replace(/-\d+-/g, `-${formCount}-`);
+            newForm.innerHTML = newForm.innerHTML.replace(/form-\d+-/g, `form-${formCount}-`);
+            
+            // Clear form values
+            newForm.querySelectorAll('input[type="text"], input[type="file"]').forEach(input => {
+                input.value = '';
             });
             
-            // Handle remove buttons
-            documentFormset.addEventListener('click', function(e) {
-                if (e.target.classList.contains('remove-document') || e.target.closest('.remove-document')) {
-                    const formElement = e.target.closest('.document-form');
-                    if (formElement) {
-                        formElement.remove();
-                        
-                        // Update management form
-                        const totalForms = document.querySelector('[name="documents-TOTAL_FORMS"]');
-                        if (totalForms) {
-                            totalForms.value = parseInt(totalForms.value) - 1;
-                        }
-                    }
-                }
-            });
-        }
+            // Add new form to the DOM
+            documentForms.appendChild(newForm);
+            
+            // Update total forms count
+            totalFormsInput.value = formCount + 1;
+        });
     });
 </script>
 {% endblock %}

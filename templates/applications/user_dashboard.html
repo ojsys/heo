@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="mb-3">My Dashboard</h1>
+            <p class="text-muted">Track your applications and get updates on their status.</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a href="{% url 'applications:notification_preferences' %}" class="btn btn-outline-success">
+                <i class="fas fa-bell"></i> Notification Settings
+            </a>
+        </div>
+    </div>
+
+    <!-- Application Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 border-success">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Total Applications</h5>
+                    <h2 class="display-4">{{ applications.count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 border-warning">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Pending Review</h5>
+                    <h2 class="display-4">{{ pending_count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 border-success">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Approved</h5>
+                    <h2 class="display-4">{{ approved_count }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Status Updates -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Recent Updates</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_status_updates %}
+                        <div class="list-group">
+                            {% for status in recent_status_updates %}
+                                <div class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ status.application.program.name }}</h6>
+                                        <small>{{ status.created_at|date:"M d, Y" }}</small>
+                                    </div>
+                                    <p class="mb-1">
+                                        Status changed to: 
+                                        <span class="badge 
+                                            {% if status.status == 'approved' %}bg-success
+                                            {% elif status.status == 'rejected' %}bg-danger
+                                            {% elif status.status == 'under_review' %}bg-warning
+                                            {% else %}bg-info{% endif %}">
+                                            {{ status.get_status_display }}
+                                        </span>
+                                    </p>
+                                    {% if status.notes %}
+                                        <small class="text-muted">{{ status.notes }}</small>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No recent updates.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Applications Table -->
+    <div class="card">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">My Applications</h5>
+            <a href="{% url 'applications:program_list' %}" class="btn btn-sm btn-success">Apply for a Program</a>
+        </div>
+        <div class="card-body">
+            {% if applications %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Program</th>
+                                <th>Submitted</th>
+                                <th>Status</th>
+                                <th>Last Updated</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for app in applications %}
+                                <tr>
+                                    <td>{{ app.program.name }}</td>
+                                    <td>{{ app.submitted_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if app.status == 'approved' %}bg-success
+                                            {% elif app.status == 'rejected' %}bg-danger
+                                            {% elif app.status == 'under_review' %}bg-warning
+                                            {% else %}bg-info{% endif %}">
+                                            {{ app.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ app.updated_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        <a href="{% url 'applications:application_detail' pk=app.pk %}" class="btn btn-sm btn-outline-success">
+                                            View Details
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-4">
+                    <p class="mb-3">You haven't submitted any applications yet.</p>
+                    <a href="{% url 'applications:program_list' %}" class="btn btn-success">
+                        Browse Available Programs
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

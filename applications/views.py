@@ -39,6 +39,13 @@ class ProgramDetailView(DetailView):
     context_object_name = 'program'
 
 
+# Add this helper function to handle date serialization
+def json_serial(obj):
+    """JSON serializer for objects not serializable by default json code"""
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    raise TypeError(f"Type {type(obj)} not serializable")
+
 class ApplicationCreateView(LoginRequiredMixin, CreateView):
     model = Application
     template_name = 'applications/application_form.html'
@@ -49,8 +56,9 @@ class ApplicationCreateView(LoginRequiredMixin, CreateView):
         kwargs = super().get_form_kwargs()
         self.program = get_object_or_404(Program, pk=self.kwargs['program_id'])
         kwargs['program'] = self.program
+        kwargs['user'] = self.request.user  # Pass the user to the form
         return kwargs
-
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['program'] = self.program
@@ -78,50 +86,98 @@ class ApplicationCreateView(LoginRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
+        # Get the document formset from context
         context = self.get_context_data()
         document_formset = context['document_formset']
         
+        # Check if document formset is valid before proceeding
+        if not document_formset.is_valid():
+            # Add formset errors to the form
+            for error in document_formset.errors:
+                for field, message in error.items():
+                    form.add_error(None, f"Document error: {message}")
+            return self.form_invalid(form)
+        
         # Process form data from dynamic fields
         form_data = {}
+        
+        # Add the personal information fields to form_data
+        personal_info = {
+            'first_name': form.cleaned_data.get('first_name'),
+            'last_name': form.cleaned_data.get('last_name'),
+            'email': form.cleaned_data.get('email'),
+            'phone_number': form.cleaned_data.get('phone_number'),
+            'address': form.cleaned_data.get('address'),
+            'city': form.cleaned_data.get('city'),
+            'state': form.cleaned_data.get('state'),
+            'zip_code': form.cleaned_data.get('zip_code'),
+            'country': form.cleaned_data.get('country'),
+        }
+        
+        # Handle date_of_birth separately to avoid JSON serialization issues
+        date_of_birth = form.cleaned_data.get('date_of_birth')
+        if date_of_birth:
+            personal_info['date_of_birth'] = date_of_birth.isoformat()
+        
+        form_data.update(personal_info)
+        
+        # Add program-specific fields
         for field in FormField.objects.filter(program=self.program):
             field_name = f'field_{field.id}'
             if field_name in self.request.POST:
-                form_data[field_name] = self.request.POST.get(field_name)
+                value = self.request.POST.get(field_name)
+                # Handle potential date fields in program-specific fields
+                if field.field_type == 'date' and value:
+                    try:
+                        # Try to parse the date and convert to ISO format
+                        parsed_date = datetime.strptime(value, '%Y-%m-%d').date()
+                        value = parsed_date.isoformat()
+                    except ValueError:
+                        # If parsing fails, keep the original value
+                        pass
+                form_data[field_name] = value
         
-        form.instance.form_data = json.dumps(form_data)
+        # Set application properties
+        form.instance.form_data = json.dumps(form_data, default=json_serial)
         form.instance.applicant = self.request.user
         form.instance.program = self.program
         form.instance.status = 'submitted'
         form.instance.submitted_at = timezone.now()
         
-        self.object = form.save()
-        
-        # Save documents if formset is valid
-        if document_formset.is_valid():
+        # Save the application
+        try:
+            self.object = form.save()
+            
+            # Save documents
             documents = document_formset.save(commit=False)
             for document in documents:
                 document.application = self.object
                 document.save()
-        
-        # Create initial application status
-        ApplicationStatus.objects.create(
-            application=self.object,
-            status='submitted',
-            created_by=self.request.user,
-            notes='Application submitted'
-        )
-        
-        messages.success(self.request, f'Your application for {self.program.name} has been submitted successfully!')
-        return super().form_valid(form)
+            
+            # Handle deleted documents
+            for obj in document_formset.deleted_objects:
+                obj.delete()
+            
+            # Create initial application status
+            ApplicationStatus.objects.create(
+                application=self.object,
+                status='submitted',
+                created_by=self.request.user,
+                notes='Application submitted'
+            )
+            
+            messages.success(self.request, f'Your application for {self.program.name} has been submitted successfully!')
+            return redirect(self.get_success_url())
+        except Exception as e:
+            # Log the error for debugging
+            print(f"Error saving application: {str(e)}")
+            form.add_error(None, f"An error occurred while saving your application: {str(e)}")
+            return self.form_invalid(form)
     
     def form_invalid(self, form):
-        context = self.get_context_data()
-        document_formset = context['document_formset']
-        
-        if not document_formset.is_valid():
-            messages.error(self.request, 'There was an error with your document uploads. Please check and try again.')
-        
         messages.error(self.request, 'There was an error with your application. Please check the form and try again.')
+        # Print form errors for debugging
+        print(f"Form errors: {form.errors}")
         return super().form_invalid(form)
 
     def get_success_url(self):
@@ -184,32 +240,56 @@ class ApplicationListView(LoginRequiredMixin, ListView):
 
 @login_required
 def application_review(request, pk):
-    if not request.user.is_staff:
-        messages.error(request, 'You do not have permission to review applications.')
-        return redirect('applications:program_list')
-    
     application = get_object_or_404(Application, pk=pk)
-    old_status = application.status
+    
+    # Check if user is authorized to review this application
+    if not request.user.is_staff and not request.user.is_superuser:
+        messages.error(request, "You are not authorized to review applications.")
+        return redirect('applications:dashboard')
     
     if request.method == 'POST':
         form = ApplicationReviewForm(request.POST, instance=application)
         if form.is_valid():
-            review = form.save(commit=False)
-            review.reviewed_by = request.user
-            review.save()
+            # Save only the review_notes field to the application
+            application = form.save(commit=False)
             
-            # Send email notification if status has changed
-            if old_status != review.status:
-                send_application_status_update(review)
+            # Update application status if needed
+            if form.cleaned_data.get('update_status'):
+                new_status = form.cleaned_data.get('status')
+                
+                # Only update if there's a change in status
+                if application.status != new_status:
+                    application.status = new_status
+                    
+                    # Create a status update record
+                    ApplicationStatus.objects.create(
+                        application=application,
+                        status=application.status,
+                        created_by=request.user,
+                        notes=form.cleaned_data.get('notes', '')
+                    )
             
-            messages.success(request, 'Application review has been saved.')
+            # Save the application with the updated review_notes
+            application.save()
+            
+            # Send notification
+            send_application_status_update(application)
+            
+            messages.success(request, "Review saved successfully.")
             return redirect('applications:application_detail', pk=application.pk)
     else:
         form = ApplicationReviewForm(instance=application)
     
+    # Parse the JSON form data for display
+    try:
+        form_data = json.loads(application.form_data) if application.form_data else {}
+    except:
+        form_data = {}
+    
     return render(request, 'applications/application_review.html', {
+        'application': application,
         'form': form,
-        'application': application
+        'form_data': form_data
     })
 
 
@@ -449,3 +529,32 @@ def notification_preferences(request):
     })
 
 # Analytics View
+
+
+@login_required
+def user_dashboard(request):
+    """Dashboard for users to track their applications and get updates"""
+    # Get all applications for the current user
+    applications = Application.objects.filter(
+        applicant=request.user
+    ).select_related('program').order_by('-submitted_at')
+    
+    # Count applications by status
+    pending_count = applications.filter(status__in=['submitted', 'under_review']).count()
+    approved_count = applications.filter(status='approved').count()
+    
+    # Get recent status updates
+    recent_status_updates = ApplicationStatus.objects.filter(
+        application__applicant=request.user
+    ).select_related('application', 'application__program').order_by('-created_at')[:5]
+    
+    # Get notification preferences
+    notification_prefs, created = NotificationPreference.objects.get_or_create(user=request.user)
+    
+    return render(request, 'applications/user_dashboard.html', {
+        'applications': applications,
+        'pending_count': pending_count,
+        'approved_count': approved_count,
+        'recent_status_updates': recent_status_updates,
+        'notification_prefs': notification_prefs,
+    })

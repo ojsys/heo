@@ -1,0 +1,16 @@
+Hello {{ user.first_name }},
+
+There has been an update to your application for {{ application.program.name }}.
+
+Current Status: {{ status }}
+{% if notes %}
+Notes: {{ notes }}
+{% endif %}
+
+You can view the full details of your application by visiting your dashboard:
+{{ dashboard_url }}
+
+If you have any questions, please don't hesitate to contact us.
+
+Best regards,
+The {{ application.program.name }} Team

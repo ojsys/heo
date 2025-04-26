@@ -21,19 +21,14 @@ def home_view(request):
     slider_images = SliderImage.objects.filter(is_active=True).order_by('order')
     gallery_images = GalleryImage.objects.filter(is_active=True).order_by('order')
     
-    print("\n=== Debug Information ===")
-    print(f"Total Slider Images (including inactive): {all_slider_images.count()}")
-    print(f"Active Slider Images: {slider_images.count()}")
-    print(f"Total Gallery Images (including inactive): {all_gallery_images.count()}")
-    print(f"Active Gallery Images: {gallery_images.count()}")
-    
-    if all_slider_images.exists():
-        print("\nSlider Images Details:")
-        for img in all_slider_images:
-            print(f"- Title: {img.title}")
-            print(f"- Active: {img.is_active}")
-            print(f"- URL: {img.image.url}")
-            print("---")
+        
+    # if all_slider_images.exists():
+    #     print("\nSlider Images Details:")
+    #     for img in all_slider_images:
+    #         print(f"- Title: {img.title}")
+    #         print(f"- Active: {img.is_active}")
+    #         print(f"- URL: {img.image.url}")
+    #         print("---")
     
     # Contact Form
     form = ContactForm()

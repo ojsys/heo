@@ -15,7 +15,7 @@ urlpatterns = [
     path('applications/export/', views.export_applications, name='export_applications'),
 
     # Dashboard
-    path('dashboard/', views.DashboardView.as_view(), name='dashboard'),
+    path('dashboard/', views.user_dashboard, name='user_dashboard'),
     # Analytics and Notification routes
     path('applications/bulk-review/', views.bulk_application_review, name='bulk_application_review'),
     path('analytics/', views.AnalyticsView.as_view(), name='analytics'),

@@ -1,0 +1,21 @@
+Hello {{ user.first_name }},
+
+We're writing to inform you that the status of your application for {{ program.name }} has been updated.
+
+Your application status is now: {{ status }}
+
+{% if application.review_notes %}
+Notes from the reviewer:
+{{ application.review_notes }}
+{% endif %}
+
+You can view the full details of your application and track its progress on your dashboard:
+{{ dashboard_url }}
+
+If you have any questions, please don't hesitate to contact us.
+
+Best regards,
+The Team
+
+---
+This is an automated message. Please do not reply to this email.
