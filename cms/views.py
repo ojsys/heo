@@ -118,9 +118,18 @@ class PageViewSet(viewsets.ModelViewSet):
     search_fields = ['title', 'content', 'meta_description']
 
     def get_queryset(self):
-        if self.request.user.is_staff:
-            return Page.objects.all()
-        return Page.published.filter(visibility='public')
+        queryset = Page.objects.all() if self.request.user.is_staff else Page.published.filter(visibility='public')
+        
+        # Handle search using MySQL compatible queries
+        search_query = self.request.query_params.get('search', None)
+        if search_query:
+            queryset = queryset.filter(
+                Q(title__icontains=search_query) |
+                Q(content__icontains=search_query) |
+                Q(meta_description__icontains=search_query)
+            )
+        
+        return queryset
 
 
     @action(detail=True, methods=['post'])

@@ -124,9 +124,9 @@ class Media(models.Model):
 
 
 class Page(models.Model):
-    title = models.CharField(max_length=200)
+    title = models.CharField(max_length=200, db_index=True)
     slug = models.SlugField(unique=True)
-    content = models.TextField()
+    content = models.TextField(db_index=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
     meta_description = models.TextField(blank=True)
     status = models.CharField(max_length=20, choices=[
@@ -144,8 +144,11 @@ class Page(models.Model):
     updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='updated_pages')
     published_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='published_pages')
     is_featured = models.BooleanField(default=False)
-    search_vector = SearchVectorField(null=True)
-
+    # Remove the SearchVectorField
+    # search_vector = SearchVectorField(null=True)  # Remove this line
+    
+    
+    
     # Add template choice field
     template = models.CharField(
         max_length=100,
