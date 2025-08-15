@@ -1,0 +1,206 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+    .student-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .student-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    .student-photo {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+    .stats-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .stats-card * {
+        color: white !important;
+    }
+
+    .stats-card .text-muted {
+        color: rgba(255, 255, 255, 0.8) !important;
+    }
+    .filter-section {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .scholarship-amount {
+        color: #28a745;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header Section -->
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-4 fw-bold mb-3">Our Scholarship Students</h1>
+            <p class="lead text-muted">Supporting education and empowering futures across Nigeria</p>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-card">
+        <div class="row text-center">
+            <div class="col-md-4">
+                <h3 class="display-6 fw-bold">{{ stats.total_students }}</h3>
+                <p class="mb-0">Active Students</p>
+            </div>
+            <div class="col-md-4">
+                <h3 class="display-6 fw-bold">{{ stats.total_schools }}</h3>
+                <p class="mb-0">Partner Schools</p>
+            </div>
+            <div class="col-md-4">
+                <h3 class="display-6 fw-bold">₦{{ stats.total_amount|floatformat:0 }}</h3>
+                <p class="mb-0">Total Scholarships</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="filter-section">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <label for="search" class="form-label">Search Students</label>
+                <input type="text" class="form-control" id="search" name="search" 
+                       value="{{ search_query }}" placeholder="Search by name or school...">
+            </div>
+            <div class="col-md-3">
+                <label for="class" class="form-label">Filter by Class</label>
+                <select class="form-select" id="class" name="class">
+                    <option value="">All Classes</option>
+                    {% for class_option in classes %}
+                        <option value="{{ class_option }}" 
+                                {% if class_option == class_filter %}selected{% endif %}>
+                            {{ class_option|capfirst }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="school" class="form-label">Filter by School</label>
+                <select class="form-select" id="school" name="school">
+                    <option value="">All Schools</option>
+                    {% for school in schools %}
+                        <option value="{{ school }}" 
+                                {% if school == school_filter %}selected{% endif %}>
+                            {{ school }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">Filter</button>
+                <a href="{% url 'core:student-list' %}" class="btn btn-outline-secondary">Clear</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Students Grid -->
+    <div class="row g-4">
+        {% for student in students %}
+        <div class="col-lg-4 col-md-6">
+            <div class="card student-card h-100 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        {% if student.photo %}
+                            <img src="{{ student.photo.url }}" alt="{{ student.full_name }}" 
+                                 class="student-photo me-3">
+                        {% else %}
+                            <div class="student-photo me-3 bg-primary d-flex align-items-center justify-content-center text-white fs-4">
+                                {{ student.full_name.0|upper }}
+                            </div>
+                        {% endif %}
+                        <div>
+                            <h5 class="card-title mb-1">{{ student.full_name }}</h5>
+                            <p class="text-muted small mb-0">Age: {{ student.age }} years</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <p class="mb-1"><strong>School:</strong> {{ student.school_name }}</p>
+                        <p class="mb-1"><strong>Class:</strong> {{ student.get_current_class_display }}</p>
+                        {% if student.program %}
+                            <p class="mb-1"><strong>Program:</strong> {{ student.program.name }}</p>
+                        {% endif %}
+                        <p class="mb-0 scholarship-amount"><strong>Scholarship:</strong> ₦{{ student.scholarship_amount|floatformat:0 }}</p>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="bi bi-calendar"></i> Since {{ student.scholarship_start_date|date:"M Y" }}
+                        </small>
+                        <a href="{% url 'core:student-detail' student.id %}" class="btn btn-sm btn-outline-primary">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="bi bi-search fs-1 text-muted mb-3"></i>
+                <h4 class="text-muted">No students found</h4>
+                <p class="text-muted">Try adjusting your search or filter criteria.</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if students.has_other_pages %}
+    <div class="d-flex justify-content-center mt-5">
+        <nav aria-label="Student pagination">
+            <ul class="pagination">
+                {% if students.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ students.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if class_filter %}&class={{ class_filter }}{% endif %}{% if school_filter %}&school={{ school_filter }}{% endif %}">
+                            &laquo; Previous
+                        </a>
+                    </li>
+                {% endif %}
+                
+                {% for num in students.paginator.page_range %}
+                    {% if students.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                    {% elif num > students.number|add:'-3' and num < students.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if class_filter %}&class={{ class_filter }}{% endif %}{% if school_filter %}&school={{ school_filter }}{% endif %}">
+                                {{ num }}
+                            </a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if students.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ students.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if class_filter %}&class={{ class_filter }}{% endif %}{% if school_filter %}&school={{ school_filter }}{% endif %}">
+                            Next &raquo;
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

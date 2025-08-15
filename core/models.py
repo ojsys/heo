@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 class SiteSettings(models.Model):
     site_name = models.CharField(max_length=100, default='HEO Foundation')
@@ -154,6 +155,94 @@ class WhatWeDo(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Student(models.Model):
+    EDUCATION_LEVEL_CHOICES = [
+        ('primary_1', 'Primary 1'),
+        ('primary_2', 'Primary 2'),
+        ('primary_3', 'Primary 3'),
+        ('primary_4', 'Primary 4'),
+        ('primary_5', 'Primary 5'),
+        ('primary_6', 'Primary 6'),
+        ('jss_1', 'JSS 1'),
+        ('jss_2', 'JSS 2'),
+        ('jss_3', 'JSS 3'),
+        ('sss_1', 'SSS 1'),
+        ('sss_2', 'SSS 2'),
+        ('sss_3', 'SSS 3'),
+        ('university_year_1', 'University Year 1'),
+        ('university_year_2', 'University Year 2'),
+        ('university_year_3', 'University Year 3'),
+        ('university_year_4', 'University Year 4'),
+        ('postgraduate', 'Postgraduate'),
+    ]
+    
+    SCHOLARSHIP_STATUS_CHOICES = [
+        ('active', 'Active'),
+        ('completed', 'Completed'),
+        ('suspended', 'Suspended'),
+        ('discontinued', 'Discontinued'),
+    ]
+    
+    GENDER_CHOICES = [
+        ('male', 'Male'),
+        ('female', 'Female'),
+    ]
+    
+    # Basic Information
+    full_name = models.CharField(max_length=200, help_text="Student's full name")
+    date_of_birth = models.DateField(help_text="Student's date of birth")
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
+    phone_number = models.CharField(max_length=15, blank=True, help_text="Student or guardian's phone number")
+    email = models.EmailField(blank=True, help_text="Student or guardian's email")
+    
+    # Educational Information
+    school_name = models.CharField(max_length=300, help_text="Name of the school")
+    school_address = models.TextField(help_text="School's complete address")
+    current_class = models.CharField(max_length=20, choices=EDUCATION_LEVEL_CHOICES, help_text="Current class/level")
+    
+    # Scholarship Information
+    program = models.ForeignKey('applications.Program', on_delete=models.SET_NULL, null=True, blank=True, help_text="Associated scholarship program")
+    scholarship_amount = models.DecimalField(max_digits=10, decimal_places=2, help_text="Scholarship amount in Naira")
+    scholarship_start_date = models.DateField(help_text="When the scholarship started")
+    scholarship_end_date = models.DateField(blank=True, null=True, help_text="When the scholarship ends (if applicable)")
+    scholarship_status = models.CharField(max_length=15, choices=SCHOLARSHIP_STATUS_CHOICES, default='active')
+    
+    # Guardian Information
+    guardian_name = models.CharField(max_length=200, help_text="Parent/Guardian's full name")
+    guardian_relationship = models.CharField(max_length=50, help_text="Relationship to student (e.g., Father, Mother, Uncle)")
+    guardian_phone = models.CharField(max_length=15, help_text="Guardian's phone number")
+    guardian_address = models.TextField(help_text="Guardian's address")
+    
+    # Additional Information
+    photo = models.ImageField(upload_to='students/', blank=True, null=True, help_text="Student's photo")
+    notes = models.TextField(blank=True, help_text="Additional notes about the student")
+    
+    # Metadata
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True, blank=True, help_text="Admin who added this record")
+    
+    class Meta:
+        ordering = ['full_name', 'school_name']
+        verbose_name = 'Scholarship Student'
+        verbose_name_plural = 'Scholarship Students'
+    
+    def __str__(self):
+        return f"{self.full_name} - {self.school_name} ({self.current_class})"
+    
+    @property
+    def age(self):
+        """Calculate student's current age"""
+        from django.utils import timezone
+        today = timezone.now().date()
+        return today.year - self.date_of_birth.year - ((today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day))
+    
+    @property
+    def is_scholarship_active(self):
+        """Check if scholarship is currently active"""
+        return self.scholarship_status == 'active'
 
 
 

@@ -1,0 +1,39 @@
+{% extends "admin/change_list.html" %}
+
+{% block object-tools-items %}
+    {{ block.super }}
+    <li>
+        <a href="{% url 'admin:core_student_bulk_upload' %}" class="addlink">
+            <i class="fas fa-upload" style="margin-right: 5px;"></i>
+            Bulk Upload Students
+        </a>
+    </li>
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+    .object-tools li a.addlink {
+        display: inline-flex;
+        align-items: center;
+        background: #02a65e;
+        color: white !important;
+        padding: 8px 16px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: 500;
+        margin-left: 10px;
+        transition: all 0.3s ease;
+    }
+    
+    .object-tools li a.addlink:hover {
+        background: #018a4f;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    
+    .object-tools li a.addlink i {
+        font-size: 14px;
+    }
+</style>
+{% endblock %}

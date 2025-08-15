@@ -4,43 +4,167 @@
 {% block title %}About Us{% endblock %}
 
 {% block content %}
-<div class="container mt-5 pt-5">
-    <!-- Hero Section -->
-    <div class="row align-items-center mb-5">
-        <div class="col-lg-6">
-            <h1 class="display-4 mb-4" style="color: #02a65e;"> {{ site_settings.about_title }} </h1>
-            <p class="lead">{{ site_settings.about_subtitle|default:"Our About Content will go here" }}</p>
-        </div>
-        <div class="col-lg-6">
-            {% if site_settings.about_image %}
-                <img src="{{ site_settings.about_image.url }}" alt="About Us" class="img-fluid rounded-3 shadow-lg">
-            {% endif %}
+<!-- Hero Section -->
+<section class="about-hero py-7 bg-pattern">
+    <div class="container">
+        <div class="row align-items-center min-vh-75">
+            <div class="col-lg-6 fade-up">
+                <div class="hero-badge mb-4">
+                    <span class="badge gradient-primary text-white px-3 py-2 fs-6 fw-normal">
+                        <i class="fas fa-heart me-2"></i>Our Story
+                    </span>
+                </div>
+                <h1 class="display-3 fw-bold mb-4 text-gradient">{{ site_settings.about_title }}</h1>
+                <p class="lead fs-4 text-muted mb-5">{{ site_settings.about_subtitle|default:"Empowering communities through education, healthcare, and housing support since 2020" }}</p>
+                <div class="about-quick-stats row">
+                    <div class="col-4">
+                        <h3 class="h2 mb-1 text-primary fw-bold">5+</h3>
+                        <p class="small text-muted mb-0">Years of Impact</p>
+                    </div>
+                    <div class="col-4">
+                        <h3 class="h2 mb-1 text-primary fw-bold">1,800+</h3>
+                        <p class="small text-muted mb-0">Lives Changed</p>
+                    </div>
+                    <div class="col-4">
+                        <h3 class="h2 mb-1 text-primary fw-bold">25+</h3>
+                        <p class="small text-muted mb-0">Communities</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 fade-up" data-delay="200">
+                <div class="about-image-container position-relative">
+                    {% if site_settings.about_image %}
+                        <div class="main-image-wrapper">
+                            <img src="{{ site_settings.about_image.url }}" alt="About Us" class="img-fluid rounded-4 shadow-lg about-main-image">
+                            <!-- Floating achievement badge -->
+                            <div class="floating-badge position-absolute">
+                                <div class="card shadow-lg border-0">
+                                    <div class="card-body p-3 text-center">
+                                        <div class="icon-box-small bg-success text-white mb-2 mx-auto">
+                                            <i class="fas fa-trophy"></i>
+                                        </div>
+                                        <h6 class="mb-1">Community Impact Award</h6>
+                                        <small class="text-muted">2023 Winner</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="placeholder-image bg-light rounded-4 d-flex align-items-center justify-content-center" style="height: 400px;">
+                            <div class="text-center text-muted">
+                                <i class="fas fa-image fa-3x mb-3"></i>
+                                <p>About Image Placeholder</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
+</section>
+
+<div class="container"
 
     <!-- Mission & Vision -->
-    <div class="row mb-5 g-4">
-        <div class="col-md-6">
-            <div class="card h-100 border-0 shadow-sm hover-shadow">
-                <div class="card-body p-4">
-                    <h3 class="card-title mb-4">
-                        <i class="fas fa-bullseye text-success me-2"></i>Our Mission
-                    </h3>
-                    <p class="card-text">{{ site_settings.mission_statement|default:"To facilitate access to quality education by connecting students with prestigious educational institutions worldwide, providing comprehensive support throughout their academic journey." }}</p>
+    <section class="py-6">
+        <div class="row mb-5">
+            <div class="col-12 text-center fade-up">
+                <span class="badge gradient-primary text-white px-3 py-2 fs-6 fw-normal mb-3">
+                    <i class="fas fa-compass me-2"></i>Our Foundation
+                </span>
+                <h2 class="display-5 fw-bold mb-3 text-gradient">Mission & Vision</h2>
+                <p class="lead text-muted mx-auto" style="max-width: 600px;">
+                    Our guiding principles that drive every action we take in transforming communities
+                </p>
+            </div>
+        </div>
+        
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-6 fade-up" data-delay="100">
+                <div class="mission-card h-100">
+                    <div class="card-header border-0 bg-transparent pb-0">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="mission-icon gradient-primary me-3">
+                                <i class="fas fa-bullseye text-white"></i>
+                            </div>
+                            <h3 class="h2 mb-0 fw-bold text-primary">Our Mission</h3>
+                        </div>
+                    </div>
+                    <div class="card-body pt-0">
+                        <p class="fs-5 text-muted lh-lg">
+                            {{ site_settings.mission_statement|default:"To empower communities through comprehensive support in education, healthcare, and housing, creating sustainable pathways for growth and development while fostering hope and opportunity for all." }}
+                        </p>
+                        <div class="mission-highlights mt-4">
+                            <div class="row">
+                                <div class="col-sm-6 mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        <span class="small fw-medium">Quality Education Access</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        <span class="small fw-medium">Healthcare Support</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        <span class="small fw-medium">Community Development</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        <span class="small fw-medium">Sustainable Growth</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6 fade-up" data-delay="200">
+                <div class="vision-card h-100">
+                    <div class="card-header border-0 bg-transparent pb-0">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="vision-icon gradient-primary me-3">
+                                <i class="fas fa-eye text-white"></i>
+                            </div>
+                            <h3 class="h2 mb-0 fw-bold text-primary">Our Vision</h3>
+                        </div>
+                    </div>
+                    <div class="card-body pt-0">
+                        <p class="fs-5 text-muted lh-lg">
+                            {{ site_settings.vision_statement|default:"To be the leading foundation in Nigeria, recognized for transforming communities through innovative programs that bridge educational gaps, improve healthcare access, and provide sustainable housing solutions for a better tomorrow." }}
+                        </p>
+                        <div class="vision-goals mt-4">
+                            <div class="goal-item mb-3 p-3 bg-light rounded-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="goal-number gradient-primary text-white rounded-circle me-3">1</div>
+                                    <span class="fw-medium">Become Nigeria's premier community development foundation</span>
+                                </div>
+                            </div>
+                            <div class="goal-item mb-3 p-3 bg-light rounded-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="goal-number gradient-primary text-white rounded-circle me-3">2</div>
+                                    <span class="fw-medium">Impact 10,000+ lives by 2030</span>
+                                </div>
+                            </div>
+                            <div class="goal-item p-3 bg-light rounded-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="goal-number gradient-primary text-white rounded-circle me-3">3</div>
+                                    <span class="fw-medium">Establish programs in all 36 Nigerian states</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card h-100 border-0 shadow-sm hover-shadow">
-                <div class="card-body p-4">
-                    <h3 class="card-title mb-4">
-                        <i class="fas fa-eye text-success me-2"></i>Our Vision
-                    </h3>
-                    <p class="card-text">{{ site_settings.vision_statement|default:"To become the leading platform for educational opportunities, breaking down barriers and creating pathways for academic excellence globally." }}</p>
-                </div>
-            </div>
-        </div>
-    </div>
+    </section>
 
     <!-- What We Do -->
     <!-- What We Do -->
@@ -116,13 +240,283 @@
     </div>
 </div>
 
+{% block extra_css %}
+{{ block.super }}
 <style>
-.hover-shadow {
-    transition: all 0.3s ease;
-}
-.hover-shadow:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
-}
+    /* About Page Specific Styles */
+    .about-hero {
+        min-height: 75vh;
+    }
+
+    .min-vh-75 {
+        min-height: 75vh;
+    }
+
+    .about-main-image {
+        position: relative;
+        z-index: 2;
+    }
+
+    .floating-badge {
+        top: -20px;
+        right: -20px;
+        z-index: 3;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .floating-badge .card {
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.95) !important;
+    }
+
+    /* Mission & Vision Cards */
+    .mission-card, .vision-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        border: 1px solid rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+
+    .mission-card:hover, .vision-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+
+    .mission-icon, .vision-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .goal-number {
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        font-weight: bold;
+    }
+
+    .goal-item {
+        transition: all 0.3s ease;
+        border: 1px solid transparent;
+    }
+
+    .goal-item:hover {
+        background: var(--primary-light) !important;
+        border-color: var(--primary-color);
+        transform: translateX(5px);
+    }
+
+    /* Team Section Enhancements */
+    .team-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        transition: all 0.4s ease;
+        border: 1px solid rgba(0,0,0,0.05);
+        position: relative;
+    }
+
+    .team-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        transition: left 0.3s ease;
+    }
+
+    .team-card:hover::before {
+        left: 0;
+    }
+
+    .team-card:hover {
+        transform: translateY(-15px);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+
+    .team-photo {
+        height: 300px;
+        object-fit: cover;
+        transition: all 0.3s ease;
+    }
+
+    .team-card:hover .team-photo {
+        transform: scale(1.05);
+    }
+
+    /* Statistics Enhancement */
+    .about-stats-section {
+        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        border-radius: 30px;
+        padding: 4rem 2rem;
+        position: relative;
+        overflow: hidden;
+        color: white;
+    }
+
+    .about-stats-section .text-muted {
+        color: rgba(255, 255, 255, 0.75) !important;
+    }
+
+    .about-stats-section .text-secondary {
+        color: rgba(255, 255, 255, 0.8) !important;
+    }
+
+    .about-stats-section small {
+        color: rgba(255, 255, 255, 0.75) !important;
+    }
+
+    .about-stats-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: float 10s ease-in-out infinite;
+    }
+
+    .stat-item-enhanced {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .stat-item-enhanced:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-10px);
+    }
+
+    /* What We Do Enhancement */
+    .service-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        transition: all 0.4s ease;
+        border: 1px solid rgba(0,0,0,0.05);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .service-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, var(--primary-light), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .service-card:hover::before {
+        left: 100%;
+    }
+
+    .service-card:hover {
+        transform: translateY(-15px);
+        box-shadow: 0 25px 70px rgba(0,0,0,0.15);
+    }
+
+    .service-icon {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, var(--primary-light), rgba(2, 166, 94, 0.05));
+        border-radius: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 2rem;
+        transition: all 0.3s ease;
+        font-size: 2rem;
+        color: var(--primary-color);
+    }
+
+    .service-card:hover .service-icon {
+        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        color: white;
+        transform: rotate(-5deg) scale(1.1);
+    }
+
+    /* CTA Section */
+    .cta-section {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 30px;
+        padding: 4rem 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cta-section::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(circle, var(--primary-light), transparent);
+        z-index: 1;
+    }
+
+    .cta-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Responsive Enhancements */
+    @media (max-width: 768px) {
+        .about-hero {
+            padding-top: 3rem;
+            padding-bottom: 3rem;
+        }
+
+        .floating-badge {
+            display: none;
+        }
+
+        .mission-card, .vision-card {
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .team-photo {
+            height: 250px;
+        }
+
+        .about-stats-section {
+            padding: 3rem 1.5rem;
+            margin: 2rem 0;
+        }
+    }
+
+    .hover-shadow {
+        transition: all 0.3s ease;
+    }
+    
+    .hover-shadow:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+    }
 </style>
+{% endblock %}
 {% endblock %}

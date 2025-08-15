@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+    .student-detail-card {
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    .student-photo-large {
+        width: 200px;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 15px;
+        border: 4px solid #fff;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    .info-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 3rem;
+        text-align: center;
+    }
+    .detail-section {
+        padding: 2rem;
+    }
+    .info-item {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+    .status-badge {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+    }
+    .scholarship-amount {
+        color: #28a745;
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Back Button -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <a href="{% url 'core:student-list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Students
+            </a>
+        </div>
+    </div>
+
+    <div class="student-detail-card">
+        <!-- Student Info Header -->
+        <div class="info-section">
+            <div class="row align-items-center">
+                <div class="col-md-4 text-center">
+                    {% if student.photo %}
+                        <img src="{{ student.photo.url }}" alt="{{ student.full_name }}" 
+                             class="student-photo-large">
+                    {% else %}
+                        <div class="student-photo-large mx-auto bg-white text-primary d-flex align-items-center justify-content-center" 
+                             style="font-size: 3rem;">
+                            {{ student.full_name.0|upper }}{{ student.full_name|split:" "|last|slice:":1"|upper }}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-8">
+                    <h1 class="display-5 fw-bold mb-2">{{ student.full_name }}</h1>
+                    <p class="lead mb-3">{{ student.get_current_class_display }} Student</p>
+                    <p class="mb-2"><i class="bi bi-geo-alt"></i> {{ student.school_name }}</p>
+                    <p class="mb-3"><i class="bi bi-calendar"></i> Age: {{ student.age }} years</p>
+                    <span class="status-badge bg-success text-white">
+                        <i class="bi bi-check-circle"></i> {{ student.get_scholarship_status_display }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Details -->
+        <div class="detail-section">
+            <div class="row">
+                <!-- Educational Information -->
+                <div class="col-lg-6 mb-4">
+                    <h4 class="mb-3"><i class="bi bi-book text-primary"></i> Educational Information</h4>
+                    
+                    <div class="info-item">
+                        <strong>School:</strong><br>
+                        <span class="text-muted">{{ student.school_name }}</span>
+                    </div>
+                    
+                    <div class="info-item">
+                        <strong>School Address:</strong><br>
+                        <span class="text-muted">{{ student.school_address }}</span>
+                    </div>
+                    
+                    <div class="info-item">
+                        <strong>Current Class:</strong><br>
+                        <span class="text-muted">{{ student.get_current_class_display }}</span>
+                    </div>
+                </div>
+
+                <!-- Scholarship Information -->
+                <div class="col-lg-6 mb-4">
+                    <h4 class="mb-3"><i class="bi bi-award text-primary"></i> Scholarship Information</h4>
+                    
+                    {% if student.program %}
+                    <div class="info-item">
+                        <strong>Program:</strong><br>
+                        <span class="text-muted">{{ student.program.name }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="info-item">
+                        <strong>Scholarship Amount:</strong><br>
+                        <span class="scholarship-amount">₦{{ student.scholarship_amount|floatformat:0 }}</span>
+                    </div>
+                    
+                    <div class="info-item">
+                        <strong>Start Date:</strong><br>
+                        <span class="text-muted">{{ student.scholarship_start_date|date:"F j, Y" }}</span>
+                    </div>
+                    
+                    {% if student.scholarship_end_date %}
+                    <div class="info-item">
+                        <strong>End Date:</strong><br>
+                        <span class="text-muted">{{ student.scholarship_end_date|date:"F j, Y" }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Guardian Information -->
+                <div class="col-lg-6 mb-4">
+                    <h4 class="mb-3"><i class="bi bi-people text-primary"></i> Guardian Information</h4>
+                    
+                    <div class="info-item">
+                        <strong>Guardian Name:</strong><br>
+                        <span class="text-muted">{{ student.guardian_name }}</span>
+                    </div>
+                    
+                    <div class="info-item">
+                        <strong>Relationship:</strong><br>
+                        <span class="text-muted">{{ student.guardian_relationship }}</span>
+                    </div>
+                    
+                    <div class="info-item">
+                        <strong>Contact Phone:</strong><br>
+                        <span class="text-muted">{{ student.guardian_phone }}</span>
+                    </div>
+                    
+                    <div class="info-item">
+                        <strong>Address:</strong><br>
+                        <span class="text-muted">{{ student.guardian_address }}</span>
+                    </div>
+                </div>
+
+                <!-- Additional Information -->
+                <div class="col-lg-6 mb-4">
+                    <h4 class="mb-3"><i class="bi bi-info-circle text-primary"></i> Additional Information</h4>
+                    
+                    <div class="info-item">
+                        <strong>Gender:</strong><br>
+                        <span class="text-muted">{{ student.get_gender_display }}</span>
+                    </div>
+                    
+                    <div class="info-item">
+                        <strong>Date of Birth:</strong><br>
+                        <span class="text-muted">{{ student.date_of_birth|date:"F j, Y" }}</span>
+                    </div>
+                    
+                    {% if student.phone_number %}
+                    <div class="info-item">
+                        <strong>Phone Number:</strong><br>
+                        <span class="text-muted">{{ student.phone_number }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if student.email %}
+                    <div class="info-item">
+                        <strong>Email:</strong><br>
+                        <span class="text-muted">{{ student.email }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if student.notes %}
+                    <div class="info-item">
+                        <strong>Notes:</strong><br>
+                        <span class="text-muted">{{ student.notes|linebreaks }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Impact Statement -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center p-5" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                    <h3 class="text-primary mb-3">Making Education Accessible</h3>
+                    <p class="lead text-muted">
+                        Through our scholarship program, we're committed to ensuring that talented students like 
+                        {{ student.full_name }} have the opportunity to pursue their educational dreams and build 
+                        a brighter future for themselves and their communities.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

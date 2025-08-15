@@ -13,13 +13,333 @@
 
     {% block extra_css %}
     <style>
-        .py-6 { padding-top: 5rem; padding-bottom: 5rem; }
-        .hover-translate { transition: transform 0.3s ease; }
-        .hover-translate:hover { transform: translateY(-5px); }
-        .nav-link { transition: color 0.3s ease; }
-        .nav-link:hover { color: #02a65e !important; }
-        body { padding-top: 76px; }
+        :root {
+            --primary-color: #02a65e;
+            --primary-light: rgba(2, 166, 94, 0.1);
+            --primary-dark: #018a4f;
+            --secondary-color: #6c757d;
+            --accent-color: #04d277;
+            --text-dark: #2c3e50;
+            --text-muted: #6c757d;
+            --border-light: rgba(0,0,0,0.08);
+            --shadow-light: 0 2px 15px rgba(0,0,0,0.08);
+            --shadow-medium: 0 5px 25px rgba(0,0,0,0.1);
+            --shadow-heavy: 0 10px 40px rgba(0,0,0,0.15);
+            --border-radius: 12px;
+            --border-radius-lg: 20px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Global Styles */
+        body {
+            padding-top: 80px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.7;
+            color: var(--text-dark);
+            background-color: #fafbfc;
+        }
+
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 700;
+            color: var(--text-dark);
+            line-height: 1.3;
+        }
+
+        .display-1, .display-2, .display-3, .display-4, .display-5, .display-6 {
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .lead {
+            font-size: 1.25rem;
+            font-weight: 400;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* Buttons */
+        .btn {
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            transition: var(--transition);
+            border-width: 2px;
+            letter-spacing: 0.025em;
+        }
+
+        .btn-lg {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+        }
+
+        .btn-primary, .btn-success {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow-light);
+        }
+
+        .btn-primary:hover, .btn-success:hover {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+            border-color: var(--primary-dark);
+        }
+
+        .btn-outline-primary, .btn-outline-success {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background: transparent;
+        }
+
+        .btn-outline-primary:hover, .btn-outline-success:hover {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        /* Cards */
+        .card {
+            border: 1px solid var(--border-light);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            transition: var(--transition);
+            background: white;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-heavy);
+        }
+
+        .card-img-top {
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+
+        /* Sections */
+        .py-6 { 
+            padding-top: 6rem; 
+            padding-bottom: 6rem; 
+        }
+
+        .py-7 { 
+            padding-top: 7rem; 
+            padding-bottom: 7rem; 
+        }
+
+        section {
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Gradients */
+        .gradient-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        }
+
+        .gradient-light {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+        }
+
+        /* Text color utilities for dark backgrounds */
+        .text-white-75 {
+            color: rgba(255, 255, 255, 0.75) !important;
+        }
+
+        .text-white-50 {
+            color: rgba(255, 255, 255, 0.5) !important;
+        }
+
+        .text-white-25 {
+            color: rgba(255, 255, 255, 0.25) !important;
+        }
+
+        /* Ensure proper contrast on dark backgrounds */
+        .bg-dark .text-muted,
+        .gradient-primary .text-muted,
+        [class*="gradient-"] .text-muted {
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        .bg-dark .text-secondary,
+        .gradient-primary .text-secondary,
+        [class*="gradient-"] .text-secondary {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        .bg-dark small,
+        .gradient-primary small,
+        [class*="gradient-"] small {
+            color: rgba(255, 255, 255, 0.75) !important;
+        }
+
+        /* Fix badge contrast */
+        .bg-success.bg-opacity-10 {
+            background-color: var(--primary-color) !important;
+            color: white !important;
+        }
+
+        /* Ensure proper contrast for stats sections */
+        .stats-section .text-muted,
+        .stats-section small {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        .stats-section p {
+            color: rgba(255, 255, 255, 0.85) !important;
+        }
+
+        /* Dark background text fix */
+        [style*="background: linear-gradient"] .text-muted,
+        [class*="bg-gradient"] .text-muted {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        /* Override Bootstrap's low contrast classes on dark backgrounds */
+        .bg-dark .text-muted,
+        .bg-primary .text-muted,
+        .bg-success .text-muted,
+        [style*="background-color: #02a65e"] .text-muted {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        /* Animations */
+        .hover-translate { 
+            transition: var(--transition); 
+        }
+        
+        .hover-translate:hover { 
+            transform: translateY(-8px); 
+        }
+        
+        .nav-link { 
+            transition: var(--transition);
+            font-weight: 500;
+        }
+        
+        .nav-link:hover { 
+            color: var(--primary-color) !important; 
+        }
+
+        .fade-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .fade-in {
+            opacity: 0;
+            transition: opacity 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+        }
+
+        /* Background Patterns */
+        .bg-pattern::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 25% 25%, var(--primary-light) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, var(--primary-light) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        /* Form Controls */
+        .form-control {
+            border-radius: var(--border-radius);
+            border: 2px solid var(--border-light);
+            padding: 0.875rem 1rem;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem var(--primary-light);
+        }
+
+        /* Navigation Improvements */
+        .navbar {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95) !important;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        /* Icons */
+        .icon-box {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            height: 80px;
+            background: var(--primary-light);
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .icon-box:hover {
+            background: var(--primary-color);
+            transform: scale(1.1);
+            color: white;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Loading Animation */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .loading {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        /* Responsive Improvements */
+        @media (max-width: 768px) {
+            .py-6 {
+                padding-top: 3rem;
+                padding-bottom: 3rem;
+            }
+            
+            .display-4 {
+                font-size: 2.5rem;
+            }
+            
+            .btn-lg {
+                padding: 0.875rem 1.75rem;
+            }
+        }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     {% endblock %}
 </head>
 <body>
@@ -31,6 +351,74 @@
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+    
+    <script>
+        // Global animations and utilities
+        document.addEventListener('DOMContentLoaded', function() {
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Animation observer for scroll animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, observerOptions);
+
+            // Observe all fade-up and fade-in elements
+            document.querySelectorAll('.fade-up, .fade-in').forEach(el => {
+                observer.observe(el);
+            });
+
+            // Add loading states for images
+            document.querySelectorAll('img').forEach(img => {
+                img.addEventListener('load', function() {
+                    this.classList.add('loaded');
+                });
+            });
+
+            // Form enhancements
+            document.querySelectorAll('.form-control').forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.classList.add('focused');
+                });
+                
+                input.addEventListener('blur', function() {
+                    if (!this.value) {
+                        this.parentElement.classList.remove('focused');
+                    }
+                });
+            });
+        });
+
+        // Utility functions
+        function showLoading(element) {
+            element.classList.add('loading');
+        }
+
+        function hideLoading(element) {
+            element.classList.remove('loading');
+        }
+    </script>
+    
     {% block extra_js %}{% endblock %}
 </body>
 </html>

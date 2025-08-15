@@ -11,4 +11,9 @@ urlpatterns = [
     path('contact/', views.contact_view, name='contact'),
     path('about/', views.about_view, name='about'),
     path('gallery/load-more/', views.load_more_gallery, name='load_more_gallery'),
+    
+    # Student URLs
+    path('students/', views.student_list_view, name='student-list'),
+    path('students/<int:student_id>/', views.student_detail_view, name='student-detail'),
+    path('admin/student-dashboard/', views.student_dashboard_view, name='student-dashboard'),
 ]

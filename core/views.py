@@ -1,12 +1,14 @@
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, ListView
 from django.contrib import messages
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
-from core.models import SiteSettings, SliderImage, GalleryImage, TeamMember, Achievement, WhatWeDo
+from django.core.paginator import Paginator
+from django.db.models import Q, Count, Sum
+from core.models import SiteSettings, SliderImage, GalleryImage, TeamMember, Achievement, WhatWeDo, Student
 from cms.models import ImpactStory
 from .forms import ContactForm
 from django.core.mail import send_mail
@@ -173,3 +175,111 @@ def load_more_gallery(request):
         'html': html,
         'has_more': has_more
     })
+
+
+# Student Views
+def student_list_view(request):
+    """Public view to display scholarship students"""
+    students = Student.objects.filter(scholarship_status='active').select_related('program')
+    
+    # Search functionality
+    search_query = request.GET.get('search', '')
+    if search_query:
+        students = students.filter(
+            Q(full_name__icontains=search_query) |
+            Q(school_name__icontains=search_query) |
+            Q(current_class__icontains=search_query)
+        )
+    
+    # Filter by class
+    class_filter = request.GET.get('class', '')
+    if class_filter:
+        students = students.filter(current_class=class_filter)
+    
+    # Filter by school
+    school_filter = request.GET.get('school', '')
+    if school_filter:
+        students = students.filter(school_name__icontains=school_filter)
+    
+    # Get unique schools and classes for filters
+    schools = Student.objects.filter(scholarship_status='active').values_list('school_name', flat=True).distinct().order_by('school_name')
+    classes = Student.objects.filter(scholarship_status='active').values_list('current_class', flat=True).distinct().order_by('current_class')
+    
+    # Pagination
+    paginator = Paginator(students, 12)  # 12 students per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # Statistics
+    stats = {
+        'total_students': Student.objects.filter(scholarship_status='active').count(),
+        'total_schools': Student.objects.filter(scholarship_status='active').values('school_name').distinct().count(),
+        'total_amount': Student.objects.filter(scholarship_status='active').aggregate(total=Sum('scholarship_amount'))['total'] or 0,
+    }
+    
+    context = {
+        'students': page_obj,
+        'search_query': search_query,
+        'class_filter': class_filter,
+        'school_filter': school_filter,
+        'schools': schools,
+        'classes': classes,
+        'stats': stats,
+        'site_settings': SiteSettings.objects.first(),
+    }
+    
+    return render(request, 'core/student_list.html', context)
+
+
+def student_detail_view(request, student_id):
+    """Public view to display individual student details"""
+    student = get_object_or_404(Student, id=student_id, scholarship_status='active')
+    
+    context = {
+        'student': student,
+        'site_settings': SiteSettings.objects.first(),
+    }
+    
+    return render(request, 'core/student_detail.html', context)
+
+
+@staff_member_required
+def student_dashboard_view(request):
+    """Admin dashboard for student statistics"""
+    # Get statistics
+    total_students = Student.objects.count()
+    active_students = Student.objects.filter(scholarship_status='active').count()
+    completed_students = Student.objects.filter(scholarship_status='completed').count()
+    suspended_students = Student.objects.filter(scholarship_status='suspended').count()
+    
+    # Total scholarship amount
+    total_amount = Student.objects.filter(scholarship_status='active').aggregate(
+        total=Sum('scholarship_amount')
+    )['total'] or 0
+    
+    # Students by class
+    students_by_class = Student.objects.filter(scholarship_status='active').values(
+        'current_class'
+    ).annotate(count=Count('id')).order_by('current_class')
+    
+    # Students by school
+    students_by_school = Student.objects.filter(scholarship_status='active').values(
+        'school_name'
+    ).annotate(count=Count('id')).order_by('-count')[:10]  # Top 10 schools
+    
+    # Recent additions
+    recent_students = Student.objects.select_related('program', 'created_by').order_by('-created_at')[:5]
+    
+    context = {
+        'total_students': total_students,
+        'active_students': active_students,
+        'completed_students': completed_students,
+        'suspended_students': suspended_students,
+        'total_amount': total_amount,
+        'students_by_class': students_by_class,
+        'students_by_school': students_by_school,
+        'recent_students': recent_students,
+        'site_settings': SiteSettings.objects.first(),
+    }
+    
+    return render(request, 'core/student_dashboard.html', context)
