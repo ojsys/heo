@@ -10,7 +10,7 @@ if project_home not in sys.path:
 
 # Virtual environment configuration
 # Change python_version to match your cPanel Python version (e.g., '3.9', '3.10', '3.11', '3.12')
-python_version = '3.11'
+python_version = '3.12'
 venv_path = os.path.join(project_home, 'env', 'lib', f'python{python_version}', 'site-packages')
 
 if os.path.exists(venv_path):
