@@ -38,7 +38,7 @@ class User(AbstractUser):
     objects = CustomUserManager()
 
     def __str__(self):
-        return self.username
+        return self.username or self.email or f"User {self.pk}"
 
 class UserVerification(models.Model):
     VERIFICATION_STATUS = (
