@@ -3,7 +3,7 @@ import sys
 
 # cPanel Configuration - UPDATE THESE VALUES
 CPANEL_USERNAME = 'heoeziok'
-APP_NAME = 'heo_pro'
+APP_NAME = 'heo'
 PYTHON_VERSION = '3.12'
 
 # Project directory
