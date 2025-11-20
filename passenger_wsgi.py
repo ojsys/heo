@@ -25,6 +25,10 @@ for venv_path in venv_paths:
     if os.path.exists(venv_path) and venv_path not in sys.path:
         sys.path.insert(0, venv_path)
 
+# Use PyMySQL as MySQLdb replacement (MUST be after path setup)
+import pymysql
+pymysql.install_as_MySQLdb()
+
 # Load environment variables from .env file
 env_path = os.path.join(project_home, '.env')
 if os.path.exists(env_path):

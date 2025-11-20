@@ -22,7 +22,8 @@ djangorestframework_simplejwt==5.5.0
 drf-yasg==1.21.9
 
 # Database
-mysqlclient==2.2.4
+PyMySQL==1.1.0
+cryptography==42.0.5
 
 # Image Processing
 pillow==11.1.0
