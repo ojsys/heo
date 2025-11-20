@@ -22,7 +22,7 @@ djangorestframework_simplejwt==5.5.0
 drf-yasg==1.21.9
 
 # Database
-psycopg2-binary==2.9.9
+mysqlclient==2.2.4
 
 # Image Processing
 pillow==11.1.0

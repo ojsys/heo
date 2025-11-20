@@ -22,19 +22,14 @@ else:
         sys.path.insert(0, alt_venv_path)
 
 # Load environment variables from .env file
-try:
-    from python_decouple import config
-    # python-decouple will automatically load from .env
-except ImportError:
-    # Fallback: manually load .env if python-decouple not available
-    env_path = os.path.join(project_home, '.env')
-    if os.path.exists(env_path):
-        with open(env_path) as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith('#') and '=' in line:
-                    key, value = line.split('=', 1)
-                    os.environ.setdefault(key.strip(), value.strip())
+env_path = os.path.join(project_home, '.env')
+if os.path.exists(env_path):
+    with open(env_path) as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith('#') and '=' in line:
+                key, value = line.split('=', 1)
+                os.environ.setdefault(key.strip(), value.strip())
 
 # Set Django settings module
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'heo_foundation.settings')
