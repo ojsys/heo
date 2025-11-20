@@ -17,8 +17,44 @@
                 <li class="nav-item">
                     <a class="nav-link px-3" href="{% url 'applications:program_list' %}">Programs</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link px-3" href="{% url 'core:student-list' %}">Our Students</a>
+                <li class="nav-item dropdown">
+                    <a class="nav-link px-3 dropdown-toggle" href="#" id="impactDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Our Impact
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="impactDropdown">
+                        <li>
+                            <a class="dropdown-item" href="{% url 'applications:impact_dashboard' %}">
+                                <i class="fas fa-chart-line me-2 text-primary"></i>Impact Dashboard
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'applications:education_showcase' %}">
+                                <i class="fas fa-graduation-cap me-2 text-info"></i>Students
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'applications:health_showcase' %}">
+                                <i class="fas fa-heartbeat me-2 text-danger"></i>Health Beneficiaries
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'applications:youth_showcase' %}">
+                                <i class="fas fa-users me-2 text-warning"></i>Youth Trainees
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'applications:housing_showcase' %}">
+                                <i class="fas fa-home me-2 text-success"></i>Housing Beneficiaries
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'applications:beneficiary_list' %}">
+                                <i class="fas fa-users me-2 text-secondary"></i>View All Beneficiaries
+                            </a>
+                        </li>
+                    </ul>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link px-3" href="{% url 'cms:blog_list' %}">Blog</a>

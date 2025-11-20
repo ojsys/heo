@@ -1,0 +1,59 @@
+{% extends 'email_base.html' %}
+
+{% block title %}Welcome to HEO Eziokwu Foundation{% endblock %}
+
+{% block content %}
+<h2 style="margin: 0 0 20px; color: #2d3748; font-size: 20px;">Welcome to HEO Eziokwu Foundation!</h2>
+
+<p style="margin: 0 0 15px; color: #4a5568; line-height: 1.6;">
+    Dear {{ user.first_name|default:user.email }},
+</p>
+
+<p style="margin: 0 0 15px; color: #4a5568; line-height: 1.6;">
+    Thank you for registering with HEO Eziokwu Foundation. We're excited to have you join our community of change-makers dedicated to transforming lives through education, healthcare, youth empowerment, and housing support.
+</p>
+
+<p style="margin: 0 0 20px; color: #4a5568; line-height: 1.6;">
+    With your account, you can:
+</p>
+
+<ul style="margin: 0 0 20px; padding-left: 20px; color: #4a5568; line-height: 1.8;">
+    <li>Apply for our various support programs</li>
+    <li>Track your application status</li>
+    <li>Receive updates on your applications</li>
+    <li>Stay informed about new opportunities</li>
+</ul>
+
+<p style="margin: 0 0 25px; color: #4a5568; line-height: 1.6;">
+    To get started, please verify your email address by clicking the button below:
+</p>
+
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin: 0 auto;">
+    <tr>
+        <td style="background-color: #2c5282; border-radius: 6px;">
+            <a href="{{ verification_url }}" style="display: inline-block; padding: 14px 30px; color: #ffffff; text-decoration: none; font-weight: bold; font-size: 16px;">
+                Verify Email Address
+            </a>
+        </td>
+    </tr>
+</table>
+
+<p style="margin: 25px 0 15px; color: #718096; font-size: 13px; line-height: 1.6;">
+    If the button doesn't work, copy and paste this link into your browser:<br>
+    <a href="{{ verification_url }}" style="color: #3182ce; word-break: break-all;">{{ verification_url }}</a>
+</p>
+
+<p style="margin: 0 0 15px; color: #718096; font-size: 13px; line-height: 1.6;">
+    This verification link will expire in 24 hours.
+</p>
+
+<hr style="border: none; border-top: 1px solid #e2e8f0; margin: 25px 0;">
+
+<p style="margin: 0; color: #4a5568; line-height: 1.6;">
+    If you have any questions, feel free to reach out to us at <a href="mailto:info@heoeziokwufoundation.org" style="color: #3182ce;">info@heoeziokwufoundation.org</a>.
+</p>
+{% endblock %}
+
+{% block footer_message %}
+Welcome to our family. Together, we can make a difference.
+{% endblock %}

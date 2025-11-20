@@ -142,6 +142,12 @@ EMAIL_PORT = config('EMAIL_PORT', cast=int)
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@heoeziokwufoundation.org')
+ADMIN_EMAIL = config('ADMIN_EMAIL', default='admin@heoeziokwufoundation.org')
+
+# Site Configuration
+SITE_URL = config('SITE_URL', default='https://heoeziokwufoundation.org')
+SITE_NAME = config('SITE_NAME', default='HEO Eziokwu Foundation')
 
 # Media files configuration
 MEDIA_URL = '/media/'

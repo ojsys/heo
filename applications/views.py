@@ -20,7 +20,11 @@ from django.forms import modelformset_factory
 import json
 from django.db.models.functions import TruncMonth
 from django.db.models import Count, Avg, Q, F, FloatField, DurationField, ExpressionWrapper
-from .models import Program, Application, ApplicationDocument, NotificationPreference, ApplicationStatus, FormField
+from .models import (
+    Program, Application, ApplicationDocument, NotificationPreference,
+    ApplicationStatus, FormField, Beneficiary, BeneficiarySupport,
+    EducationProfile, HealthProfile, YouthProfile, HousingProfile
+)
 from .forms import ApplicationForm, ApplicationDocumentForm, ApplicationReviewForm
 from .utils import send_application_status_update
 
@@ -558,3 +562,190 @@ def user_dashboard(request):
         'recent_status_updates': recent_status_updates,
         'notification_prefs': notification_prefs,
     })
+
+
+# Public Beneficiary Showcase Views
+
+class BeneficiaryShowcaseView(ListView):
+    """Generic beneficiary showcase view"""
+    model = Beneficiary
+    template_name = 'applications/beneficiary_showcase.html'
+    context_object_name = 'beneficiaries'
+    paginate_by = 12
+
+    def get_queryset(self):
+        queryset = Beneficiary.objects.filter(
+            show_on_website=True,
+            status='active'
+        ).select_related('program')
+
+        # Filter by beneficiary type if specified
+        beneficiary_type = self.kwargs.get('beneficiary_type')
+        if beneficiary_type:
+            queryset = queryset.filter(beneficiary_type=beneficiary_type)
+
+        # Search functionality
+        search = self.request.GET.get('search')
+        if search:
+            queryset = queryset.filter(
+                Q(full_name__icontains=search) |
+                Q(program__name__icontains=search)
+            )
+
+        return queryset.order_by('-start_date')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        beneficiary_type = self.kwargs.get('beneficiary_type')
+
+        # Set page title and description based on type
+        type_info = {
+            'education': {
+                'title': 'Our Scholars',
+                'description': 'Students we are supporting through our education and scholarship programs.',
+                'icon': 'fa-graduation-cap'
+            },
+            'health': {
+                'title': 'Healthcare Beneficiaries',
+                'description': 'Individuals receiving healthcare support through our medical assistance programs.',
+                'icon': 'fa-heart'
+            },
+            'youth': {
+                'title': 'Youth Empowerment Trainees',
+                'description': 'Young people building skills and careers through our empowerment programs.',
+                'icon': 'fa-users'
+            },
+            'housing': {
+                'title': 'Housing Support Recipients',
+                'description': 'Families and individuals receiving housing assistance and support.',
+                'icon': 'fa-home'
+            },
+        }
+
+        if beneficiary_type and beneficiary_type in type_info:
+            context.update(type_info[beneficiary_type])
+        else:
+            context['title'] = 'All Beneficiaries'
+            context['description'] = 'People whose lives we are helping to transform.'
+            context['icon'] = 'fa-hands-helping'
+
+        context['beneficiary_type'] = beneficiary_type
+        context['total_count'] = self.get_queryset().count()
+
+        return context
+
+
+class BeneficiaryDetailView(DetailView):
+    """Public beneficiary detail page"""
+    model = Beneficiary
+    template_name = 'applications/beneficiary_detail.html'
+    context_object_name = 'beneficiary'
+
+    def get_queryset(self):
+        return Beneficiary.objects.filter(show_on_website=True).select_related('program')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        beneficiary = self.object
+
+        # Get the appropriate profile
+        if beneficiary.beneficiary_type == 'education':
+            context['profile'] = getattr(beneficiary, 'education_profile', None)
+        elif beneficiary.beneficiary_type == 'health':
+            context['profile'] = getattr(beneficiary, 'health_profile', None)
+        elif beneficiary.beneficiary_type == 'youth':
+            context['profile'] = getattr(beneficiary, 'youth_profile', None)
+        elif beneficiary.beneficiary_type == 'housing':
+            context['profile'] = getattr(beneficiary, 'housing_profile', None)
+
+        # Get related beneficiaries
+        context['related_beneficiaries'] = Beneficiary.objects.filter(
+            beneficiary_type=beneficiary.beneficiary_type,
+            show_on_website=True,
+            status='active'
+        ).exclude(pk=beneficiary.pk)[:4]
+
+        return context
+
+
+class ImpactDashboardView(TemplateView):
+    """Public impact dashboard showing foundation's overall impact"""
+    template_name = 'applications/impact_dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Overall statistics
+        context['total_beneficiaries'] = Beneficiary.objects.filter(status='active').count()
+        context['total_programs'] = Program.objects.filter(is_active=True).count()
+
+        # Total disbursed
+        from django.db.models import Sum
+        context['total_disbursed'] = BeneficiarySupport.objects.aggregate(
+            total=Sum('amount')
+        )['total'] or 0
+
+        # By type statistics
+        context['education_count'] = Beneficiary.objects.filter(
+            beneficiary_type='education', status='active'
+        ).count()
+        context['health_count'] = Beneficiary.objects.filter(
+            beneficiary_type='health', status='active'
+        ).count()
+        context['youth_count'] = Beneficiary.objects.filter(
+            beneficiary_type='youth', status='active'
+        ).count()
+        context['housing_count'] = Beneficiary.objects.filter(
+            beneficiary_type='housing', status='active'
+        ).count()
+
+        # Recent beneficiaries
+        context['recent_beneficiaries'] = Beneficiary.objects.filter(
+            show_on_website=True,
+            status='active'
+        ).order_by('-created_at')[:8]
+
+        # Active programs
+        context['active_programs'] = Program.objects.filter(
+            is_active=True
+        ).annotate(
+            beneficiary_count=Count('beneficiaries', filter=Q(beneficiaries__status='active'))
+        )[:6]
+
+        # Gender distribution
+        context['male_count'] = Beneficiary.objects.filter(
+            gender='male', status='active'
+        ).count()
+        context['female_count'] = Beneficiary.objects.filter(
+            gender='female', status='active'
+        ).count()
+
+        # Completed beneficiaries (success stories potential)
+        context['completed_count'] = Beneficiary.objects.filter(status='completed').count()
+
+        return context
+
+
+# Shortcut views for each beneficiary type
+def education_showcase(request):
+    """Showcase education/scholarship beneficiaries"""
+    view = BeneficiaryShowcaseView.as_view()
+    return view(request, beneficiary_type='education')
+
+
+def health_showcase(request):
+    """Showcase healthcare beneficiaries"""
+    view = BeneficiaryShowcaseView.as_view()
+    return view(request, beneficiary_type='health')
+
+
+def youth_showcase(request):
+    """Showcase youth empowerment beneficiaries"""
+    view = BeneficiaryShowcaseView.as_view()
+    return view(request, beneficiary_type='youth')
+
+
+def housing_showcase(request):
+    """Showcase housing support beneficiaries"""
+    view = BeneficiaryShowcaseView.as_view()
+    return view(request, beneficiary_type='housing')

@@ -6,6 +6,7 @@ import sys
 
 def main():
     """Run administrative tasks."""
+    # Use the settings package which auto-selects based on DJANGO_ENV
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'heo_foundation.settings')
     try:
         from django.core.management import execute_from_command_line

@@ -1,0 +1,51 @@
+{% extends 'email_base.html' %}
+
+{% block title %}Support Disbursement Notification{% endblock %}
+
+{% block content %}
+<h2 style="margin: 0 0 20px; color: #2d3748; font-size: 20px;">Support Disbursement Notification</h2>
+
+<p style="margin: 0 0 15px; color: #4a5568; line-height: 1.6;">
+    Dear {{ support.beneficiary.full_name }},
+</p>
+
+<p style="margin: 0 0 15px; color: #4a5568; line-height: 1.6;">
+    We are pleased to inform you that support has been disbursed on your behalf as part of the <strong>{{ support.beneficiary.program.name }}</strong> program.
+</p>
+
+<div style="background-color: #ebf8ff; border-radius: 6px; padding: 20px; margin: 20px 0; border-left: 4px solid #3182ce;">
+    <h3 style="margin: 0 0 15px; color: #2c5282; font-size: 16px;">Disbursement Details</h3>
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+        <tr>
+            <td style="padding: 8px 0; color: #718096; font-size: 14px;">Type:</td>
+            <td style="padding: 8px 0; color: #2d3748; font-size: 14px; font-weight: bold;">{{ support.get_support_type_display }}</td>
+        </tr>
+        <tr>
+            <td style="padding: 8px 0; color: #718096; font-size: 14px;">Amount:</td>
+            <td style="padding: 8px 0; color: #2d3748; font-size: 14px; font-weight: bold;">₦{{ support.amount|floatformat:2 }}</td>
+        </tr>
+        <tr>
+            <td style="padding: 8px 0; color: #718096; font-size: 14px;">Date:</td>
+            <td style="padding: 8px 0; color: #2d3748; font-size: 14px;">{{ support.date|date:"F j, Y" }}</td>
+        </tr>
+        <tr>
+            <td style="padding: 8px 0; color: #718096; font-size: 14px;">Description:</td>
+            <td style="padding: 8px 0; color: #2d3748; font-size: 14px;">{{ support.description }}</td>
+        </tr>
+    </table>
+</div>
+
+<p style="margin: 0 0 20px; color: #4a5568; line-height: 1.6;">
+    If you have any questions about this disbursement or need any assistance, please don't hesitate to contact us.
+</p>
+
+<hr style="border: none; border-top: 1px solid #e2e8f0; margin: 25px 0;">
+
+<p style="margin: 0; color: #4a5568; line-height: 1.6;">
+    For inquiries, please contact us at <a href="mailto:info@heoeziokwufoundation.org" style="color: #3182ce;">info@heoeziokwufoundation.org</a>.
+</p>
+{% endblock %}
+
+{% block footer_message %}
+Thank you for being part of the HEO Eziokwu Foundation family.
+{% endblock %}

@@ -1,0 +1,305 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - HEO Eziokwu Foundation{% endblock %}
+
+{% block extra_css %}
+<style>
+    .showcase-hero {
+        background: linear-gradient(135deg, #1a365d 0%, #2c5282 50%, #2d3748 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .showcase-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .showcase-hero.education { background: linear-gradient(135deg, #2b6cb0 0%, #3182ce 50%, #4299e1 100%); }
+    .showcase-hero.health { background: linear-gradient(135deg, #c53030 0%, #e53e3e 50%, #f56565 100%); }
+    .showcase-hero.youth { background: linear-gradient(135deg, #c05621 0%, #dd6b20 50%, #ed8936 100%); }
+    .showcase-hero.housing { background: linear-gradient(135deg, #276749 0%, #38a169 50%, #48bb78 100%); }
+
+    .filter-btn {
+        border-radius: 25px;
+        padding: 0.5rem 1.25rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .filter-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .beneficiary-card {
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        height: 100%;
+        border: none;
+    }
+
+    .beneficiary-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+    }
+
+    .beneficiary-card img {
+        height: 220px;
+        object-fit: cover;
+        width: 100%;
+    }
+
+    .beneficiary-card .placeholder-img {
+        height: 220px;
+        background: linear-gradient(135deg, #e2e8f0 0%, #edf2f7 100%);
+    }
+
+    .badge-type {
+        font-size: 0.75rem;
+        padding: 0.35rem 0.75rem;
+        border-radius: 20px;
+    }
+
+    .search-box {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .search-box .form-control {
+        border-radius: 25px 0 0 25px;
+        padding: 0.75rem 1.5rem;
+        border: 2px solid #e2e8f0;
+        border-right: none;
+    }
+
+    .search-box .form-control:focus {
+        border-color: #3182ce;
+        box-shadow: none;
+    }
+
+    .search-box .btn {
+        border-radius: 0 25px 25px 0;
+        padding: 0.75rem 1.5rem;
+    }
+
+    .fade-in {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .fade-in.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .pagination .page-link {
+        border-radius: 8px;
+        margin: 0 3px;
+        border: none;
+        color: #4a5568;
+    }
+
+    .pagination .page-item.active .page-link {
+        background: #3182ce;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="showcase-hero {% if beneficiary_type %}{{ beneficiary_type }}{% endif %} text-white py-5">
+    <div class="container position-relative py-4">
+        <div class="text-center">
+            <div class="mb-3">
+                <i class="fas {{ icon }} fa-4x" style="opacity: 0.9;"></i>
+            </div>
+            <h1 class="display-4 fw-bold mb-3">{{ title }}</h1>
+            <p class="lead mb-4" style="opacity: 0.9; max-width: 600px; margin: 0 auto;">{{ description }}</p>
+            <div class="d-inline-flex align-items-center bg-white bg-opacity-25 rounded-pill px-4 py-2">
+                <i class="fas fa-users me-2"></i>
+                <span class="fw-bold">{{ total_count }} Beneficiaries</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Search & Filters -->
+<section class="py-4 bg-light border-bottom">
+    <div class="container">
+        <!-- Search -->
+        <div class="search-box mb-4">
+            <form method="get" class="d-flex">
+                <input type="text" name="search" class="form-control" placeholder="Search by name or program..." value="{{ request.GET.search }}">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
+
+        <!-- Filter by type (if showing all) -->
+        {% if not beneficiary_type %}
+        <div class="text-center">
+            <a href="{% url 'applications:beneficiary_list' %}" class="btn filter-btn {% if not request.GET.type %}btn-primary{% else %}btn-outline-secondary{% endif %} m-1">
+                <i class="fas fa-users me-1"></i> All
+            </a>
+            <a href="{% url 'applications:education_showcase' %}" class="btn filter-btn btn-outline-primary m-1">
+                <i class="fas fa-graduation-cap me-1"></i> Education
+            </a>
+            <a href="{% url 'applications:health_showcase' %}" class="btn filter-btn btn-outline-danger m-1">
+                <i class="fas fa-heartbeat me-1"></i> Health
+            </a>
+            <a href="{% url 'applications:youth_showcase' %}" class="btn filter-btn btn-outline-warning m-1">
+                <i class="fas fa-users me-1"></i> Youth
+            </a>
+            <a href="{% url 'applications:housing_showcase' %}" class="btn filter-btn btn-outline-success m-1">
+                <i class="fas fa-home me-1"></i> Housing
+            </a>
+        </div>
+        {% else %}
+        <div class="text-center">
+            <a href="{% url 'applications:beneficiary_list' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i> View All Beneficiaries
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Beneficiaries Grid -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            {% for beneficiary in beneficiaries %}
+            <div class="col-md-6 col-lg-3 fade-in">
+                <div class="card beneficiary-card">
+                    {% if beneficiary.photo %}
+                    <img src="{{ beneficiary.photo.url }}" alt="{{ beneficiary.full_name }}">
+                    {% else %}
+                    <div class="placeholder-img d-flex align-items-center justify-content-center">
+                        <i class="fas fa-user fa-4x text-muted" style="opacity: 0.3;"></i>
+                    </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold mb-2">{{ beneficiary.full_name }}</h5>
+                        {% if beneficiary.program %}
+                        <p class="text-muted small mb-2">
+                            <i class="fas fa-folder-open me-1"></i>{{ beneficiary.program.name }}
+                        </p>
+                        {% endif %}
+                        <span class="badge badge-type {% if beneficiary.beneficiary_type == 'education' %}bg-primary{% elif beneficiary.beneficiary_type == 'health' %}bg-danger{% elif beneficiary.beneficiary_type == 'youth' %}bg-warning{% else %}bg-success{% endif %}">
+                            {{ beneficiary.get_beneficiary_type_display }}
+                        </span>
+                    </div>
+                    <div class="card-footer bg-white border-top-0 pb-3">
+                        <a href="{% url 'applications:beneficiary_detail' beneficiary.pk %}" class="btn btn-sm btn-outline-primary w-100">
+                            <i class="fas fa-user me-1"></i> View Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-users fa-4x text-muted" style="opacity: 0.3;"></i>
+                    </div>
+                    <h4 class="text-muted mb-2">No beneficiaries found</h4>
+                    <p class="text-muted mb-4">
+                        {% if request.GET.search %}
+                        No results found for "{{ request.GET.search }}". Try a different search term.
+                        {% else %}
+                        Check back soon for updates on our beneficiaries.
+                        {% endif %}
+                    </p>
+                    {% if request.GET.search %}
+                    <a href="{% if beneficiary_type %}{% url 'applications:beneficiary_list' %}?type={{ beneficiary_type }}{% else %}{% url 'applications:beneficiary_list' %}{% endif %}" class="btn btn-outline-primary">
+                        Clear Search
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <nav aria-label="Page navigation" class="mt-5">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li class="page-item"><a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">{{ num }}</a></li>
+                {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8 mb-4 mb-lg-0">
+                <h3 class="fw-bold mb-2">Want to Be Part of Our Impact?</h3>
+                <p class="text-muted mb-0">Apply for support through one of our programs and let us help transform your life.</p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{% url 'applications:program_list' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-file-alt me-2"></i>Apply Now
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Intersection Observer for fade-in animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.fade-in').forEach(el => {
+        observer.observe(el);
+    });
+</script>
+{% endblock %}

@@ -20,4 +20,13 @@ urlpatterns = [
     path('applications/bulk-review/', views.bulk_application_review, name='bulk_application_review'),
     path('analytics/', views.AnalyticsView.as_view(), name='analytics'),
     path('notifications/preferences/', views.notification_preferences, name='notification_preferences'),
+
+    # Public Beneficiary Showcase Pages
+    path('impact/', views.ImpactDashboardView.as_view(), name='impact_dashboard'),
+    path('beneficiaries/', views.BeneficiaryShowcaseView.as_view(), name='beneficiary_list'),
+    path('beneficiaries/<int:pk>/', views.BeneficiaryDetailView.as_view(), name='beneficiary_detail'),
+    path('education/students/', views.education_showcase, name='education_showcase'),
+    path('health/beneficiaries/', views.health_showcase, name='health_showcase'),
+    path('youth/trainees/', views.youth_showcase, name='youth_showcase'),
+    path('housing/beneficiaries/', views.housing_showcase, name='housing_showcase'),
 ]

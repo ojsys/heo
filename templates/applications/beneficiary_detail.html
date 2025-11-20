@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ beneficiary.full_name }} - HEO Eziokwu Foundation{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        {% if beneficiary.photo %}
+                        <img src="{{ beneficiary.photo.url }}" class="img-fluid rounded-start h-100" alt="{{ beneficiary.full_name }}" style="object-fit: cover;">
+                        {% else %}
+                        <div class="bg-light d-flex align-items-center justify-content-center h-100" style="min-height: 250px;">
+                            <i class="fas fa-user fa-5x text-muted"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <span class="badge bg-{% if beneficiary.beneficiary_type == 'education' %}primary{% elif beneficiary.beneficiary_type == 'health' %}success{% elif beneficiary.beneficiary_type == 'youth' %}info{% else %}warning{% endif %} mb-2">
+                                {{ beneficiary.get_beneficiary_type_display }}
+                            </span>
+                            <h2 class="card-title">{{ beneficiary.full_name }}</h2>
+                            {% if beneficiary.program %}
+                            <p class="text-muted">
+                                <i class="fas fa-clipboard-list me-2"></i>{{ beneficiary.program.name }}
+                            </p>
+                            {% endif %}
+                            <hr>
+                            <div class="row">
+                                {% if beneficiary.age %}
+                                <div class="col-6">
+                                    <p class="mb-1 text-muted small">Age</p>
+                                    <p class="fw-bold">{{ beneficiary.age }} years</p>
+                                </div>
+                                {% endif %}
+                                <div class="col-6">
+                                    <p class="mb-1 text-muted small">Gender</p>
+                                    <p class="fw-bold">{{ beneficiary.get_gender_display }}</p>
+                                </div>
+                                {% if beneficiary.state %}
+                                <div class="col-6">
+                                    <p class="mb-1 text-muted small">State</p>
+                                    <p class="fw-bold">{{ beneficiary.state }}</p>
+                                </div>
+                                {% endif %}
+                                <div class="col-6">
+                                    <p class="mb-1 text-muted small">Support Started</p>
+                                    <p class="fw-bold">{{ beneficiary.start_date|date:"M Y" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Details -->
+            {% if profile %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        {% if beneficiary.beneficiary_type == 'education' %}
+                        <i class="fas fa-graduation-cap me-2"></i>Education Details
+                        {% elif beneficiary.beneficiary_type == 'health' %}
+                        <i class="fas fa-heart me-2"></i>Healthcare Details
+                        {% elif beneficiary.beneficiary_type == 'youth' %}
+                        <i class="fas fa-users me-2"></i>Training Details
+                        {% else %}
+                        <i class="fas fa-home me-2"></i>Housing Details
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if beneficiary.beneficiary_type == 'education' %}
+                    <table class="table table-borderless">
+                        <tr>
+                            <th style="width: 30%;">School</th>
+                            <td>{{ profile.school_name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Class/Level</th>
+                            <td>{{ profile.get_current_class_display }}</td>
+                        </tr>
+                        {% if profile.course_of_study %}
+                        <tr>
+                            <th>Course</th>
+                            <td>{{ profile.course_of_study }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if profile.last_result %}
+                        <tr>
+                            <th>Performance</th>
+                            <td>{{ profile.last_result }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+
+                    {% elif beneficiary.beneficiary_type == 'health' %}
+                    <table class="table table-borderless">
+                        <tr>
+                            <th style="width: 30%;">Hospital</th>
+                            <td>{{ profile.hospital_name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Treatment</th>
+                            <td>{{ profile.treatment_type }}</td>
+                        </tr>
+                        <tr>
+                            <th>Status</th>
+                            <td>
+                                <span class="badge bg-{% if profile.treatment_status == 'completed' %}success{% elif profile.treatment_status == 'ongoing' %}warning{% else %}info{% endif %}">
+                                    {{ profile.get_treatment_status_display }}
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
+
+                    {% elif beneficiary.beneficiary_type == 'youth' %}
+                    <table class="table table-borderless">
+                        <tr>
+                            <th style="width: 30%;">Skill</th>
+                            <td>{{ profile.specific_skill }}</td>
+                        </tr>
+                        <tr>
+                            <th>Training Provider</th>
+                            <td>{{ profile.training_provider }}</td>
+                        </tr>
+                        <tr>
+                            <th>Duration</th>
+                            <td>{{ profile.training_duration }}</td>
+                        </tr>
+                        {% if profile.certification_obtained %}
+                        <tr>
+                            <th>Certification</th>
+                            <td>
+                                <span class="badge bg-success">Certified</span>
+                                {{ profile.certificate_name }}
+                            </td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <th>Employment Status</th>
+                            <td>{{ profile.get_employment_status_display }}</td>
+                        </tr>
+                    </table>
+
+                    {% elif beneficiary.beneficiary_type == 'housing' %}
+                    <table class="table table-borderless">
+                        <tr>
+                            <th style="width: 30%;">Support Type</th>
+                            <td>{{ profile.get_support_type_display }}</td>
+                        </tr>
+                        <tr>
+                            <th>Status</th>
+                            <td>
+                                <span class="badge bg-{% if profile.project_status == 'completed' %}success{% elif profile.project_status == 'in_progress' %}warning{% else %}secondary{% endif %}">
+                                    {{ profile.get_project_status_display }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Family Size</th>
+                            <td>{{ profile.family_size }} members</td>
+                        </tr>
+                    </table>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Back Link -->
+            <a href="{% url 'applications:beneficiary_list' %}" class="btn btn-outline-secondary mb-4 w-100">
+                <i class="fas fa-arrow-left me-2"></i>Back to All Beneficiaries
+            </a>
+
+            <!-- Related Beneficiaries -->
+            {% if related_beneficiaries %}
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0">Other {{ beneficiary.get_beneficiary_type_display }} Beneficiaries</h6>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        {% for related in related_beneficiaries %}
+                        <li class="list-group-item d-flex align-items-center">
+                            {% if related.photo %}
+                            <img src="{{ related.photo.url }}" class="rounded-circle me-3" width="40" height="40" style="object-fit: cover;">
+                            {% else %}
+                            <div class="rounded-circle bg-light me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                <i class="fas fa-user text-muted"></i>
+                            </div>
+                            {% endif %}
+                            <a href="{% url 'applications:beneficiary_detail' related.pk %}" class="text-decoration-none">
+                                {{ related.full_name }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

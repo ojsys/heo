@@ -3,14 +3,48 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Application System{% endblock %}</title>
+    <title>{% block title %}HEO Eziokwu Foundation{% endblock %}</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; color: #333;">
-    {% block content %}{% endblock %}
-    
-    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #777; text-align: center;">
-        <p>This is an automated message. Please do not reply to this email.</p>
-        <p>&copy; {% now "Y" %} Application System. All rights reserved.</p>
-    </div>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+        <tr>
+            <td style="padding: 20px 0;">
+                <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" align="center" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <!-- Header -->
+                    <tr>
+                        <td style="background-color: #2c5282; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 24px;">HEO Eziokwu Foundation</h1>
+                            <p style="margin: 10px 0 0; color: #bee3f8; font-size: 14px;">Making Impact, Changing Lives</p>
+                        </td>
+                    </tr>
+
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 40px 30px;">
+                            {% block content %}{% endblock %}
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #f7fafc; padding: 30px; text-align: center; border-radius: 0 0 8px 8px; border-top: 1px solid #e2e8f0;">
+                            <p style="margin: 0 0 10px; font-size: 14px; color: #4a5568;">
+                                {% block footer_message %}
+                                Thank you for being part of our mission to transform lives.
+                                {% endblock %}
+                            </p>
+                            <p style="margin: 0 0 10px; font-size: 12px; color: #718096;">
+                                HEO Eziokwu Foundation<br>
+                                Email: info@heoeziokwufoundation.org
+                            </p>
+                            <p style="margin: 0; font-size: 11px; color: #a0aec0;">
+                                &copy; {% now "Y" %} HEO Eziokwu Foundation. All rights reserved.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
 </body>
 </html>

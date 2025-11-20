@@ -1,0 +1,401 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Our Impact - HEO Eziokwu Foundation{% endblock %}
+
+{% block extra_css %}
+<style>
+    .impact-hero {
+        background: linear-gradient(135deg, #1a365d 0%, #2c5282 50%, #2d3748 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .impact-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    }
+
+    .stat-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+
+    .stat-number {
+        font-size: 3rem;
+        font-weight: 700;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
+    .focus-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        height: 100%;
+        border: 2px solid transparent;
+    }
+
+    .focus-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+    }
+
+    .focus-card.education:hover { border-color: #3182ce; }
+    .focus-card.health:hover { border-color: #e53e3e; }
+    .focus-card.youth:hover { border-color: #ed8936; }
+    .focus-card.housing:hover { border-color: #38a169; }
+
+    .focus-icon {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .focus-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    .beneficiary-card {
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .beneficiary-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    .beneficiary-card img {
+        height: 200px;
+        object-fit: cover;
+        width: 100%;
+    }
+
+    .program-card {
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        height: 100%;
+        border: none;
+    }
+
+    .program-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    .cta-section {
+        background: linear-gradient(135deg, #02a65e 0%, #028a4e 100%);
+    }
+
+    .fade-in {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .fade-in.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="impact-hero text-white py-5">
+    <div class="container position-relative py-5">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <h1 class="display-3 fw-bold mb-4">
+                    Our <span style="color: #48bb78;">Impact</span>
+                </h1>
+                <p class="lead mb-4" style="opacity: 0.9; font-size: 1.25rem;">
+                    Transforming lives through education, healthcare, youth empowerment, and housing support. Every number represents a life changed.
+                </p>
+                <a href="{% url 'applications:program_list' %}" class="btn btn-success btn-lg px-4 py-3">
+                    <i class="fas fa-hand-holding-heart me-2"></i>Apply for Support
+                </a>
+            </div>
+            <div class="col-lg-6">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="stat-card">
+                            <div class="stat-icon bg-primary bg-opacity-10">
+                                <i class="fas fa-users fa-2x text-primary"></i>
+                            </div>
+                            <div class="stat-number text-primary">{{ total_beneficiaries }}</div>
+                            <p class="text-muted mb-0 small">Active Beneficiaries</p>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stat-card">
+                            <div class="stat-icon bg-success bg-opacity-10">
+                                <i class="fas fa-clipboard-list fa-2x text-success"></i>
+                            </div>
+                            <div class="stat-number text-success">{{ total_programs }}</div>
+                            <p class="text-muted mb-0 small">Active Programs</p>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stat-card">
+                            <div class="stat-icon bg-warning bg-opacity-10">
+                                <i class="fas fa-naira-sign fa-2x text-warning"></i>
+                            </div>
+                            <div class="stat-number text-warning" style="font-size: 2rem;">₦{{ total_disbursed|floatformat:0 }}</div>
+                            <p class="text-muted mb-0 small">Total Disbursed</p>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stat-card">
+                            <div class="stat-icon bg-info bg-opacity-10">
+                                <i class="fas fa-trophy fa-2x text-info"></i>
+                            </div>
+                            <div class="stat-number text-info">{{ completed_count }}</div>
+                            <p class="text-muted mb-0 small">Success Stories</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Focus Areas -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5 fade-in">
+            <h2 class="display-5 fw-bold mb-3">Our Focus Areas</h2>
+            <p class="lead text-muted">Making a difference across four key pillars of community development</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3 fade-in">
+                <div class="focus-card education">
+                    <div class="focus-icon" style="background: rgba(49, 130, 206, 0.1);">
+                        <i class="fas fa-graduation-cap fa-2x" style="color: #3182ce;"></i>
+                    </div>
+                    <h4 class="fw-bold mb-2">Education</h4>
+                    <div class="focus-number" style="color: #3182ce;">{{ education_count }}</div>
+                    <p class="text-muted small mb-3">Students Supported</p>
+                    <p class="text-muted small mb-4">Scholarships, school supplies, and educational support for deserving students.</p>
+                    <a href="{% url 'applications:education_showcase' %}" class="btn btn-outline-primary w-100">
+                        View Students <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 fade-in">
+                <div class="focus-card health">
+                    <div class="focus-icon" style="background: rgba(229, 62, 62, 0.1);">
+                        <i class="fas fa-heartbeat fa-2x" style="color: #e53e3e;"></i>
+                    </div>
+                    <h4 class="fw-bold mb-2">Healthcare</h4>
+                    <div class="focus-number" style="color: #e53e3e;">{{ health_count }}</div>
+                    <p class="text-muted small mb-3">Patients Assisted</p>
+                    <p class="text-muted small mb-4">Medical bills, treatments, and healthcare access for those in need.</p>
+                    <a href="{% url 'applications:health_showcase' %}" class="btn btn-outline-danger w-100">
+                        View Beneficiaries <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 fade-in">
+                <div class="focus-card youth">
+                    <div class="focus-icon" style="background: rgba(237, 137, 54, 0.1);">
+                        <i class="fas fa-users fa-2x" style="color: #ed8936;"></i>
+                    </div>
+                    <h4 class="fw-bold mb-2">Youth</h4>
+                    <div class="focus-number" style="color: #ed8936;">{{ youth_count }}</div>
+                    <p class="text-muted small mb-3">Youth Empowered</p>
+                    <p class="text-muted small mb-4">Skills training, entrepreneurship support, and mentorship programs.</p>
+                    <a href="{% url 'applications:youth_showcase' %}" class="btn btn-outline-warning w-100">
+                        View Trainees <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 fade-in">
+                <div class="focus-card housing">
+                    <div class="focus-icon" style="background: rgba(56, 161, 105, 0.1);">
+                        <i class="fas fa-home fa-2x" style="color: #38a169;"></i>
+                    </div>
+                    <h4 class="fw-bold mb-2">Housing</h4>
+                    <div class="focus-number" style="color: #38a169;">{{ housing_count }}</div>
+                    <p class="text-muted small mb-3">Families Housed</p>
+                    <p class="text-muted small mb-4">Safe housing, renovations, and shelter support for families.</p>
+                    <a href="{% url 'applications:housing_showcase' %}" class="btn btn-outline-success w-100">
+                        View Beneficiaries <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Recent Beneficiaries -->
+{% if recent_beneficiaries %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5 fade-in">
+            <h2 class="display-5 fw-bold mb-3">Recent Beneficiaries</h2>
+            <p class="lead text-muted">Meet some of the lives we've touched recently</p>
+        </div>
+        <div class="row g-4">
+            {% for beneficiary in recent_beneficiaries %}
+            <div class="col-md-6 col-lg-3 fade-in">
+                <div class="card beneficiary-card border-0">
+                    {% if beneficiary.photo %}
+                    <img src="{{ beneficiary.photo.url }}" alt="{{ beneficiary.full_name }}">
+                    {% else %}
+                    <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                        <i class="fas fa-user fa-4x text-muted"></i>
+                    </div>
+                    {% endif %}
+                    <div class="card-body text-center">
+                        <h6 class="card-title fw-bold mb-2">{{ beneficiary.full_name }}</h6>
+                        {% if beneficiary.program %}
+                        <p class="text-muted small mb-2">{{ beneficiary.program.name }}</p>
+                        {% endif %}
+                        <span class="badge rounded-pill {% if beneficiary.beneficiary_type == 'education' %}bg-primary{% elif beneficiary.beneficiary_type == 'health' %}bg-danger{% elif beneficiary.beneficiary_type == 'youth' %}bg-warning{% else %}bg-success{% endif %}">
+                            {{ beneficiary.get_beneficiary_type_display }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-5 fade-in">
+            <a href="{% url 'applications:beneficiary_list' %}" class="btn btn-primary btn-lg px-5">
+                View All Beneficiaries <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Active Programs -->
+{% if active_programs %}
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5 fade-in">
+            <h2 class="display-5 fw-bold mb-3">Active Programs</h2>
+            <p class="lead text-muted">Current initiatives accepting applications</p>
+        </div>
+        <div class="row g-4">
+            {% for program in active_programs %}
+            <div class="col-md-6 col-lg-4 fade-in">
+                <div class="card program-card h-100">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3">
+                                <i class="fas {% if program.program_type == 'scholarship' %}fa-graduation-cap{% elif program.program_type == 'health' %}fa-heartbeat{% elif program.program_type == 'youth' %}fa-users{% else %}fa-home{% endif %} text-primary"></i>
+                            </div>
+                            <div>
+                                <h5 class="card-title fw-bold mb-0">{{ program.name }}</h5>
+                                <span class="badge bg-secondary">{{ program.get_program_type_display }}</span>
+                            </div>
+                        </div>
+                        <p class="card-text text-muted">{{ program.description|truncatewords:25 }}</p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="text-primary fw-bold">
+                                <i class="fas fa-users me-1"></i> {{ program.beneficiary_count }} beneficiaries
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white border-0 p-4 pt-0">
+                        <a href="{% url 'applications:program_detail' program.pk %}" class="btn btn-outline-primary w-100">
+                            Learn More
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-5 fade-in">
+            <a href="{% url 'applications:program_list' %}" class="btn btn-outline-primary btn-lg px-5">
+                View All Programs <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Call to Action -->
+<section class="cta-section py-5 text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8 mb-4 mb-lg-0">
+                <h2 class="display-6 fw-bold mb-3">Ready to Make a Difference?</h2>
+                <p class="lead mb-0" style="opacity: 0.9;">
+                    Apply for support or partner with us to transform more lives in our community.
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{% url 'applications:program_list' %}" class="btn btn-light btn-lg me-2 mb-2">
+                    <i class="fas fa-file-alt me-2"></i>Apply Now
+                </a>
+                <a href="{% url 'core:contact' %}" class="btn btn-outline-light btn-lg mb-2">
+                    <i class="fas fa-handshake me-2"></i>Partner With Us
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Intersection Observer for fade-in animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.fade-in').forEach(el => {
+        observer.observe(el);
+    });
+</script>
+{% endblock %}
