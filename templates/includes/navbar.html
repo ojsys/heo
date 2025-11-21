@@ -1,10 +1,10 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
     <div class="container">
         <a class="navbar-brand d-flex align-items-center" href="{% url 'core:home' %}">
-            {% if site_settings.logo %}
-                <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.site_name }}" height="50" class="me-2">
+            {% if site_settings and site_settings.logo %}
+                <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.site_name|default:'HEO Foundation' }}" height="50" class="me-2">
             {% endif %}
-            <span style="color: #02a65e; font-weight: 600;">{{ site_settings.site_name }}</span>
+            <span style="color: #02a65e; font-weight: 600;">{{ site_settings.site_name|default:"HEO Eziokwu Foundation" }}</span>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
