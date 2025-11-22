@@ -116,6 +116,18 @@
                 <h3 class="mb-0">Supporting Documents</h3>
             </div>
             <div class="card-body">
+                <div class="alert alert-info mb-4">
+                    <h6 class="alert-heading"><i class="fas fa-info-circle me-2"></i>Document Upload Guidelines</h6>
+                    <p class="mb-2">Please upload clear, legible copies of the following documents as applicable:</p>
+                    <ul class="mb-2">
+                        <li>Valid identification (National ID, Voter's Card, Passport, or NIN slip)</li>
+                        <li>Passport photograph (recent, white background)</li>
+                        <li>Academic certificates or results</li>
+                        <li>Proof of address or utility bill</li>
+                        <li>Any other documents mentioned in the eligibility criteria</li>
+                    </ul>
+                    <small class="text-muted">Accepted formats: PDF, JPG, PNG (Max size: 5MB per file)</small>
+                </div>
                 {{ document_formset.management_form }}
                 <div id="document-forms">
                     {% for form in document_formset %}
