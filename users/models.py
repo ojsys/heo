@@ -1,7 +1,19 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils import timezone
+from django.core.validators import FileExtensionValidator
+from django.core.exceptions import ValidationError
 import uuid
+
+
+def validate_image_file_extension(value):
+    """Validate that uploaded file is a JPEG or PNG image."""
+    valid_extensions = ['jpg', 'jpeg', 'png']
+    ext = value.name.split('.')[-1].lower()
+    if ext not in valid_extensions:
+        raise ValidationError(
+            f'Only JPEG and PNG images are allowed. You uploaded a .{ext} file.'
+        )
 
 
 class CustomUserManager(BaseUserManager):
@@ -50,8 +62,18 @@ class UserVerification(models.Model):
     )
     
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    id_document = models.FileField(upload_to='verification_documents/id/', null=True)
-    address_proof = models.FileField(upload_to='verification_documents/address/', null=True)
+    id_document = models.ImageField(
+        upload_to='verification_documents/id/',
+        null=True,
+        validators=[validate_image_file_extension],
+        help_text='Upload a JPEG or PNG image of your ID document'
+    )
+    address_proof = models.ImageField(
+        upload_to='verification_documents/address/',
+        null=True,
+        validators=[validate_image_file_extension],
+        help_text='Upload a JPEG or PNG image of your address proof'
+    )
     status = models.CharField(max_length=20, choices=VERIFICATION_STATUS, default='pending')
     submitted_at = models.DateTimeField(auto_now_add=True)
     verified_at = models.DateTimeField(null=True, blank=True)

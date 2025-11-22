@@ -1,8 +1,30 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, AuthenticationForm
+from django.core.validators import FileExtensionValidator
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, Field
 from .models import User, UserVerification
+
+
+def validate_image_file(file):
+    """Validate that uploaded file is a JPEG or PNG image."""
+    if file:
+        # Check file extension
+        valid_extensions = ['jpg', 'jpeg', 'png']
+        ext = file.name.split('.')[-1].lower()
+        if ext not in valid_extensions:
+            raise forms.ValidationError(
+                'Only JPEG and PNG images are allowed. '
+                f'You uploaded a .{ext} file.'
+            )
+
+        # Check file size (max 5MB)
+        max_size = 5 * 1024 * 1024  # 5MB
+        if file.size > max_size:
+            raise forms.ValidationError(
+                f'File size must be less than 5MB. '
+                f'Your file is {file.size / (1024 * 1024):.2f}MB.'
+            )
 
 class EmailAuthenticationForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
@@ -99,8 +121,14 @@ class UserVerificationForm(forms.ModelForm):
         model = UserVerification
         fields = ['id_document', 'address_proof']
         widgets = {
-            'id_document': forms.FileInput(attrs={'class': 'form-control'}),
-            'address_proof': forms.FileInput(attrs={'class': 'form-control'}),
+            'id_document': forms.FileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/jpeg,image/png'
+            }),
+            'address_proof': forms.FileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/jpeg,image/png'
+            }),
         }
 
     def __init__(self, *args, **kwargs):
@@ -111,3 +139,17 @@ class UserVerificationForm(forms.ModelForm):
             Field('address_proof', css_class='mb-3'),
             Submit('submit', 'Submit Verification', css_class='btn btn-primary')
         )
+
+        # Add help text
+        self.fields['id_document'].help_text = 'Upload a clear photo of your ID (JPEG or PNG only, max 5MB)'
+        self.fields['address_proof'].help_text = 'Upload a proof of address document (JPEG or PNG only, max 5MB)'
+
+    def clean_id_document(self):
+        file = self.cleaned_data.get('id_document')
+        validate_image_file(file)
+        return file
+
+    def clean_address_proof(self):
+        file = self.cleaned_data.get('address_proof')
+        validate_image_file(file)
+        return file
