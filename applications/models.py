@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from ckeditor_uploader.fields import RichTextUploadingField
 
 from users.models import User
 
@@ -11,11 +12,11 @@ class Program(models.Model):
         ('housing', 'Housing Support'),
         ('other', 'Other Support'),
     )
-    
+
     name = models.CharField(max_length=200)
     program_type = models.CharField(max_length=20, choices=PROGRAM_TYPES)
-    description = models.TextField()
-    eligibility_criteria = models.TextField()
+    description = RichTextUploadingField(help_text="Detailed description of the program")
+    eligibility_criteria = RichTextUploadingField(help_text="Who can apply and requirements")
     start_date = models.DateField()
     end_date = models.DateField()
     is_active = models.BooleanField(default=True)
