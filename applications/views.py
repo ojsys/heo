@@ -54,7 +54,6 @@ class ApplicationCreateView(LoginRequiredMixin, CreateView):
     model = Application
     template_name = 'applications/application_form.html'
     form_class = ApplicationForm
-    login_url = '/login/'
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
