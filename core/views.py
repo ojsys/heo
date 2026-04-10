@@ -44,8 +44,10 @@ def home_view(request):
         'all_slider_count': all_slider_images.count(),
         'all_gallery_count': all_gallery_images.count(),
         'form': form,
+        'achievements': Achievement.objects.filter(is_active=True).order_by('order'),
+        'what_we_do_items': WhatWeDo.objects.filter(is_active=True).order_by('order'),
     }
-    context['featured_stories'] = ImpactStory.objects.filter( 
+    context['featured_stories'] = ImpactStory.objects.filter(
         is_featured=True
     ).order_by('-created_at')[:3]
     

@@ -1,150 +1,187 @@
 {% extends 'users/auth_base.html' %}
 {% load static %}
-{% load crispy_forms_tags %}
 
-{% block title %}Register - HEO Eziokwu Foundation{% endblock %}
+{% block title %}Create Account — {{ site_settings.site_name|default:"HEO Foundation" }}{% endblock %}
 
 {% block auth_content %}
 <div class="auth-card">
-    <div class="row g-0">
-        <!-- Sidebar -->
-        <div class="col-md-5 auth-sidebar">
-            <div>
-                <h2>Join Our Community</h2>
-                <p>Create an account to apply for our programs and be part of a movement transforming lives across education, healthcare, youth empowerment, and housing.</p>
 
-                <ul class="feature-list">
-                    <li>
-                        <i class="fas fa-graduation-cap"></i>
-                        <span>Education & Scholarships</span>
-                    </li>
-                    <li>
-                        <i class="fas fa-heart"></i>
-                        <span>Healthcare Assistance</span>
-                    </li>
-                    <li>
-                        <i class="fas fa-users"></i>
-                        <span>Youth Empowerment</span>
-                    </li>
-                    <li>
-                        <i class="fas fa-home"></i>
-                        <span>Housing Support</span>
-                    </li>
-                </ul>
-            </div>
+    <!-- Sidebar -->
+    <div class="auth-sidebar">
+        <div class="brand">
+            {% if site_settings and site_settings.logo %}
+                <img src="{{ site_settings.logo.url }}" style="height:34px;filter:brightness(0) invert(1);" alt="Logo">
+            {% else %}
+                <div class="brand-icon"><i class="fas fa-hands-helping"></i></div>
+            {% endif %}
+            <span class="brand-name">{{ site_settings.site_name|default:"HEO Foundation" }}</span>
         </div>
 
-        <!-- Form -->
-        <div class="col-md-7">
-            <div class="auth-form">
-                <div class="text-center mb-4">
-                    {% if site_settings.logo %}
-                        <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.site_name }}" class="logo">
-                    {% else %}
-                        <i class="fas fa-hands-helping fa-3x text-primary mb-3"></i>
+        <h2>Join Our Community</h2>
+        <p class="tagline">
+            Create a free account to apply for our programmes and be part of a movement transforming lives across Nigeria.
+        </p>
+
+        <ul class="auth-feature-list">
+            <li>
+                <div class="fi"><i class="fas fa-graduation-cap"></i></div>
+                Education & Scholarships
+            </li>
+            <li>
+                <div class="fi"><i class="fas fa-heartbeat"></i></div>
+                Healthcare Assistance
+            </li>
+            <li>
+                <div class="fi"><i class="fas fa-users"></i></div>
+                Youth Empowerment
+            </li>
+            <li>
+                <div class="fi"><i class="fas fa-home"></i></div>
+                Housing Support
+            </li>
+        </ul>
+    </div>
+
+    <!-- Form side -->
+    <div class="auth-form-side">
+        <div class="auth-logo-wrap">
+            {% if site_settings and site_settings.logo %}
+                <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.site_name }}">
+            {% endif %}
+        </div>
+
+        <h3>Create Account</h3>
+        <p class="auth-subtitle">Fill in your details to get started — it only takes a minute.</p>
+
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            <div class="row g-3">
+                <div class="col-6">
+                    <label class="form-label" for="id_first_name">First Name</label>
+                    <input type="text" name="first_name" id="id_first_name"
+                           class="form-control {% if form.first_name.errors %}is-invalid{% endif %}"
+                           placeholder="Amara" value="{{ form.first_name.value|default:'' }}" required>
+                    {% if form.first_name.errors %}
+                    <div class="invalid-feedback">{{ form.first_name.errors.0 }}</div>
                     {% endif %}
-                    <h3>Create Account</h3>
-                    <p class="subtitle">Fill in your details to get started</p>
+                </div>
+                <div class="col-6">
+                    <label class="form-label" for="id_last_name">Last Name</label>
+                    <input type="text" name="last_name" id="id_last_name"
+                           class="form-control {% if form.last_name.errors %}is-invalid{% endif %}"
+                           placeholder="Okafor" value="{{ form.last_name.value|default:'' }}" required>
+                    {% if form.last_name.errors %}
+                    <div class="invalid-feedback">{{ form.last_name.errors.0 }}</div>
+                    {% endif %}
                 </div>
 
-                {% if messages %}
-                    {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-
-                <form method="post" novalidate>
-                    {% csrf_token %}
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="id_first_name" class="form-label">First Name</label>
-                            <input type="text" name="first_name" id="id_first_name" class="form-control {% if form.first_name.errors %}is-invalid{% endif %}" placeholder="John" value="{{ form.first_name.value|default:'' }}">
-                            {% if form.first_name.errors %}
-                                <div class="text-danger small mt-1">{{ form.first_name.errors.0 }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="id_last_name" class="form-label">Last Name</label>
-                            <input type="text" name="last_name" id="id_last_name" class="form-control {% if form.last_name.errors %}is-invalid{% endif %}" placeholder="Doe" value="{{ form.last_name.value|default:'' }}">
-                            {% if form.last_name.errors %}
-                                <div class="text-danger small mt-1">{{ form.last_name.errors.0 }}</div>
-                            {% endif %}
-                        </div>
+                <div class="col-12">
+                    <label class="form-label" for="id_email">Email Address</label>
+                    <div class="input-group">
+                        <span class="input-group-text" style="border-right:none;border-radius:10px 0 0 10px;">
+                            <i class="fas fa-envelope"></i>
+                        </span>
+                        <input type="email" name="email" id="id_email"
+                               class="form-control {% if form.email.errors %}is-invalid{% endif %}"
+                               style="border-left:none;border-radius:0 10px 10px 0;"
+                               placeholder="you@example.com" value="{{ form.email.value|default:'' }}" required>
                     </div>
-
-                    <div class="mb-3">
-                        <label for="id_email" class="form-label">Email Address</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0">
-                                <i class="fas fa-envelope text-muted"></i>
-                            </span>
-                            <input type="email" name="email" id="id_email" class="form-control border-start-0 {% if form.email.errors %}is-invalid{% endif %}" placeholder="john@example.com" value="{{ form.email.value|default:'' }}" required>
-                        </div>
-                        {% if form.email.errors %}
-                            <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
-                        {% endif %}
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="id_password1" class="form-label">Password</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0">
-                                <i class="fas fa-lock text-muted"></i>
-                            </span>
-                            <input type="password" name="password1" id="id_password1" class="form-control border-start-0 {% if form.password1.errors %}is-invalid{% endif %}" placeholder="Create a strong password" required>
-                        </div>
-                        {% if form.password1.errors %}
-                            <div class="text-danger small mt-1">{{ form.password1.errors.0 }}</div>
-                        {% endif %}
-                    </div>
-
-                    <div class="mb-4">
-                        <label for="id_password2" class="form-label">Confirm Password</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0">
-                                <i class="fas fa-lock text-muted"></i>
-                            </span>
-                            <input type="password" name="password2" id="id_password2" class="form-control border-start-0 {% if form.password2.errors %}is-invalid{% endif %}" placeholder="Confirm your password" required>
-                        </div>
-                        {% if form.password2.errors %}
-                            <div class="text-danger small mt-1">{{ form.password2.errors.0 }}</div>
-                        {% endif %}
-                    </div>
-
-                    {% if form.non_field_errors %}
-                        <div class="alert alert-danger">
-                            {% for error in form.non_field_errors %}
-                                {{ error }}
-                            {% endfor %}
-                        </div>
+                    {% if form.email.errors %}
+                    <div class="text-danger" style="font-size:0.825rem;margin-top:0.3rem;">{{ form.email.errors.0 }}</div>
                     {% endif %}
+                </div>
 
-                    <div class="form-check mb-4">
-                        <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
-                        <label class="form-check-label small" for="terms">
-                            I agree to the <a href="#" class="auth-link">Terms of Service</a> and <a href="#" class="auth-link">Privacy Policy</a>
-                        </label>
-                    </div>
-
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="fas fa-user-plus me-2"></i>Create Account
+                <div class="col-12">
+                    <label class="form-label" for="id_password1">Password</label>
+                    <div class="input-group" style="position:relative;">
+                        <span class="input-group-text" style="border-right:none;border-radius:10px 0 0 10px;">
+                            <i class="fas fa-lock"></i>
+                        </span>
+                        <input type="password" name="password1" id="id_password1"
+                               class="form-control {% if form.password1.errors %}is-invalid{% endif %}"
+                               style="border-left:none;border-radius:0 10px 10px 0;"
+                               placeholder="Create a strong password" required>
+                        <button type="button" class="btn" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);z-index:10;background:none;border:none;color:#94a3b8;padding:0;"
+                                onclick="togglePwd('id_password1', this)">
+                            <i class="fas fa-eye"></i>
                         </button>
                     </div>
-                </form>
+                    {% if form.password1.errors %}
+                    <div class="text-danger" style="font-size:0.825rem;margin-top:0.3rem;">{{ form.password1.errors.0 }}</div>
+                    {% endif %}
+                </div>
 
-                <div class="text-center mt-4">
-                    <p class="text-muted mb-0">
-                        Already have an account?
-                        <a href="{% url 'users:login' %}" class="auth-link">Sign In</a>
-                    </p>
+                <div class="col-12">
+                    <label class="form-label" for="id_password2">Confirm Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text" style="border-right:none;border-radius:10px 0 0 10px;">
+                            <i class="fas fa-lock"></i>
+                        </span>
+                        <input type="password" name="password2" id="id_password2"
+                               class="form-control {% if form.password2.errors %}is-invalid{% endif %}"
+                               style="border-left:none;border-radius:0 10px 10px 0;"
+                               placeholder="Repeat your password" required>
+                    </div>
+                    {% if form.password2.errors %}
+                    <div class="text-danger" style="font-size:0.825rem;margin-top:0.3rem;">{{ form.password2.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="col-12">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="terms" name="terms"
+                               style="border-color:#e2e8f0;" required>
+                        <label class="form-check-label" for="terms" style="font-size:0.85rem;color:#64748b;">
+                            I agree to the <a href="#" class="auth-link">Terms of Service</a> and
+                            <a href="#" class="auth-link">Privacy Policy</a>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary w-100 btn-lg">
+                        <i class="fas fa-user-plus me-2"></i> Create Account
+                    </button>
                 </div>
             </div>
-        </div>
+        </form>
+
+        <p class="text-center mt-3 mb-0" style="font-size:0.9rem;color:#64748b;">
+            Already have an account?
+            <a href="{% url 'users:login' %}" class="auth-link">Sign in here</a>
+        </p>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function togglePwd(id, btn) {
+    const input = document.getElementById(id);
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fas fa-eye-slash';
+    } else {
+        input.type = 'password';
+        icon.className = 'fas fa-eye';
+    }
+}
+</script>
 {% endblock %}

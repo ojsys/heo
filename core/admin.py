@@ -81,8 +81,18 @@ class TeamMemberAdmin(admin.ModelAdmin):
 
 @admin.register(Achievement)
 class AchievementAdmin(admin.ModelAdmin):
-    list_display = ('title', 'order')
-    list_editable = ('order',)
+    list_display = ('title', 'value', 'order', 'is_active')
+    list_editable = ('value', 'order', 'is_active')
+    search_fields = ('title',)
+    ordering = ('order',)
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        form.base_fields['value'].help_text = (
+            "⬆️ UPDATE THIS NUMBER here or in the list above. "
+            "Examples: '500+', '1,000+', '₦75M+', '98%'"
+        )
+        return form
 
 
 @admin.register(Student)

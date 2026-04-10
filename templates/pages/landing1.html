@@ -1,530 +1,519 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}{{ site_settings.site_name }} - Transforming Lives{% endblock %}
+{% block title %}{{ site_settings.site_name|default:"HEO Eziokwu Foundation" }} — Transforming Lives{% endblock %}
 
 {% block extra_css %}
 <style>
-    :root {
-        --primary: #059669;
-        --primary-dark: #047857;
-        --secondary: #0891b2;
-        --dark: #111827;
-        --light: #f9fafb;
-    }
-
-    /* Hero Section */
-    .hero {
-        min-height: 100vh;
-        background: linear-gradient(135deg, #111827 0%, #1f2937 50%, #111827 100%);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .hero::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="1" fill="%23059669" opacity="0.1"/></svg>') repeat;
-        background-size: 50px 50px;
-        animation: moveBackground 20s linear infinite;
-    }
-
-    @keyframes moveBackground {
-        0% { transform: translate(0, 0); }
-        100% { transform: translate(50px, 50px); }
-    }
-
-    .hero-content {
-        position: relative;
-        z-index: 10;
-    }
-
-    .hero-title {
-        font-size: clamp(2.5rem, 6vw, 4.5rem);
-        font-weight: 800;
-        line-height: 1.1;
-        color: white;
-    }
-
-    .hero-title .highlight {
-        background: linear-gradient(135deg, #059669, #0891b2);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-
-    .hero-subtitle {
-        font-size: 1.25rem;
-        color: #9ca3af;
-        max-width: 500px;
-    }
-
-    .hero-stats {
-        display: flex;
-        gap: 3rem;
-        margin-top: 3rem;
-    }
-
-    .hero-stat {
-        text-align: center;
-    }
-
-    .hero-stat-number {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: #059669;
-    }
-
-    .hero-stat-label {
-        font-size: 0.875rem;
-        color: #9ca3af;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    .hero-image {
-        position: relative;
-    }
-
-    .hero-image img {
-        border-radius: 20px;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    }
-
-    .hero-badge {
-        position: absolute;
-        bottom: -20px;
-        left: -20px;
-        background: white;
-        padding: 1.5rem;
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    }
-
-    /* Focus Areas */
-    .focus-section {
-        padding: 8rem 0;
-        background: white;
-    }
-
-    .section-label {
-        display: inline-block;
-        padding: 0.5rem 1rem;
-        background: #ecfdf5;
-        color: #059669;
-        border-radius: 50px;
-        font-size: 0.875rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
-    }
-
-    .section-title {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: #111827;
-        margin-bottom: 1rem;
-    }
-
-    .section-description {
-        font-size: 1.125rem;
-        color: #6b7280;
-        max-width: 600px;
-    }
-
-    .focus-card {
-        background: white;
-        border-radius: 20px;
-        padding: 2.5rem;
-        height: 100%;
-        border: 1px solid #e5e7eb;
-        transition: all 0.4s ease;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .focus-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 4px;
-        background: linear-gradient(90deg, #059669, #0891b2);
-        transform: scaleX(0);
-        transition: transform 0.4s ease;
-    }
-
-    .focus-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        border-color: transparent;
-    }
-
-    .focus-card:hover::before {
-        transform: scaleX(1);
-    }
-
-    .focus-icon {
-        width: 70px;
-        height: 70px;
-        border-radius: 15px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.75rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .focus-icon.education { background: #ecfdf5; color: #059669; }
-    .focus-icon.health { background: #fef2f2; color: #dc2626; }
-    .focus-icon.youth { background: #eff6ff; color: #2563eb; }
-    .focus-icon.housing { background: #fef3c7; color: #d97706; }
-
-    .focus-card h3 {
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: #111827;
-        margin-bottom: 1rem;
-    }
-
-    .focus-card p {
-        color: #6b7280;
-        margin-bottom: 1.5rem;
-    }
-
-    .focus-link {
-        color: #059669;
-        font-weight: 600;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: gap 0.3s ease;
-    }
-
-    .focus-link:hover {
-        gap: 1rem;
-        color: #047857;
-    }
-
-    /* Impact Section */
-    .impact-section {
-        padding: 8rem 0;
-        background: linear-gradient(135deg, #059669 0%, #047857 100%);
-        position: relative;
-    }
-
-    .impact-section::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="white" opacity="0.1"/></svg>') repeat;
-        background-size: 40px 40px;
-    }
-
-    .impact-card {
-        text-align: center;
-        padding: 2rem;
-    }
-
-    .impact-number {
-        font-size: 4rem;
-        font-weight: 800;
-        color: white;
-        line-height: 1;
-    }
-
-    .impact-label {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 1.125rem;
-        margin-top: 0.5rem;
-    }
-
-    /* Stories Section */
-    .stories-section {
-        padding: 8rem 0;
-        background: #f9fafb;
-    }
-
-    .story-card {
-        background: white;
-        border-radius: 20px;
-        overflow: hidden;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        transition: all 0.3s ease;
-        height: 100%;
-    }
-
-    .story-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-    }
-
-    .story-image {
-        height: 200px;
-        overflow: hidden;
-    }
-
-    .story-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.5s ease;
-    }
-
-    .story-card:hover .story-image img {
-        transform: scale(1.1);
-    }
-
-    .story-content {
-        padding: 1.5rem;
-    }
-
-    .story-content h4 {
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: #111827;
-        margin-bottom: 0.75rem;
-    }
-
-    .story-content p {
-        color: #6b7280;
-        margin-bottom: 1rem;
-    }
-
-    /* Process Section */
-    .process-section {
-        padding: 8rem 0;
-        background: white;
-    }
-
-    .process-step {
-        text-align: center;
-        position: relative;
-    }
-
-    .process-number {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #059669, #0891b2);
-        color: white;
-        font-size: 1.5rem;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1.5rem;
-    }
-
-    .process-step h4 {
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: #111827;
-        margin-bottom: 0.75rem;
-    }
-
-    .process-step p {
-        color: #6b7280;
-        font-size: 0.95rem;
-    }
-
-    /* CTA Section */
-    .cta-section {
-        padding: 8rem 0;
-        background: #111827;
-        text-align: center;
-    }
-
-    .cta-title {
-        font-size: 3rem;
-        font-weight: 700;
-        color: white;
-        margin-bottom: 1.5rem;
-    }
-
-    .cta-description {
-        font-size: 1.25rem;
-        color: #9ca3af;
-        max-width: 600px;
-        margin: 0 auto 2rem;
-    }
-
-    /* Buttons */
-    .btn-primary-custom {
-        background: linear-gradient(135deg, #059669, #047857);
-        color: white;
-        border: none;
-        padding: 1rem 2rem;
-        border-radius: 10px;
-        font-weight: 600;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-    }
-
-    .btn-primary-custom:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 10px 20px rgba(5, 150, 105, 0.3);
-        color: white;
-    }
-
-    .btn-outline-custom {
-        background: transparent;
-        color: white;
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        padding: 1rem 2rem;
-        border-radius: 10px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-    .btn-outline-custom:hover {
-        background: white;
-        color: #111827;
-        border-color: white;
-    }
-
-    /* Contact Section */
-    .contact-section {
-        padding: 8rem 0;
-        background: #f9fafb;
-    }
-
-    .contact-info-card {
-        background: white;
-        padding: 2rem;
-        border-radius: 15px;
-        text-align: center;
-        height: 100%;
-        border: 1px solid #e5e7eb;
-    }
-
-    .contact-info-card i {
-        font-size: 2rem;
-        color: #059669;
-        margin-bottom: 1rem;
-    }
-
-    .contact-form-card {
-        background: white;
-        padding: 3rem;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-    }
-
-    .form-control-custom {
-        border: 2px solid #e5e7eb;
-        border-radius: 10px;
-        padding: 1rem;
-        transition: all 0.3s ease;
-    }
-
-    .form-control-custom:focus {
-        border-color: #059669;
-        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
-    }
-
-    /* Animations */
-    .fade-in {
-        opacity: 0;
-        transform: translateY(30px);
-        transition: all 0.6s ease;
-    }
-
-    .fade-in.visible {
-        opacity: 1;
-        transform: translateY(0);
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-        .hero-stats {
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .hero-title {
-            font-size: 2.5rem;
-        }
-
-        .section-title {
-            font-size: 2rem;
-        }
-
-        .impact-number {
-            font-size: 3rem;
-        }
-
-        .cta-title {
-            font-size: 2rem;
-        }
-    }
+/* ── Hero ─────────────────────────────────────── */
+.hero {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0f172a 100%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+}
+
+.hero-bg-pattern {
+    position: absolute;
+    inset: 0;
+    background-image:
+        radial-gradient(ellipse 50% 60% at 75% 50%, rgba(2,166,94,0.18) 0%, transparent 70%),
+        radial-gradient(ellipse 30% 40% at 10% 80%, rgba(2,166,94,0.1) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+.hero-grid-lines {
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+}
+
+.hero-content { position: relative; z-index: 2; padding: 6rem 0 5rem; }
+
+.hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(2,166,94,0.15);
+    border: 1px solid rgba(2,166,94,0.3);
+    color: #4ade80;
+    border-radius: 50px;
+    padding: 0.35rem 1rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+}
+
+.hero-eyebrow span { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+
+.hero-title {
+    font-size: clamp(2.5rem, 6vw, 4.25rem);
+    font-weight: 800;
+    line-height: 1.1;
+    color: #fff;
+    letter-spacing: -0.03em;
+    margin-bottom: 1.5rem;
+}
+
+.hero-title .highlight {
+    background: linear-gradient(135deg, #4ade80, #02a65e);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-desc {
+    font-size: 1.125rem;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.75;
+    max-width: 480px;
+    margin-bottom: 2.5rem;
+}
+
+.hero-actions { display: flex; flex-wrap: wrap; gap: 0.875rem; margin-bottom: 3.5rem; }
+
+.hero-mini-stats {
+    display: flex;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.hero-mini-stat-num {
+    font-size: 1.875rem;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1;
+    letter-spacing: -0.03em;
+}
+
+.hero-mini-stat-label {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.45);
+    font-weight: 500;
+    margin-top: 0.25rem;
+    letter-spacing: 0.03em;
+}
+
+/* Hero image side */
+.hero-visual { position: relative; }
+
+.hero-image-wrap {
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+    aspect-ratio: 4/3;
+    background: #1e293b;
+    position: relative;
+}
+
+.hero-image-wrap img { width: 100%; height: 100%; object-fit: cover; }
+
+.hero-image-placeholder {
+    width: 100%;
+    height: 100%;
+    min-height: 340px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+}
+
+.hero-floating-card {
+    position: absolute;
+    background: rgba(255,255,255,0.97);
+    backdrop-filter: blur(8px);
+    border-radius: 16px;
+    padding: 1rem 1.25rem;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    min-width: 200px;
+}
+
+.hero-floating-card.card-1 { bottom: -16px; left: -24px; }
+.hero-floating-card.card-2 { top: -16px; right: -24px; }
+
+.hero-floating-card .fc-icon {
+    width: 42px; height: 42px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; flex-shrink: 0;
+}
+
+.hero-floating-card .fc-num { font-size: 1.25rem; font-weight: 800; color: #0f172a; line-height: 1; }
+.hero-floating-card .fc-label { font-size: 0.78rem; color: #64748b; font-weight: 500; }
+
+/* ── Focus Areas ─────────────────────────────── */
+.focus-card {
+    background: #fff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 2rem;
+    height: 100%;
+    transition: all 0.35s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.focus-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #02a65e, #4ade80);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.35s ease;
+}
+
+.focus-card:hover {
+    border-color: transparent;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+    transform: translateY(-8px);
+}
+
+.focus-card:hover::after { transform: scaleX(1); }
+
+.focus-icon {
+    width: 60px; height: 60px;
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.focus-icon.edu   { background: #ecfdf5; color: #059669; }
+.focus-icon.health { background: #fef2f2; color: #dc2626; }
+.focus-icon.youth { background: #eff6ff; color: #2563eb; }
+.focus-icon.house { background: #fefce8; color: #ca8a04; }
+
+.focus-card h4 { font-size: 1.125rem; font-weight: 700; color: #0f172a; margin-bottom: 0.6rem; }
+.focus-card p { font-size: 0.9375rem; color: #64748b; margin-bottom: 1.25rem; }
+
+.focus-link {
+    color: #02a65e;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: gap 0.25s ease;
+}
+
+.focus-link:hover { gap: 0.75rem; color: #018a4f; }
+
+/* ── Impact Stats ─────────────────────────────── */
+.impact-section {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.impact-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        radial-gradient(ellipse 50% 70% at 20% 50%, rgba(2,166,94,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 60% at 80% 50%, rgba(2,166,94,0.08) 0%, transparent 60%);
+}
+
+.impact-card {
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    position: relative;
+}
+
+.impact-card::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 20%; bottom: 20%;
+    width: 1px;
+    background: rgba(255,255,255,0.08);
+}
+
+.impact-card:last-child::after { display: none; }
+
+.impact-icon {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    background: rgba(2,166,94,0.15);
+    border: 1px solid rgba(2,166,94,0.25);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+    color: #4ade80;
+    margin: 0 auto 1rem;
+}
+
+.impact-number {
+    font-size: clamp(2.5rem,5vw,3.5rem);
+    font-weight: 800;
+    color: #fff;
+    line-height: 1;
+    letter-spacing: -0.04em;
+}
+
+.impact-label {
+    font-size: 0.9375rem;
+    color: rgba(255,255,255,0.55);
+    margin-top: 0.5rem;
+    font-weight: 500;
+}
+
+/* ── Stories ─────────────────────────────────── */
+.story-card {
+    background: #fff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.35s ease;
+    height: 100%;
+}
+
+.story-card:hover {
+    border-color: transparent;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    transform: translateY(-6px);
+}
+
+.story-img {
+    height: 210px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #e8f8f0, #ecfdf5);
+    display: flex; align-items: center; justify-content: center;
+}
+
+.story-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+.story-card:hover .story-img img { transform: scale(1.06); }
+
+.story-category {
+    display: inline-block;
+    background: #e8f8f0;
+    color: #018a4f;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-radius: 6px;
+    padding: 0.25rem 0.6rem;
+    margin-bottom: 0.6rem;
+}
+
+.story-body { padding: 1.5rem; }
+.story-body h5 { font-size: 1.0625rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem; line-height: 1.4; }
+.story-body p { font-size: 0.9rem; color: #64748b; margin-bottom: 1rem; }
+
+/* ── Process ─────────────────────────────────── */
+.process-step {
+    position: relative;
+    text-align: center;
+    padding: 0 1rem;
+}
+
+.process-num {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #02a65e, #4ade80);
+    color: #fff;
+    font-size: 1.375rem;
+    font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1.5rem;
+    box-shadow: 0 8px 20px rgba(2,166,94,0.3);
+}
+
+.process-connector {
+    position: absolute;
+    top: 32px;
+    left: calc(50% + 40px);
+    right: calc(-50% + 40px);
+    height: 2px;
+    background: linear-gradient(90deg, #02a65e, #e2e8f0);
+}
+
+.process-step:last-child .process-connector { display: none; }
+
+.process-step h5 { font-size: 1rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem; }
+.process-step p { font-size: 0.875rem; color: #64748b; line-height: 1.6; }
+
+/* ── CTA ─────────────────────────────────────── */
+.cta-section {
+    background: linear-gradient(135deg, #02a65e 0%, #018a4f 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Ccircle cx='30' cy='30' r='1.5' fill='white' opacity='0.08'/%3E%3C/svg%3E") repeat;
+}
+
+/* ── Contact strip ───────────────────────────── */
+.contact-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    background: #fff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    transition: all 0.25s ease;
+    text-decoration: none;
+    color: inherit;
+}
+
+.contact-chip:hover {
+    border-color: #02a65e;
+    box-shadow: 0 8px 24px rgba(2,166,94,0.12);
+    transform: translateY(-4px);
+    color: inherit;
+}
+
+.contact-chip .chip-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    background: #e8f8f0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+    color: #02a65e;
+    flex-shrink: 0;
+}
+
+.contact-chip .chip-label { font-size: 0.75rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+.contact-chip .chip-value { font-size: 0.9375rem; font-weight: 600; color: #0f172a; margin-top: 0.1rem; }
+
+/* Responsive */
+@media (max-width: 991px) {
+    .hero-floating-card { display: none; }
+}
+
+@media (max-width: 767px) {
+    .hero-mini-stats { gap: 1.5rem; }
+    .hero-actions { flex-direction: column; }
+    .hero-actions .btn { width: 100%; justify-content: center; }
+    .process-connector { display: none; }
+    .impact-card::after { display: none; }
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
+
+<!-- ═══════════════════════════════════════════════
+     HERO
+═══════════════════════════════════════════════ -->
 <section class="hero">
+    <div class="hero-bg-pattern"></div>
+    <div class="hero-grid-lines"></div>
+
     <div class="container hero-content">
-        <div class="row align-items-center min-vh-100 py-5">
-            <div class="col-lg-6 mb-5 mb-lg-0">
-                <div class="fade-in">
-                    <h1 class="hero-title mb-4">
-                        Empowering Communities,
+        <div class="row align-items-center g-5">
+            <!-- Left text -->
+            <div class="col-lg-6">
+                <div class="fade-up">
+                    <div class="hero-eyebrow">
+                        <span></span>
+                        Transforming Lives Since 2020
+                    </div>
+
+                    <h1 class="hero-title">
+                        {{ site_settings.hero_title|default:"Empowering Communities,"|linebreaksbr }}
+                        {% if not site_settings.hero_title %}
                         <span class="highlight">Transforming Lives</span>
+                        {% endif %}
                     </h1>
-                    <p class="hero-subtitle mb-4">
-                        We provide comprehensive support in education, healthcare, youth empowerment, and housing to create lasting change in underserved communities.
+
+                    <p class="hero-desc">
+                        {{ site_settings.hero_subtitle|default:"We provide comprehensive support in education, healthcare, youth empowerment, and housing to create lasting change in underserved communities." }}
                     </p>
-                    <div class="d-flex flex-wrap gap-3 mb-5">
-                        <a href="{% url 'applications:program_list' %}" class="btn btn-primary-custom btn-lg">
+
+                    <div class="hero-actions">
+                        <a href="{% url 'applications:program_list' %}" class="btn btn-primary btn-lg">
                             Apply for Support <i class="fas fa-arrow-right ms-2"></i>
                         </a>
-                        <a href="{% url 'applications:impact_dashboard' %}" class="btn btn-outline-custom btn-lg">
+                        <a href="{% url 'applications:impact_dashboard' %}" class="btn btn-outline-white btn-lg">
                             See Our Impact
                         </a>
                     </div>
-                    <div class="hero-stats">
-                        <div class="hero-stat">
-                            <div class="hero-stat-number">500+</div>
-                            <div class="hero-stat-label">Lives Changed</div>
+
+                    <!-- Mini stats from achievements -->
+                    {% if achievements %}
+                    <div class="hero-mini-stats">
+                        {% for a in achievements|slice:":3" %}
+                        <div>
+                            <div class="hero-mini-stat-num stat-counter">{{ a.value }}</div>
+                            <div class="hero-mini-stat-label">{{ a.title }}</div>
                         </div>
-                        <div class="hero-stat">
-                            <div class="hero-stat-number">₦75M+</div>
-                            <div class="hero-stat-label">Disbursed</div>
-                        </div>
-                        <div class="hero-stat">
-                            <div class="hero-stat-number">25+</div>
-                            <div class="hero-stat-label">Communities</div>
-                        </div>
+                        {% endfor %}
                     </div>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="hero-image fade-in">
-                    {% if slider_images %}
-                    <img src="{{ slider_images.first.image.url }}" alt="HEO Foundation" class="img-fluid">
                     {% else %}
-                    <div class="bg-dark rounded-4 d-flex align-items-center justify-content-center" style="height: 400px;">
-                        <i class="fas fa-hands-helping fa-5x text-success"></i>
+                    <div class="hero-mini-stats">
+                        <div>
+                            <div class="hero-mini-stat-num">500+</div>
+                            <div class="hero-mini-stat-label">Lives Changed</div>
+                        </div>
+                        <div>
+                            <div class="hero-mini-stat-num">₦75M+</div>
+                            <div class="hero-mini-stat-label">Disbursed</div>
+                        </div>
+                        <div>
+                            <div class="hero-mini-stat-num">25+</div>
+                            <div class="hero-mini-stat-label">Communities</div>
+                        </div>
                     </div>
                     {% endif %}
-                    <div class="hero-badge d-none d-md-block">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="bg-success rounded-circle p-2">
-                                <i class="fas fa-check text-white"></i>
+                </div>
+            </div>
+
+            <!-- Right visual -->
+            <div class="col-lg-6">
+                <div class="hero-visual fade-up">
+                    <div class="hero-image-wrap">
+                        {% if slider_images %}
+                            <img src="{{ slider_images.first.image.url }}" alt="{{ site_settings.site_name }} — Empowering Communities">
+                        {% elif site_settings.hero_image %}
+                            <img src="{{ site_settings.hero_image.url }}" alt="{{ site_settings.site_name }}">
+                        {% else %}
+                            <div class="hero-image-placeholder">
+                                <i class="fas fa-hands-helping fa-4x" style="color:rgba(2,166,94,0.4);"></i>
+                                <p style="color:rgba(255,255,255,0.2);font-size:0.9rem;text-align:center;padding:0 2rem;">Add a hero image in Admin › Slider Images</p>
                             </div>
-                            <div>
-                                <div class="fw-bold">Trusted Foundation</div>
-                                <small class="text-muted">Since 2020</small>
-                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Floating cards -->
+                    <div class="hero-floating-card card-1">
+                        <div class="fc-icon" style="background:#e8f8f0;">
+                            <i class="fas fa-graduation-cap" style="color:#02a65e;font-size:1.1rem;"></i>
+                        </div>
+                        <div>
+                            <div class="fc-num">{% if achievements %}{{ achievements.0.value }}{% else %}500+{% endif %}</div>
+                            <div class="fc-label">{% if achievements %}{{ achievements.0.title }}{% else %}Students Supported{% endif %}</div>
+                        </div>
+                    </div>
+
+                    <div class="hero-floating-card card-2">
+                        <div class="fc-icon" style="background:#fef2f2;">
+                            <i class="fas fa-heart" style="color:#dc2626;font-size:1.1rem;"></i>
+                        </div>
+                        <div>
+                            <div class="fc-num">98%</div>
+                            <div class="fc-label">Success Rate</div>
                         </div>
                     </div>
                 </div>
@@ -533,321 +522,386 @@
     </div>
 </section>
 
-<!-- Focus Areas Section -->
-<section class="focus-section">
+
+<!-- ═══════════════════════════════════════════════
+     FOCUS AREAS
+═══════════════════════════════════════════════ -->
+<section class="section" style="background:#fff;">
     <div class="container">
-        <div class="text-center mb-5 fade-in">
-            <span class="section-label">What We Do</span>
-            <h2 class="section-title">Our Focus Areas</h2>
-            <p class="section-description mx-auto">
-                We address critical needs through four key pillars of support, creating comprehensive solutions for lasting impact.
+        <div class="text-center mb-5 fade-up">
+            <span class="section-label"><i class="fas fa-th-large"></i> What We Do</span>
+            <h2 class="section-heading">Our Focus Areas</h2>
+            <p class="section-subheading mx-auto">
+                Four pillars of support creating comprehensive, lasting impact in the communities we serve.
             </p>
         </div>
 
         <div class="row g-4">
-            <div class="col-lg-3 col-md-6 fade-in">
-                <div class="focus-card">
-                    <div class="focus-icon education">
-                        <i class="fas fa-graduation-cap"></i>
+            {% if what_we_do_items %}
+                {% for item in what_we_do_items %}
+                <div class="col-lg-3 col-md-6 fade-up">
+                    <div class="focus-card">
+                        <div class="focus-icon edu">
+                            <i class="{{ item.icon }}"></i>
+                        </div>
+                        <h4>{{ item.title }}</h4>
+                        <p>{{ item.description }}</p>
+                        <a href="{% url 'applications:program_list' %}" class="focus-link">
+                            Learn More <i class="fas fa-arrow-right" style="font-size:0.8em;"></i>
+                        </a>
                     </div>
-                    <h3>Education</h3>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="col-lg-3 col-md-6 fade-up">
+                <div class="focus-card">
+                    <div class="focus-icon edu"><i class="fas fa-graduation-cap"></i></div>
+                    <h4>Education</h4>
                     <p>Scholarships, school supplies, and mentorship for students from primary to university level.</p>
-                    <a href="{% url 'applications:education_showcase' %}" class="focus-link">
-                        View Scholars <i class="fas fa-arrow-right"></i>
-                    </a>
+                    <a href="{% url 'applications:education_showcase' %}" class="focus-link">View Scholars <i class="fas fa-arrow-right" style="font-size:0.8em;"></i></a>
                 </div>
             </div>
-
-            <div class="col-lg-3 col-md-6 fade-in">
+            <div class="col-lg-3 col-md-6 fade-up">
                 <div class="focus-card">
-                    <div class="focus-icon health">
-                        <i class="fas fa-heartbeat"></i>
-                    </div>
-                    <h3>Healthcare</h3>
-                    <p>Medical assistance, surgeries, treatments, and health programs for those in need.</p>
-                    <a href="{% url 'applications:health_showcase' %}" class="focus-link">
-                        Learn More <i class="fas fa-arrow-right"></i>
-                    </a>
+                    <div class="focus-icon health"><i class="fas fa-heartbeat"></i></div>
+                    <h4>Healthcare</h4>
+                    <p>Medical assistance, surgeries, treatments, and health programmes for those in need.</p>
+                    <a href="{% url 'applications:health_showcase' %}" class="focus-link">Learn More <i class="fas fa-arrow-right" style="font-size:0.8em;"></i></a>
                 </div>
             </div>
-
-            <div class="col-lg-3 col-md-6 fade-in">
+            <div class="col-lg-3 col-md-6 fade-up">
                 <div class="focus-card">
-                    <div class="focus-icon youth">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <h3>Youth Empowerment</h3>
-                    <p>Skills training, vocational programs, and startup support for young entrepreneurs.</p>
-                    <a href="{% url 'applications:youth_showcase' %}" class="focus-link">
-                        Explore <i class="fas fa-arrow-right"></i>
-                    </a>
+                    <div class="focus-icon youth"><i class="fas fa-users"></i></div>
+                    <h4>Youth Empowerment</h4>
+                    <p>Skills training, vocational programmes, and startup support for young entrepreneurs.</p>
+                    <a href="{% url 'applications:youth_showcase' %}" class="focus-link">Explore <i class="fas fa-arrow-right" style="font-size:0.8em;"></i></a>
                 </div>
             </div>
-
-            <div class="col-lg-3 col-md-6 fade-in">
+            <div class="col-lg-3 col-md-6 fade-up">
                 <div class="focus-card">
-                    <div class="focus-icon housing">
-                        <i class="fas fa-home"></i>
-                    </div>
-                    <h3>Housing Support</h3>
+                    <div class="focus-icon house"><i class="fas fa-home"></i></div>
+                    <h4>Housing Support</h4>
                     <p>Rent assistance, renovations, and housing projects for families in need.</p>
-                    <a href="{% url 'applications:housing_showcase' %}" class="focus-link">
-                        See Projects <i class="fas fa-arrow-right"></i>
-                    </a>
+                    <a href="{% url 'applications:housing_showcase' %}" class="focus-link">See Projects <i class="fas fa-arrow-right" style="font-size:0.8em;"></i></a>
                 </div>
             </div>
+            {% endif %}
         </div>
     </div>
 </section>
 
-<!-- Impact Section -->
-<section class="impact-section">
+
+<!-- ═══════════════════════════════════════════════
+     IMPACT STATS (Admin-editable via Achievement model)
+═══════════════════════════════════════════════ -->
+<section class="impact-section section">
     <div class="container position-relative">
-        <div class="row">
-            <div class="col-6 col-md-3 fade-in">
+        <div class="text-center mb-5 fade-up">
+            <span class="section-label" style="background:rgba(2,166,94,0.15);color:#4ade80;border:1px solid rgba(2,166,94,0.3);">
+                <i class="fas fa-chart-bar"></i> Our Impact
+            </span>
+            <h2 class="section-heading" style="color:#fff;">Numbers That Tell Our Story</h2>
+            <p class="section-subheading mx-auto" style="color:rgba(255,255,255,0.5);">
+                Every number represents a life touched, a family helped, and a community strengthened.
+            </p>
+        </div>
+
+        <div class="row g-0">
+            {% if achievements %}
+                {% for achievement in achievements %}
+                <div class="col-6 col-lg-3 fade-up">
+                    <div class="impact-card">
+                        <div class="impact-icon">
+                            <i class="{{ achievement.icon }}"></i>
+                        </div>
+                        <div class="impact-number stat-counter">{{ achievement.value }}</div>
+                        <div class="impact-label">{{ achievement.title }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="col-6 col-lg-3 fade-up">
                 <div class="impact-card">
-                    <div class="impact-number">500+</div>
+                    <div class="impact-icon"><i class="fas fa-user-graduate"></i></div>
+                    <div class="impact-number stat-counter">500+</div>
                     <div class="impact-label">Students Supported</div>
                 </div>
             </div>
-            <div class="col-6 col-md-3 fade-in">
+            <div class="col-6 col-lg-3 fade-up">
                 <div class="impact-card">
-                    <div class="impact-number">1,000+</div>
+                    <div class="impact-icon"><i class="fas fa-heartbeat"></i></div>
+                    <div class="impact-number stat-counter">1,000+</div>
                     <div class="impact-label">Healthcare Beneficiaries</div>
                 </div>
             </div>
-            <div class="col-6 col-md-3 fade-in">
+            <div class="col-6 col-lg-3 fade-up">
                 <div class="impact-card">
-                    <div class="impact-number">300+</div>
+                    <div class="impact-icon"><i class="fas fa-home"></i></div>
+                    <div class="impact-number stat-counter">300+</div>
                     <div class="impact-label">Families Housed</div>
                 </div>
             </div>
-            <div class="col-6 col-md-3 fade-in">
+            <div class="col-6 col-lg-3 fade-up">
                 <div class="impact-card">
-                    <div class="impact-number">98%</div>
+                    <div class="impact-icon"><i class="fas fa-percent"></i></div>
+                    <div class="impact-number stat-counter">98%</div>
                     <div class="impact-label">Success Rate</div>
                 </div>
             </div>
+            {% endif %}
+        </div>
+
+        <div class="text-center mt-5 fade-up">
+            <a href="{% url 'applications:impact_dashboard' %}" class="btn btn-outline-white btn-lg">
+                View Full Impact Report <i class="fas fa-arrow-right ms-2"></i>
+            </a>
         </div>
     </div>
 </section>
 
-<!-- Stories Section -->
+
+<!-- ═══════════════════════════════════════════════
+     SUCCESS STORIES
+═══════════════════════════════════════════════ -->
 {% if featured_stories %}
-<section class="stories-section">
+<section class="section" style="background: var(--surface, #f8fafc);">
     <div class="container">
-        <div class="d-flex justify-content-between align-items-center mb-5 fade-in">
+        <div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-5 fade-up">
             <div>
-                <span class="section-label">Success Stories</span>
-                <h2 class="section-title mb-0">Lives We've Touched</h2>
+                <span class="section-label"><i class="fas fa-heart"></i> Success Stories</span>
+                <h2 class="section-heading mb-0">Lives We've Touched</h2>
             </div>
-            <a href="{% url 'cms:impact_story_list' %}" class="btn btn-outline-success d-none d-md-inline-block">
-                View All Stories <i class="fas fa-arrow-right ms-2"></i>
+            <a href="{% url 'cms:impact_story_list' %}" class="btn btn-outline-primary">
+                All Stories <i class="fas fa-arrow-right ms-1"></i>
             </a>
         </div>
 
         <div class="row g-4">
             {% for story in featured_stories %}
-            <div class="col-md-4 fade-in">
+            <div class="col-md-4 fade-up">
                 <div class="story-card">
-                    <div class="story-image">
+                    <div class="story-img">
                         {% if story.image %}
-                        <img src="{{ story.image.file.url }}" alt="{{ story.title }}">
+                            <img src="{{ story.image.file.url }}" alt="{{ story.title }}">
                         {% else %}
-                        <div class="bg-success d-flex align-items-center justify-content-center h-100">
-                            <i class="fas fa-heart fa-3x text-white"></i>
-                        </div>
+                            <i class="fas fa-heart fa-3x" style="color:rgba(2,166,94,0.3);"></i>
                         {% endif %}
                     </div>
-                    <div class="story-content">
-                        <h4>{{ story.title }}</h4>
-                        <p>{{ story.excerpt|truncatewords:15 }}</p>
+                    <div class="story-body">
+                        <span class="story-category">Impact Story</span>
+                        <h5>{{ story.title }}</h5>
+                        <p>{{ story.excerpt|truncatewords:18 }}</p>
                         <a href="{% url 'cms:impact_story_detail' story.id %}" class="focus-link">
-                            Read Story <i class="fas fa-arrow-right"></i>
+                            Read Story <i class="fas fa-arrow-right" style="font-size:0.8em;"></i>
                         </a>
                     </div>
                 </div>
             </div>
             {% endfor %}
         </div>
-
-        <div class="text-center mt-4 d-md-none">
-            <a href="{% url 'cms:impact_story_list' %}" class="btn btn-outline-success">
-                View All Stories <i class="fas fa-arrow-right ms-2"></i>
-            </a>
-        </div>
     </div>
 </section>
 {% endif %}
 
-<!-- Process Section -->
-<section class="process-section">
+
+<!-- ═══════════════════════════════════════════════
+     HOW IT WORKS
+═══════════════════════════════════════════════ -->
+<section class="section" style="background:#fff;">
     <div class="container">
-        <div class="text-center mb-5 fade-in">
-            <span class="section-label">How It Works</span>
-            <h2 class="section-title">Apply in 4 Simple Steps</h2>
+        <div class="text-center mb-5 fade-up">
+            <span class="section-label"><i class="fas fa-list-ol"></i> How It Works</span>
+            <h2 class="section-heading">Apply in 4 Simple Steps</h2>
+            <p class="section-subheading mx-auto">Getting support is straightforward. Here's how the process works.</p>
         </div>
 
-        <div class="row g-4">
-            <div class="col-md-3 fade-in">
+        <div class="row g-4 justify-content-center">
+            <div class="col-6 col-md-3 fade-up">
                 <div class="process-step">
-                    <div class="process-number">1</div>
-                    <h4>Create Account</h4>
-                    <p>Register with your email and verify your account</p>
+                    <div class="process-connector"></div>
+                    <div class="process-num">1</div>
+                    <h5>Create Account</h5>
+                    <p>Register with your email and verify your account in minutes.</p>
                 </div>
             </div>
-            <div class="col-md-3 fade-in">
+            <div class="col-6 col-md-3 fade-up">
                 <div class="process-step">
-                    <div class="process-number">2</div>
-                    <h4>Choose Program</h4>
-                    <p>Browse and select the program that fits your needs</p>
+                    <div class="process-connector"></div>
+                    <div class="process-num">2</div>
+                    <h5>Choose Programme</h5>
+                    <p>Browse available programmes and select the one that fits your needs.</p>
                 </div>
             </div>
-            <div class="col-md-3 fade-in">
+            <div class="col-6 col-md-3 fade-up">
                 <div class="process-step">
-                    <div class="process-number">3</div>
-                    <h4>Submit Application</h4>
-                    <p>Complete the form and upload required documents</p>
+                    <div class="process-connector"></div>
+                    <div class="process-num">3</div>
+                    <h5>Submit Application</h5>
+                    <p>Complete the simple form and upload your required documents.</p>
                 </div>
             </div>
-            <div class="col-md-3 fade-in">
+            <div class="col-6 col-md-3 fade-up">
                 <div class="process-step">
-                    <div class="process-number">4</div>
-                    <h4>Get Support</h4>
-                    <p>Receive notification and start your transformation</p>
+                    <div class="process-num">4</div>
+                    <h5>Receive Support</h5>
+                    <p>Get notified of your outcome and begin your transformation journey.</p>
                 </div>
             </div>
+        </div>
+
+        <div class="text-center mt-5 fade-up">
+            <a href="{% url 'applications:program_list' %}" class="btn btn-primary btn-lg">
+                Browse Programmes <i class="fas fa-arrow-right ms-2"></i>
+            </a>
         </div>
     </div>
 </section>
 
-<!-- CTA Section -->
-<section class="cta-section">
+
+<!-- ═══════════════════════════════════════════════
+     CTA BANNER
+═══════════════════════════════════════════════ -->
+<section class="cta-section section">
+    <div class="container position-relative text-center fade-up">
+        <span class="section-label" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);">
+            <i class="fas fa-rocket"></i> Get Started Today
+        </span>
+        <h2 class="section-heading" style="color:#fff;font-size:clamp(1.75rem,4vw,2.75rem);">
+            Ready to Change Your Story?
+        </h2>
+        <p class="section-subheading mx-auto" style="color:rgba(255,255,255,0.75);max-width:520px;">
+            Join thousands of beneficiaries who have transformed their lives through our programmes. Your journey starts with a single step.
+        </p>
+        <div class="d-flex flex-wrap justify-content-center gap-3 mt-4">
+            <a href="{% url 'users:register' %}" class="btn btn-white btn-lg">
+                Apply Now <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+            <a href="{% url 'core:contact' %}" class="btn btn-outline-white btn-lg">
+                Contact Us
+            </a>
+        </div>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════
+     CONTACT CHIPS
+═══════════════════════════════════════════════ -->
+<section class="section" style="background: var(--surface, #f8fafc);">
     <div class="container">
-        <div class="fade-in">
-            <h2 class="cta-title">Ready to Change Your Story?</h2>
-            <p class="cta-description">
-                Join thousands of beneficiaries who have transformed their lives through our programs.
-            </p>
-            <div class="d-flex flex-wrap justify-content-center gap-3">
-                <a href="{% url 'users:register' %}" class="btn btn-primary-custom btn-lg">
-                    Apply Now <i class="fas fa-arrow-right ms-2"></i>
+        <div class="text-center mb-5 fade-up">
+            <span class="section-label"><i class="fas fa-comments"></i> Get in Touch</span>
+            <h2 class="section-heading">Have Questions?</h2>
+            <p class="section-subheading mx-auto">We're here to help. Reach out through any of these channels.</p>
+        </div>
+
+        <div class="row g-4 justify-content-center mb-5">
+            {% if site_settings.contact_email %}
+            <div class="col-md-4 fade-up">
+                <a href="mailto:{{ site_settings.contact_email }}" class="contact-chip">
+                    <div class="chip-icon"><i class="fas fa-envelope"></i></div>
+                    <div>
+                        <div class="chip-label">Email Us</div>
+                        <div class="chip-value">{{ site_settings.contact_email }}</div>
+                    </div>
                 </a>
-                <a href="{% url 'core:contact' %}" class="btn btn-outline-custom btn-lg">
-                    Contact Us
+            </div>
+            {% endif %}
+
+            {% if site_settings.contact_phone %}
+            <div class="col-md-4 fade-up">
+                <a href="tel:{{ site_settings.contact_phone }}" class="contact-chip">
+                    <div class="chip-icon"><i class="fas fa-phone"></i></div>
+                    <div>
+                        <div class="chip-label">Call Us</div>
+                        <div class="chip-value">{{ site_settings.contact_phone }}</div>
+                    </div>
                 </a>
             </div>
+            {% endif %}
+
+            {% if site_settings.contact_address %}
+            <div class="col-md-4 fade-up">
+                <div class="contact-chip">
+                    <div class="chip-icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <div>
+                        <div class="chip-label">Visit Us</div>
+                        <div class="chip-value">{{ site_settings.contact_address|truncatechars:40 }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if not site_settings.contact_email and not site_settings.contact_phone and not site_settings.contact_address %}
+            <div class="col-md-4 fade-up">
+                <div class="contact-chip">
+                    <div class="chip-icon"><i class="fas fa-envelope"></i></div>
+                    <div>
+                        <div class="chip-label">Email Us</div>
+                        <div class="chip-value">info@heoeziokwufoundation.org</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 fade-up">
+                <div class="contact-chip">
+                    <div class="chip-icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <div>
+                        <div class="chip-label">Location</div>
+                        <div class="chip-value">Lagos, Nigeria</div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Contact form -->
+        <div class="row justify-content-center fade-up">
+            <div class="col-lg-7">
+                <div class="card border-0 shadow" style="border-radius:20px;">
+                    <div class="card-body p-4 p-md-5">
+                        <h4 class="fw-bold text-center mb-1" style="color:#0f172a;">Send us a Message</h4>
+                        <p class="text-center mb-4" style="font-size:0.9rem;">We'll get back to you within 24 hours.</p>
+
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <form method="post" action="{% url 'core:contact' %}">
+                            {% csrf_token %}
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Your Name</label>
+                                    <input type="text" name="name" class="form-control" placeholder="John Doe" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Email Address</label>
+                                    <input type="email" name="email" class="form-control" placeholder="john@example.com" required>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Subject</label>
+                                    <input type="text" name="subject" class="form-control" placeholder="How can we help?" required>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Message</label>
+                                    <textarea name="message" class="form-control" rows="4" placeholder="Tell us more about your enquiry..." required></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary w-100 btn-lg">
+                                        Send Message <i class="fas fa-paper-plane ms-2"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </section>
 
-<!-- Contact Section -->
-<section class="contact-section" id="contact">
-    <div class="container">
-        <div class="text-center mb-5 fade-in">
-            <span class="section-label">Get in Touch</span>
-            <h2 class="section-title">Have Questions?</h2>
-            <p class="section-description mx-auto">
-                We're here to help. Reach out to us through any of these channels.
-            </p>
-        </div>
-
-        <div class="row g-4 mb-5">
-            <div class="col-md-4 fade-in">
-                <div class="contact-info-card">
-                    <i class="fas fa-envelope"></i>
-                    <h5>Email</h5>
-                    <p class="text-muted mb-0">{{ site_settings.contact_email|default:"info@heoeziokwufoundation.org" }}</p>
-                </div>
-            </div>
-            <div class="col-md-4 fade-in">
-                <div class="contact-info-card">
-                    <i class="fas fa-phone"></i>
-                    <h5>Phone</h5>
-                    <p class="text-muted mb-0">{{ site_settings.contact_phone|default:"+234 XXX XXX XXXX" }}</p>
-                </div>
-            </div>
-            <div class="col-md-4 fade-in">
-                <div class="contact-info-card">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <h5>Address</h5>
-                    <p class="text-muted mb-0">{{ site_settings.contact_address|default:"Lagos, Nigeria" }}</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="row justify-content-center">
-            <div class="col-lg-8 fade-in">
-                <div class="contact-form-card">
-                    <h4 class="text-center mb-4">Send us a Message</h4>
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                    <form method="post" action="{% url 'core:contact' %}">
-                        {% csrf_token %}
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <input type="text" name="name" class="form-control form-control-custom" placeholder="Your Name" required>
-                            </div>
-                            <div class="col-md-6">
-                                <input type="email" name="email" class="form-control form-control-custom" placeholder="Your Email" required>
-                            </div>
-                            <div class="col-12">
-                                <input type="text" name="subject" class="form-control form-control-custom" placeholder="Subject" required>
-                            </div>
-                            <div class="col-12">
-                                <textarea name="message" class="form-control form-control-custom" rows="5" placeholder="Your Message" required></textarea>
-                            </div>
-                            <div class="col-12 text-center">
-                                <button type="submit" class="btn btn-primary-custom btn-lg">
-                                    Send Message <i class="fas fa-paper-plane ms-2"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Animate elements on scroll
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-            }
-        });
-    }, observerOptions);
-
-    document.querySelectorAll('.fade-in').forEach(el => {
-        observer.observe(el);
-    });
-
-    // Smooth scroll
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        });
-    });
-});
-</script>
 {% endblock %}

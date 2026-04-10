@@ -131,16 +131,20 @@ class TeamMember(models.Model):
         return self.name
 
 class Achievement(models.Model):
-    title = models.CharField(max_length=100)
-    description = models.TextField()
-    icon = models.CharField(max_length=50, help_text="Font Awesome icon class")
-    order = models.PositiveIntegerField(default=0)
+    title = models.CharField(max_length=100, help_text="Short label shown below the number, e.g. 'Students Supported'")
+    value = models.CharField(max_length=50, default='0', help_text="The number or stat to display on the website, e.g. '500+' or '₦75M+'")
+    description = models.TextField(blank=True, help_text="Optional longer description (not shown on homepage)")
+    icon = models.CharField(max_length=100, help_text="Font Awesome icon class, e.g. 'fas fa-graduation-cap'")
+    order = models.PositiveIntegerField(default=0, help_text="Display order — lower numbers appear first")
+    is_active = models.BooleanField(default=True, help_text="Tick to show this stat on the website; untick to hide it")
 
     class Meta:
         ordering = ['order']
+        verbose_name = 'Impact Statistic'
+        verbose_name_plural = 'Impact Statistics (Homepage Numbers)'
 
     def __str__(self):
-        return self.title
+        return f"{self.value} — {self.title}"
 
 
 class WhatWeDo(models.Model):

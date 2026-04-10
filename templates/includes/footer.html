@@ -1,90 +1,235 @@
-<footer class="bg-dark text-light py-4">
+<footer style="background: #0f172a; color: rgba(255,255,255,0.85);">
+    <style>
+        .footer-brand-name { font-weight: 800; font-size: 1.125rem; color: #fff; letter-spacing: -0.02em; }
+        .footer-tagline { color: rgba(255,255,255,0.5); font-size: 0.9rem; line-height: 1.6; margin-top: 0.5rem; }
+
+        .footer-heading {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 1.1rem;
+        }
+
+        .footer-links { list-style: none; padding: 0; margin: 0; }
+        .footer-links li { margin-bottom: 0.6rem; }
+        .footer-links a {
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            font-size: 0.9375rem;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .footer-links a:hover { color: #fff; transform: translateX(3px); }
+
+        .footer-contact-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 0.85rem;
+        }
+
+        .footer-contact-item .icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: rgba(2,166,94,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .footer-contact-item .icon i { color: #02a65e; font-size: 0.8rem; }
+
+        .footer-contact-item span {
+            color: rgba(255,255,255,0.65);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .social-links { display: flex; gap: 0.6rem; margin-top: 1.25rem; }
+
+        .social-link {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.25s ease;
+        }
+
+        .social-link:hover {
+            background: #02a65e;
+            border-color: #02a65e;
+            color: #fff;
+            transform: translateY(-3px);
+        }
+
+        .footer-divider { border-color: rgba(255,255,255,0.08); margin: 2rem 0 1.5rem; }
+
+        .footer-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .footer-bottom p {
+            color: rgba(255,255,255,0.4);
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        .footer-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(2,166,94,0.12);
+            border: 1px solid rgba(2,166,94,0.25);
+            border-radius: 50px;
+            padding: 0.3rem 0.85rem;
+            font-size: 0.8rem;
+            color: #02a65e;
+            font-weight: 600;
+        }
+    </style>
+
     <div class="container">
-        <div class="row">
-            <div class="col-md-4 mb-4">
-                <h5 class="mb-3">{{ site_settings.site_name }}</h5>
-                {% if site_settings.logo %}
-                    <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.site_name }}" height="130" class="mb-3">
-                {% endif %}
-                <p class="text-white-50">{{ site_settings.footer_text }}</p>
-            </div>
-            <div class="col-md-4 mb-4">
-                <h5 class="mb-3">Quick Links</h5>
-                <ul class="list-unstyled footer-links">
-                    <li class="mb-2"><a href="#about" class="text-white-50 text-decoration-none hover-white">About Us</a></li>
-                    <li class="mb-2"><a href="#programs" class="text-white-50 text-decoration-none hover-white">Our Programs</a></li>
-                    <li class="mb-2"><a href="#contact" class="text-white-50 text-decoration-none hover-white">Contact Us</a></li>
-                    <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none hover-white">Privacy Policy</a></li>
-                </ul>
-            </div>
-            <div class="col-md-4 mb-4">
-                <h5 class="mb-3">Contact Info</h5>
-                <ul class="list-unstyled text-white-50">
-                    <li class="mb-2"><i class="fa-solid fa-location-dot me-2"></i>{{ site_settings.contact_address }}</li>
-                    <li class="mb-2"><i class="fa-solid fa-envelope me-2"></i>{{ site_settings.contact_email }}</li>
-                    <li class="mb-2"><i class="fa-solid fa-phone me-2"></i>{{ site_settings.contact_phone }}</li>
-                </ul>
-                <div class="mt-4">
+        <div class="row g-5 pt-5 pb-4">
+            <!-- Brand -->
+            <div class="col-lg-4 col-md-6">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    {% if site_settings and site_settings.logo %}
+                        <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.site_name }}" style="height:44px;width:auto;object-fit:contain;filter:brightness(0) invert(1);">
+                    {% else %}
+                        <div style="width:40px;height:40px;background:rgba(2,166,94,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;">
+                            <i class="fas fa-hands-helping" style="color:#02a65e;"></i>
+                        </div>
+                    {% endif %}
+                    <span class="footer-brand-name">{{ site_settings.site_name|default:"HEO Foundation" }}</span>
+                </div>
+                <p class="footer-tagline">
+                    {{ site_settings.footer_text|default:"Empowering communities through education, healthcare, youth support, and housing assistance across Nigeria." }}
+                </p>
+                <div class="social-links">
                     {% if site_settings.facebook_url %}
-                    <a href="{{ site_settings.facebook_url }}" class="text-white-50 me-3 social-icon"><i class="fa-brands fa-facebook-f fa-lg"></i></a>
+                    <a href="{{ site_settings.facebook_url }}" class="social-link" target="_blank" rel="noopener" aria-label="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
                     {% endif %}
                     {% if site_settings.twitter_url %}
-                    <a href="{{ site_settings.twitter_url }}" class="text-white-50 me-3 social-icon"><i class="fa-brands fa-twitter fa-lg"></i></a>
-                    {% endif %}
-                    {% if site_settings.linkedin_url %}
-                    <a href="{{ site_settings.linkedin_url }}" class="text-white-50 me-3 social-icon"><i class="fa-brands fa-linkedin-in fa-lg"></i></a>
+                    <a href="{{ site_settings.twitter_url }}" class="social-link" target="_blank" rel="noopener" aria-label="Twitter">
+                        <i class="fab fa-x-twitter"></i>
+                    </a>
                     {% endif %}
                     {% if site_settings.instagram_url %}
-                    <a href="{{ site_settings.instagram_url }}" class="text-white-50 social-icon"><i class="fa-brands fa-instagram fa-lg"></i></a>
+                    <a href="{{ site_settings.instagram_url }}" class="social-link" target="_blank" rel="noopener" aria-label="Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    {% endif %}
+                    {% if site_settings.linkedin_url %}
+                    <a href="{{ site_settings.linkedin_url }}" class="social-link" target="_blank" rel="noopener" aria-label="LinkedIn">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    {% endif %}
+                    {% if not site_settings.facebook_url and not site_settings.twitter_url and not site_settings.instagram_url and not site_settings.linkedin_url %}
+                    <a href="#" class="social-link" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social-link" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
+                    <a href="#" class="social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-link" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
                     {% endif %}
                 </div>
             </div>
+
+            <!-- Quick Links -->
+            <div class="col-lg-2 col-md-3 col-6">
+                <h6 class="footer-heading">Organisation</h6>
+                <ul class="footer-links">
+                    <li><a href="{% url 'core:about' %}">About Us</a></li>
+                    <li><a href="{% url 'core:contact' %}">Contact</a></li>
+                    <li><a href="{% url 'cms:blog_list' %}">Blog</a></li>
+                    <li><a href="{% url 'core:gallery' %}">Gallery</a></li>
+                    <li><a href="{% url 'cms:impact_story_list' %}">Success Stories</a></li>
+                </ul>
+            </div>
+
+            <!-- Programs -->
+            <div class="col-lg-2 col-md-3 col-6">
+                <h6 class="footer-heading">Programs</h6>
+                <ul class="footer-links">
+                    <li><a href="{% url 'applications:program_list' %}">All Programs</a></li>
+                    <li><a href="{% url 'applications:education_showcase' %}">Education</a></li>
+                    <li><a href="{% url 'applications:health_showcase' %}">Healthcare</a></li>
+                    <li><a href="{% url 'applications:youth_showcase' %}">Youth</a></li>
+                    <li><a href="{% url 'applications:housing_showcase' %}">Housing</a></li>
+                </ul>
+            </div>
+
+            <!-- Contact Info -->
+            <div class="col-lg-4 col-md-6">
+                <h6 class="footer-heading">Get in Touch</h6>
+
+                {% if site_settings.contact_address %}
+                <div class="footer-contact-item">
+                    <div class="icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <span>{{ site_settings.contact_address }}</span>
+                </div>
+                {% endif %}
+
+                {% if site_settings.contact_email %}
+                <div class="footer-contact-item">
+                    <div class="icon"><i class="fas fa-envelope"></i></div>
+                    <span>
+                        <a href="mailto:{{ site_settings.contact_email }}" style="color:inherit;text-decoration:none;">
+                            {{ site_settings.contact_email }}
+                        </a>
+                    </span>
+                </div>
+                {% endif %}
+
+                {% if site_settings.contact_phone %}
+                <div class="footer-contact-item">
+                    <div class="icon"><i class="fas fa-phone"></i></div>
+                    <span>
+                        <a href="tel:{{ site_settings.contact_phone }}" style="color:inherit;text-decoration:none;">
+                            {{ site_settings.contact_phone }}
+                        </a>
+                    </span>
+                </div>
+                {% endif %}
+
+                {% if not site_settings.contact_address and not site_settings.contact_email and not site_settings.contact_phone %}
+                <div class="footer-contact-item">
+                    <div class="icon"><i class="fas fa-envelope"></i></div>
+                    <span>info@heoeziokwufoundation.org</span>
+                </div>
+                <div class="footer-contact-item">
+                    <div class="icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <span>Lagos, Nigeria</span>
+                </div>
+                {% endif %}
+            </div>
         </div>
-        <hr class="my-4 border-secondary">
-        <div class="text-center text-white-50">
-            <small>&copy; {% now "Y" %} {{ site_settings.site_name }}. All rights reserved.</small>
+
+        <hr class="footer-divider">
+
+        <div class="footer-bottom pb-4">
+            <p>&copy; {% now "Y" %} {{ site_settings.site_name|default:"HEO Eziokwu Foundation" }}. All rights reserved.</p>
+            <span class="footer-badge">
+                <i class="fas fa-shield-alt"></i> Registered Foundation
+            </span>
         </div>
     </div>
 </footer>
-
-<style>
-    .hover-white:hover {
-        color: white !important;
-        transition: color 0.3s ease;
-    }
-    
-    .social-icon {
-        transition: color 0.3s ease;
-    }
-    
-    .social-icon:hover {
-        color: white !important;
-    }
-    
-    .footer-links li {
-        transition: transform 0.2s ease;
-    }
-    
-    .footer-links li:hover {
-        transform: translateX(5px);
-    }
-
-    
-    html, body {
-        height: 100%;
-    }
-
-    body {
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-    }
-
-    main {
-        flex: 1 0 auto;
-    }
-
-    footer {
-        flex-shrink: 0;
-    }
-</style>
