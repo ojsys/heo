@@ -34,7 +34,7 @@ HEALTHCARE_FIELDS = [
         'order': 3,
     },
     {
-        'label': 'Estimated Total Cost of Treatment (₦)',
+        'label': 'Estimated Total Cost of Treatment (NGN)',
         'field_type': 'number',
         'is_required': True,
         'help_text': 'Amount as quoted by the hospital (in Naira)',
@@ -154,12 +154,12 @@ YOUTH_FIELDS = [
         'order': 8,
     },
     {
-        'label': 'Monthly Household Income (₦)',
+        'label': 'Monthly Household Income (NGN)',
         'field_type': 'select',
         'is_required': True,
         'help_text': 'Select your household income bracket',
-        'options': ['No income', 'Below ₦20,000', '₦20,000 – ₦50,000',
-                    '₦50,000 – ₦100,000', 'Above ₦100,000'],
+        'options': ['No income', 'Below NGN20,000', 'NGN20,000 – NGN50,000',
+                    'NGN50,000 – NGN100,000', 'Above NGN100,000'],
         'order': 9,
     },
 ]
@@ -193,7 +193,7 @@ HOUSING_FIELDS = [
         'order': 3,
     },
     {
-        'label': 'Monthly Rent Amount (₦)',
+        'label': 'Monthly Rent Amount (NGN)',
         'field_type': 'number',
         'is_required': False,
         'help_text': 'Leave blank if you are not currently renting',
@@ -217,12 +217,12 @@ HOUSING_FIELDS = [
         'order': 6,
     },
     {
-        'label': 'Monthly Household Income (₦)',
+        'label': 'Monthly Household Income (NGN)',
         'field_type': 'select',
         'is_required': True,
         'help_text': 'Combined income of all earning members of the household',
-        'options': ['No income', 'Below ₦20,000', '₦20,000 – ₦50,000',
-                    '₦50,000 – ₦100,000', 'Above ₦100,000'],
+        'options': ['No income', 'Below NGN20,000', 'NGN20,000 – NGN50,000',
+                    'NGN50,000 – NGN100,000', 'Above NGN100,000'],
         'order': 7,
     },
     {
