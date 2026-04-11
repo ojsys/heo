@@ -42,6 +42,13 @@ class ProgramDetailView(DetailView):
     template_name = 'applications/program_detail.html'
     context_object_name = 'program'
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        program = self.get_object()
+        deadline = getattr(program, 'application_deadline', None)
+        ctx['deadline_passed'] = bool(deadline and deadline < timezone.now().date())
+        return ctx
+
 
 # Add this helper function to handle date serialization
 def json_serial(obj):
